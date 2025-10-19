@@ -1,71 +1,238 @@
-![](https://img.shields.io/badge/Foundry-v10-informational)
-<!--- Downloads @ Latest Badge -->
-<!--- replace <user>/<repo> with your username/repository -->
-<!--- ![Latest Release Download Count](https://img.shields.io/github/downloads/<user>/<repo>/latest/module.zip) -->
+# Cosmere RPG Tooling
 
-<!--- Forge Bazaar Install % Badge -->
-<!--- replace <your-module-name> with the `name` in your manifest -->
-<!--- ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2F<your-module-name>&colorB=4aa94a) -->
+![Foundry Version](https://img.shields.io/badge/Foundry-v12-informational)
+![Module Version](https://img.shields.io/badge/version-1.0.0-blue)
 
+Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes según el método "First Step" y generadores de nombres para las diferentes culturas de Roshar.
 
-# How to use this Template to create a versioned Release
+## 📚 Contenido del Módulo
 
-1. Open your repository's releases page.
+Este módulo incluye **11 tablas aleatorias** organizadas en dos categorías:
 
-![Where to click to open repository releases.](https://user-images.githubusercontent.com/7644614/93409301-9fd25080-f864-11ea-9e0c-bdd09e4418e4.png)
+### ⚔️ Character Creation Tables (3 tablas)
 
-2. Click "Draft a new release"
+Tablas para la creación de personajes usando el método "First Step" del Cosmere RPG:
 
-![Draft a new release button.](https://user-images.githubusercontent.com/7644614/93409364-c1333c80-f864-11ea-89f1-abfcb18a8d9f.png)
+- **Character Goals Table** - 20 objetivos de personaje
+- **Character Obstacles Table** - 20 obstáculos personales
+- **Radiant Purpose Table** - 20 propósitos de Radiantes (con sus órdenes asociadas)
 
-3. Fill out the release version as the tag name.
+### 🌍 Name Generators (8 tablas)
 
-If you want to add details at this stage you can, or you can always come back later and edit them.
+Generadores de nombres para cada cultura principal de Roshar:
 
-![Release Creation Form](https://user-images.githubusercontent.com/7644614/93409543-225b1000-f865-11ea-9a19-f1906a724421.png)
+- **Alethi Names** - Nombres de estilo Alethi
+- **Azish Names** - Nombres de estilo Azish
+- **Herdazian Names** - Nombres de estilo Herdaziano
+- **Reshi Names** - Nombres de estilo Reshi
+- **Shin Names** - Nombres de estilo Shin
+- **Thaylen Names** - Nombres de estilo Thaylen
+- **Unkalaki Names** - Nombres de estilo Unkalaki (Horneater)
+- **Veden Names** - Nombres de estilo Veden
 
-4. Hit submit.
+Cada tabla de nombres contiene 20 opciones únicas basadas en las convenciones de nomenclatura del Cosmere.
 
-5. Wait a few minutes.
+## 🚀 Instalación
 
-A Github Action will run to populate the `module.json` and `module.zip` with the correct urls that you can then use to distribute this release. You can check on its status in the "Actions" tab.
+### Instalación Manual
 
-![Actions Tab](https://user-images.githubusercontent.com/7644614/93409820-c1800780-f865-11ea-8c6b-c3792e35e0c8.png)
+1. Descarga la última versión del módulo desde [Releases](https://github.com/juange87/cosmere-rpg-tooling/releases)
+2. Extrae el archivo `.zip` en tu carpeta de módulos de Foundry VTT:
+   - Windows: `%localappdata%/FoundryVTT/Data/modules/`
+   - macOS: `~/Library/Application Support/FoundryVTT/Data/modules/`
+   - Linux: `~/.local/share/FoundryVTT/Data/modules/`
+3. Reinicia Foundry VTT
+4. Ve a **Game Settings** → **Manage Modules**
+5. Activa **Cosmere RPG Tooling**
 
-6. Grab the module.json url from the release's details page.
+### Instalación desde Manifest URL
 
-![image](https://user-images.githubusercontent.com/7644614/93409960-10c63800-f866-11ea-83f6-270cc5d10b71.png)
+1. En Foundry VTT, ve a **Add-on Modules**
+2. Haz clic en **Install Module**
+3. Pega la siguiente URL en el campo "Manifest URL":
+   ```
+   https://github.com/juange87/cosmere-rpg-tooling/releases/latest/download/module.json
+   ```
+4. Haz clic en **Install**
 
-This `module.json` will only ever point at this release's `module.zip`, making it useful for sharing a specific version for compatibility purposes.
+## 💡 Cómo Usar
 
-7. You can use the url `https://github.com/<user>/<repo>/releases/latest/download/module.json` to refer to the manifest.
+### Acceso a las Tablas
 
-This is the url you want to use to install the module typically, as it will get updated automatically.
+Una vez activado el módulo (requiere ser GM la primera vez para crear las tablas):
 
-# How to List Your Releases on Package Admin
+1. Abre el sidebar de Foundry VTT
+2. Ve a la pestaña **Roll Tables** (icono de dados)
+3. Encontrarás todas las 11 tablas disponibles
+4. Haz clic en el icono del dado en cualquier tabla para obtener un resultado aleatorio
 
-To request a package listing for your first release, go to the [Package Submission Form](https://foundryvtt.com/packages/submit) (accessible via a link at the bottom of the "[Systems and Modules](https://foundryvtt.com/packages/)" page on the Foundry website).
+### Creación Rápida de Personajes
 
-Fill in the form. "Package Name" must match the name in the module manifest.  Package Title will be the display name for the package.  Package URL should be your repo URL.
-![image](https://user-images.githubusercontent.com/36359784/120664263-b49e5500-c482-11eb-9126-af7006389903.png)
+Para generar los tres componentes principales de un personaje:
 
+1. Rolla en **Character Goals Table** para determinar el objetivo del personaje
+2. Rolla en **Character Obstacles Table** para descubrir su obstáculo personal
+3. Rolla en **Radiant Purpose Table** para encontrar su propósito (si es un Radiante)
 
-One of the Foundry staff will typically get back to you with an approval or any further questions within a few days, and give you access to the package admin pages.
+### Generación de Nombres
 
-Once you have access to the [module admin page](https://foundryvtt.com/admin/packages/package/), you can release a new version by going into the page for your module, scrolling to the bottom, and filling in a new Package Version.
+1. Selecciona la tabla de nombres según la cultura de tu personaje
+2. Haz clic en el icono del dado para obtener un nombre aleatorio
+3. Puedes rollear múltiples veces hasta encontrar uno que te guste
 
-When listing a new version, Version should be the version number you set above, and the Manifest URL should be the manifest __for that specific version__ (do not use /latest/ here).
-![image](https://user-images.githubusercontent.com/36359784/120664346-c4b63480-c482-11eb-9d8b-731b50d70939.png)
+## 🎲 Macros Recomendadas
 
-> ### :warning: Important :warning:
-> 
-> It is very important that you use the specific release manifest url, and not the `/latest` url here. For more details about why this is important and how Foundry Installs/Updates packages, read [this wiki article](https://foundryvtt.wiki/en/development/guides/releases-and-history).
+Puedes crear macros para agilizar el proceso de creación:
 
-Clicking "Save" in the bottom right will save the new version, which means that anyone installing your module from within Foundry will get that version, and a post will be generated in the #release-announcements channel on the official Foundry VTT Discord.
+### Macro: First Step Character Creation
 
+```javascript
+// Genera un personaje completo con Goal, Obstacle y Purpose
+async function createFirstStepCharacter() {
+  const goal = await game.tables.getName("Character Goals Table")?.draw();
+  const obstacle = await game.tables.getName("Character Obstacles Table")?.draw();
+  const purpose = await game.tables.getName("Radiant Purpose Table")?.draw();
+  
+  ChatMessage.create({
+    content: `<h2>First Step Character</h2>
+    <p><strong>Goal:</strong> ${goal.results[0].text}</p>
+    <p><strong>Obstacle:</strong> ${obstacle.results[0].text}</p>
+    <p><strong>Purpose:</strong> ${purpose.results[0].text}</p>`,
+    speaker: ChatMessage.getSpeaker()
+  });
+}
 
-# FoundryVTT Module
+createFirstStepCharacter();
+```
 
-Does something, probably
+### Macro: Random Alethi Name
 
-## Changelog
+```javascript
+game.tables.getName("Alethi Names")?.draw();
+```
+
+### Macro: Name Generator Menu
+
+```javascript
+// Diálogo para seleccionar cultura y generar nombre
+new Dialog({
+  title: "Cosmere Name Generator",
+  content: `
+    <form>
+      <div class="form-group">
+        <label>Select Culture:</label>
+        <select id="culture-select" name="culture">
+          <option value="Alethi Names">Alethi</option>
+          <option value="Azish Names">Azish</option>
+          <option value="Herdazian Names">Herdazian</option>
+          <option value="Reshi Names">Reshi</option>
+          <option value="Shin Names">Shin</option>
+          <option value="Thaylen Names">Thaylen</option>
+          <option value="Unkalaki Names">Unkalaki (Horneater)</option>
+          <option value="Veden Names">Veden</option>
+        </select>
+      </div>
+    </form>
+  `,
+  buttons: {
+    generate: {
+      icon: '<i class="fas fa-dice"></i>',
+      label: "Generate Name",
+      callback: async (html) => {
+        const culture = html.find('[name="culture"]').val();
+        await game.tables.getName(culture)?.draw();
+      }
+    }
+  },
+  default: "generate"
+}).render(true);
+```
+
+## 📁 Estructura del Módulo
+
+```
+cosmere-rpg-tooling/
+├── module.json          # Manifest del módulo
+├── README.md            # Este archivo
+├── LICENSE              # Licencia del módulo
+└── scripts/
+    └── init.js          # Script que crea las tablas automáticamente
+```
+
+## 🔧 Compatibilidad
+
+- **Foundry VTT**: v12 (mínimo y verificado)
+- **Sistema**: Agnóstico (funciona con cualquier sistema de juego)
+- **Recomendado para**: Cosmere RPG, pero adaptable a cualquier campaña
+
+## 🛠️ Desarrollo
+
+### Clonar el repositorio
+
+```bash
+git clone https://github.com/juange87/cosmere-rpg-tooling.git
+cd cosmere-rpg-tooling
+```
+
+### Añadir nuevas tablas
+
+Para añadir nuevas tablas, edita `scripts/init.js` y añade un nuevo objeto al array `tables`:
+
+```javascript
+{
+  name: "Mi Nueva Tabla",
+  formula: "1d20",
+  results: [
+    { text: "Resultado 1", weight: 1, range: [1, 1] },
+    { text: "Resultado 2", weight: 1, range: [2, 2] },
+    // ... más resultados
+  ]
+}
+```
+
+## 📝 Roadmap
+
+Funcionalidades planeadas para futuras versiones:
+
+- [ ] Tablas adicionales de creación de personajes (Connections, Personality Traits)
+- [ ] Interfaz visual para First Step Character Creation
+- [ ] Tablas de eventos aleatorios del Cosmere
+- [ ] Generador de nombres compuestos (nombre + apellido)
+- [ ] Soporte para más culturas (Iriali, Sinking, etc.)
+- [ ] Traducción a otros idiomas
+- [ ] Integración con sistemas específicos del Cosmere
+
+## 🤝 Contribuir
+
+¡Las contribuciones son bienvenidas! Si quieres colaborar:
+
+1. Haz un fork del repositorio
+2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
+3. Commit tus cambios (`git commit -am 'Añade nueva funcionalidad'`)
+4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
+5. Abre un Pull Request
+
+## 📄 Licencia
+
+Este módulo está bajo la licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+
+## 🙏 Créditos
+
+- **Autor**: JuanGeKal
+- **Inspirado en**: El universo del Cosmere de Brandon Sanderson
+- **Sistema base**: Cosmere RPG por Brotherwise Games
+
+## 📞 Soporte
+
+Si encuentras algún problema o tienes sugerencias:
+
+- Abre un [Issue en GitHub](https://github.com/juange87/cosmere-rpg-tooling/issues)
+- Contacta al autor en [GitHub](https://github.com/juange87)
+
+## ⚠️ Disclaimer
+
+Este es un proyecto de fans no oficial. Cosmere RPG y todos los elementos relacionados son propiedad de Brotherwise Games y Brandon Sanderson. Este módulo se distribuye de forma gratuita para uso personal en Foundry VTT.
+
+---
+
+**Journey before destination, Radiant!** ⚔️✨
