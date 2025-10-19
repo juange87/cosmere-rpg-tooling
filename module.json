@@ -1,14 +1,14 @@
 {
-  "id": "cosmere-rpg-tooling",
-  "title": "CosmereRPG Tools",
-  "description": "CosmereRPG Tools to improve the GM and player's life: Rooltables (for now)",
+  "id": "cosmere-rpg-gm-tooling",
+  "title": "CosmereRPG GM Tools",
+  "description": "CosmereRPG Tools to improve the GM life: Rooltables (for now)",
   "version": "#{VERSION}#",
   "library": false,
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
     "minimum": 12,
     "verified": 12,
-    "maximum": 12
+    "maximum": 13
   },
   "authors": [
     {
