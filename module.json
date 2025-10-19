@@ -3,7 +3,7 @@
   "title": "Several Tools For the Cosmere RPG",
   "description": "Several Tools For the Cosmere RPG: Rolltables for First Step character creation",
   "version": 1.0.0",
-  "library": "false",
+  "library": false,
   "manifestPlusVersion": "1.2.0",
   "compatibility": {
     "minimum": 12,
@@ -13,7 +13,7 @@
   "authors": [
     {
       "name": "JuanGeKal",
-      "url": "https://github.com/juange87",
+      "url": "https://github.com/juange87"
     }
   ], 
   "url": "#{URL}#",
@@ -23,5 +23,5 @@
   "readme": "README.md",
   "esmodules": [
     "scripts/init.js"
-  ],
+  ]
 }
