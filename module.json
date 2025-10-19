@@ -21,13 +21,7 @@
   "download": "#{DOWNLOAD}#",
   "license": "LICENSE",
   "readme": "README.md",
-  "packs": [
-    {
-      "name": "rolltable",
-      "label": "Cosmere RollTables",
-      "system": "",
-      "path": ".packs/cosmere_rolltable.db",
-      "entity": "RollTable"
-    },
-  ]
+  "esmodules": [
+    "scripts/init.js"
+  ],
 }
