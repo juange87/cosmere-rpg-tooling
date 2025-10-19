@@ -1,7 +1,7 @@
 {
   "id": "cosmere-rpg-tooling",
-  "title": "Several Tools For the Cosmere RPG",
-  "description": "Several Tools For the Cosmere RPG: Rolltables for First Step character creation",
+  "title": "CosmereRPG Tools",
+  "description": "CosmereRPG Tools to improve the GM and player's life: Rooltables (for now)",
   "version": "#{VERSION}#",
   "library": false,
   "manifestPlusVersion": "1.2.0",
