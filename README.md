@@ -3,7 +3,7 @@
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12-informational)
 ![Module Version](https://img.shields.io/badge/version-1.0.0-blue)
 
-Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes según el método "First Step" y generadores de nombres para las diferentes culturas de Roshar.
+Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes (basandose en la información de los documentos proporcionados por Brotherwise para crear personajes de forma rápida).
 
 ## 📚 Contenido del Módulo
 
@@ -19,7 +19,7 @@ Tablas para la creación de personajes usando el método "First Step" del Cosmer
 
 ### 🌍 Name Generators (8 tablas)
 
-Generadores de nombres para cada cultura principal de Roshar:
+Generadores de nombres para cada cultura de Roshar:
 
 - **Alethi Names** - Nombres de estilo Alethi
 - **Azish Names** - Nombres de estilo Azish
@@ -30,9 +30,13 @@ Generadores de nombres para cada cultura principal de Roshar:
 - **Unkalaki Names** - Nombres de estilo Unkalaki (Horneater)
 - **Veden Names** - Nombres de estilo Veden
 
-Cada tabla de nombres contiene 20 opciones únicas basadas en las convenciones de nomenclatura del Cosmere.
 
 ## 🚀 Instalación
+
+## Disponibilidad en la tienda de modulos
+
+Una vez se encuentre disponible en la tienda, podrás instalar el modulo desde [este enlace de la tienda de Foundry VTT](https://foundryvtt.com/packages/cosmere-rpg-gm-tooling)
+
 
 ### Instalación Manual
 
@@ -43,7 +47,7 @@ Cada tabla de nombres contiene 20 opciones únicas basadas en las convenciones d
    - Linux: `~/.local/share/FoundryVTT/Data/modules/`
 3. Reinicia Foundry VTT
 4. Ve a **Game Settings** → **Manage Modules**
-5. Activa **Cosmere RPG Tooling**
+5. Activa **CosmereRPG GM Tools**
 
 ### Instalación desde Manifest URL
 
@@ -84,7 +88,7 @@ Para generar los tres componentes principales de un personaje:
 
 Puedes crear macros para agilizar el proceso de creación:
 
-### Macro: First Step Character Creation
+### Macro: Character Creation
 
 ```javascript
 // Genera un personaje completo con Goal, Obstacle y Purpose
@@ -148,22 +152,12 @@ new Dialog({
 }).render(true);
 ```
 
-## 📁 Estructura del Módulo
-
-```
-cosmere-rpg-tooling/
-├── module.json          # Manifest del módulo
-├── README.md            # Este archivo
-├── LICENSE              # Licencia del módulo
-└── scripts/
-    └── init.js          # Script que crea las tablas automáticamente
-```
 
 ## 🔧 Compatibilidad
 
 - **Foundry VTT**: v12 (mínimo y verificado)
 - **Sistema**: Agnóstico (funciona con cualquier sistema de juego)
-- **Recomendado para**: Cosmere RPG, pero adaptable a cualquier campaña
+- **Recomendado para**: Cosmere RPG, pero adaptable a cualquier campaña.
 
 ## 🛠️ Desarrollo
 
@@ -194,23 +188,18 @@ Para añadir nuevas tablas, edita `scripts/init.js` y añade un nuevo objeto al 
 
 Funcionalidades planeadas para futuras versiones:
 
-- [ ] Tablas adicionales de creación de personajes (Connections, Personality Traits)
-- [ ] Interfaz visual para First Step Character Creation
-- [ ] Tablas de eventos aleatorios del Cosmere
-- [ ] Generador de nombres compuestos (nombre + apellido)
-- [ ] Soporte para más culturas (Iriali, Sinking, etc.)
-- [ ] Traducción a otros idiomas
-- [ ] Integración con sistemas específicos del Cosmere
+... 
 
 ## 🤝 Contribuir
 
-¡Las contribuciones son bienvenidas! Si quieres colaborar:
+Si quieres colaborar:
 
 1. Haz un fork del repositorio
 2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
 3. Commit tus cambios (`git commit -am 'Añade nueva funcionalidad'`)
 4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
 5. Abre un Pull Request
+   
 
 ## 📄 Licencia
 
@@ -227,11 +216,17 @@ Este módulo está bajo la licencia MIT. Ver el archivo [LICENSE](LICENSE) para 
 Si encuentras algún problema o tienes sugerencias:
 
 - Abre un [Issue en GitHub](https://github.com/juange87/cosmere-rpg-tooling/issues)
-- Contacta al autor en [GitHub](https://github.com/juange87)
 
 ## ⚠️ Disclaimer
 
 Este es un proyecto de fans no oficial. Cosmere RPG y todos los elementos relacionados son propiedad de Brotherwise Games y Brandon Sanderson. Este módulo se distribuye de forma gratuita para uso personal en Foundry VTT.
+
+### ⚠️ Disclaimer IA
+
+Todo el contenido que contiene este modulo y que contendrá en un futuro ha sido y será generado a raíz de mi esfuerzo y trabajo peleandome con Foundry VTT (ahora solo hay rolltables, pero habrá mucho más).
+
+Ahora, si he usado la IA para ayudarme a crear este modulo (basicamente para orientarme en la mejor forma de agregar las rolltables que tenía en este modulo) y para hacer consultas puntuales sobre los entresijos de Foundry VTT y Javascript.
+
 
 ---
 
