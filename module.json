@@ -38,24 +38,16 @@
     {
       "name": "player-macros",
       "label": "CosmereRPG: Player Macros",
-      "path": "packs/player-macros",
+      "path": "packs/player-macros.db",
       "type": "Macro",
-      "system": "cosmere-rpg",
-      "ownership": {
-        "PLAYER": "OBSERVER",
-        "ASSISTANT": "OWNER"
-      }
+      "system": "cosmere-rpg"
     },
     {
       "name": "gm-macros",
       "label": "CosmereRPG: GM Macros",
-      "path": "packs/gm-macros",
+      "path": "packs/gm-macros.db",
       "type": "Macro",
-      "system": "cosmere-rpg",
-      "ownership": {
-        "PLAYER": "NONE",
-        "ASSISTANT": "OWNER"
-      }
+      "system": "cosmere-rpg"
     }
   ]
 }
