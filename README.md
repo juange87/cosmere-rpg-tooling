@@ -3,11 +3,13 @@
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12-informational)
 ![Module Version](https://img.shields.io/badge/version-1.0.0-blue)
 
-Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes (basandose en la información de los documentos proporcionados por Brotherwise para crear personajes de forma rápida).
+Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes (basandose en la información de los documentos proporcionados por Brotherwise para crear personajes de forma rápida) y macros útiles para jugadores y GMs.
 
 ## 📚 Contenido del Módulo
 
-Este módulo incluye **11 tablas aleatorias** organizadas en dos categorías:
+Este módulo incluye:
+- **11 tablas aleatorias** para creación de personajes y nombres
+- **2 compendios de macros** con 38 macros en total (20 para jugadores, 18 para GM)
 
 ### ⚔️ Character Creation Tables (3 tablas)
 
@@ -30,8 +32,62 @@ Generadores de nombres para cada cultura de Roshar:
 - **Unkalaki Names** - Nombres de estilo Unkalaki (Horneater)
 - **Veden Names** - Nombres de estilo Veden
 
+### 🎭 Compendios de Macros
+
+#### CosmereRPG: Player Macros (20 macros)
+
+Macros para jugadores que facilitan las tiradas de habilidad en el sistema Cosmere RPG:
+
+- **Roll Skill** - Diálogo interactivo para seleccionar y tirar cualquier habilidad
+- **Tiradas de Habilidad individuales** (19 macros):
+  - Agilidad, Atletismo, Sigilo, Hurto/Thievery
+  - Armas Pesadas (Heavy Weapons), Armas Ligeras (Light Weapons)
+  - Artesanía/Crafting, Deducción, Disciplina, Saber/Lore
+  - Medicina, Perspicacia/Insight, Percepción
+  - Engaño/Deception, Intimidación, Liderazgo/Leadership, Persuasión
+  - Supervivencia
+  - Hook (macro especial)
+
+#### CosmereRPG: GM Macros (18 macros)
+
+Macros para el GM que incluyen gestión de recursos y animaciones visuales. **⚠️ Requiere el módulo JB2A_DnD5e** para las animaciones.
+
+**Gestión de Recursos:**
+- **Incrementar Foco** 🎨 *[Usa JB2A]* - Añade 1 punto de foco con efecto visual de aura
+- **Reducir Foco** 🎨 *[Usa JB2A]* - Resta 1 punto de foco con animación
+- **Incrementar Salud** 🎨 *[Usa JB2A]* - Añade 1 punto de salud con efecto visual
+- **Reducir Salud** 🎨 *[Usa JB2A]* - Resta 1 punto de salud con animación
+
+**Ataques y Efectos de Combate:**
+- **Strike Hammer** 🎨 *[Usa JB2A]* - Animación de ataque con martillo
+- **Longspear Strike** 🎨 *[Usa JB2A]* - Animación de ataque con lanza larga
+- **Unarmed Strike** 🎨 *[Usa JB2A]* - Animación de ataque sin armas
+- **Knife** 🎨 *[Usa JB2A]* - Animación de ataque con cuchillo
+- **Bomb Throw** 🎨 *[Usa JB2A]* - Animación de lanzamiento de bomba
+- **Weapon Throw with Return** 🎨 *[Usa JB2A]* - Animación de arma arrojadiza que regresa
+
+**Efectos Especiales:**
+- **Critical Miss animation** 🎨 *[Usa JB2A]* - Animación para fallos críticos
+- **Hook 20 Natural** 🎨 *[Usa JB2A]* - Efecto visual para críticos naturales
+- **Hook Critical Failure** 🎨 *[Usa JB2A]* - Efecto visual para fallos críticos
+- **Teleport** 🎨 *[Usa JB2A]* - Animación de teletransporte
+- **Spreen flight** 🎨 *[Usa JB2A]* - Animación de vuelo de spren
+
+**Utilidades:**
+- **Show Token** - Alterna visibilidad de tokens seleccionados
+- **Pedir Tirada** - Solicita tiradas a los jugadores
+- **Send message** - Envía mensajes personalizados
 
 ## 🚀 Instalación
+
+### ⚠️ Requisitos
+
+Este módulo requiere:
+- **Foundry VTT v12** o superior
+- **Sistema Cosmere RPG** (para que los macros funcionen correctamente)
+- **JB2A_DnD5e** (módulo requerido para las animaciones de los macros de GM)
+
+El módulo JB2A_DnD5e se instalará automáticamente como dependencia al activar este módulo.
 
 ## Disponibilidad en la tienda de modulos
 
@@ -84,9 +140,56 @@ Para generar los tres componentes principales de un personaje:
 2. Haz clic en el icono del dado para obtener un nombre aleatorio
 3. Puedes rollear múltiples veces hasta encontrar uno que te guste
 
-## 🎲 Macros Recomendadas
+### Uso de los Macros
 
-Puedes crear macros para agilizar el proceso de creación:
+#### Para Jugadores
+
+1. Abre el sidebar de Foundry VTT
+2. Ve a la pestaña **Compendium**
+3. Busca **CosmereRPG: Player Macros**
+4. Arrastra los macros que necesites a tu barra de macros
+5. **Recomendación**: Arrastra "Roll Skill" para tener acceso rápido a todas las tiradas
+
+**Uso del Selector de Habilidades:**
+1. Selecciona tu token en el mapa
+2. Ejecuta el macro "Roll Skill"
+3. Selecciona la habilidad del menú desplegable
+4. El sistema realizará la tirada automáticamente
+
+**Uso de Macros Individuales:**
+1. Selecciona tu token
+2. Ejecuta el macro de la habilidad específica
+3. La tirada se realizará automáticamente
+
+#### Para Game Masters
+
+1. Abre el sidebar de Foundry VTT
+2. Ve a la pestaña **Compendium**
+3. Busca **CosmereRPG: GM Macros**
+4. Arrastra los macros que necesites a tu barra de macros
+
+**Gestión de Recursos:**
+- Selecciona el token del personaje
+- Ejecuta el macro correspondiente (Incrementar/Reducir Foco o Salud)
+- El valor se actualizará automáticamente con una animación visual 🎨
+
+**Efectos de Combate:**
+- Selecciona el token atacante
+- Ejecuta el macro del tipo de ataque
+- La animación JB2A se reproducirá automáticamente 🎨
+
+**Ejemplo de uso - Incrementar Foco:**
+```javascript
+// El macro hace esto automáticamente:
+// 1. Verifica que hay un token seleccionado
+// 2. Incrementa el foco en 1 (respetando el máximo)
+// 3. Muestra un efecto visual de aura JB2A
+// 4. Notifica el cambio en el chat
+```
+
+## 🎲 Macros Adicionales (Opcional)
+
+Además de los macros incluidos, puedes crear macros personalizadas para automatizar tareas adicionales:
 
 ### Macro: Character Creation
 
@@ -156,8 +259,9 @@ new Dialog({
 ## 🔧 Compatibilidad
 
 - **Foundry VTT**: v12 (mínimo y verificado)
-- **Sistema**: Agnóstico (funciona con cualquier sistema de juego)
-- **Recomendado para**: Cosmere RPG, pero adaptable a cualquier campaña.
+- **Sistema**: Cosmere RPG (los macros están diseñados específicamente para este sistema)
+- **Módulos requeridos**: JB2A_DnD5e (se instala automáticamente como dependencia)
+- **Tablas aleatorias**: Funcionan con cualquier sistema de juego
 
 ## 🛠️ Desarrollo
 
