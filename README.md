@@ -3,203 +3,213 @@
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational)
 ![Module Version](https://img.shields.io/badge/version-1.0.0-blue)
 
-Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes (basandose en la información de los documentos proporcionados por Brotherwise para crear personajes de forma rápida) y macros útiles para jugadores y GMs.
+A Foundry VTT module that provides essential tools for Cosmere RPG, including random tables for character creation (based on Brotherwise's quick character creation documents) and useful macros for players and GMs.
 
-## 📚 Contenido del Módulo
+## 📚 Module Contents
 
-Este módulo incluye:
-- **11 tablas aleatorias** para creación de personajes y nombres
-- **2 compendios de macros** con 38 macros en total (20 para jugadores, 18 para GM)
+This module includes:
+- **11 random tables** for character creation and name generation
+- **2 macro compendiums** with 38 total macros (20 for players, 18 for GMs)
 
-### ⚔️ Character Creation Tables (3 tablas)
+### ⚔️ Character Creation Tables (3 tables)
 
-Tablas para la creación de personajes usando el método "First Step" del Cosmere RPG:
+Tables for character creation using the Cosmere RPG "First Step" method:
 
-- **Character Goals Table** - 20 objetivos de personaje
-- **Character Obstacles Table** - 20 obstáculos personales
-- **Radiant Purpose Table** - 20 propósitos de Radiantes (con sus órdenes asociadas)
+- **Character Goals Table** - 20 character goals
+- **Character Obstacles Table** - 20 personal obstacles
+- **Radiant Purpose Table** - 20 Radiant purposes (with their associated orders)
 
-### 🌍 Name Generators (8 tablas)
+### 🌍 Name Generators (8 tables)
 
-Generadores de nombres para cada cultura de Roshar:
+Name generators for each Roshar culture:
 
-- **Alethi Names** - Nombres de estilo Alethi
-- **Azish Names** - Nombres de estilo Azish
-- **Herdazian Names** - Nombres de estilo Herdaziano
-- **Reshi Names** - Nombres de estilo Reshi
-- **Shin Names** - Nombres de estilo Shin
-- **Thaylen Names** - Nombres de estilo Thaylen
-- **Unkalaki Names** - Nombres de estilo Unkalaki (Horneater)
-- **Veden Names** - Nombres de estilo Veden
+- **Alethi Names** - Alethi-style names
+- **Azish Names** - Azish-style names
+- **Herdazian Names** - Herdazian-style names
+- **Reshi Names** - Reshi-style names
+- **Shin Names** - Shin-style names
+- **Thaylen Names** - Thaylen-style names
+- **Unkalaki Names** - Unkalaki (Horneater) style names
+- **Veden Names** - Veden-style names
 
-### 🎭 Compendios de Macros
+### 🎭 Macro Compendiums
 
 #### CosmereRPG: Player Macros (20 macros)
 
-Macros para jugadores que facilitan las tiradas de habilidad en el sistema Cosmere RPG:
+Macros for players that facilitate skill rolls in the Cosmere RPG system:
 
-- **Roll Skill** - Diálogo interactivo para seleccionar y tirar cualquier habilidad
-- **Tiradas de Habilidad individuales** (19 macros):
-  - Agilidad, Atletismo, Sigilo, Hurto/Thievery
-  - Armas Pesadas (Heavy Weapons), Armas Ligeras (Light Weapons)
-  - Artesanía/Crafting, Deducción, Disciplina, Saber/Lore
-  - Medicina, Perspicacia/Insight, Percepción
-  - Engaño/Deception, Intimidación, Liderazgo/Leadership, Persuasión
-  - Supervivencia
-  - Hook (macro especial)
+- **Roll Skill** - Interactive dialog to select and roll any skill
+- **Individual Skill Rolls** (18 macros):
+  - Agility, Athletics, Stealth, Thievery
+  - Heavy Weapons, Light Weapons
+  - Crafting, Deduction, Discipline, Lore
+  - Medicine, Insight, Perception
+  - Deception, Intimidation, Leadership, Persuasion
+  - Survival
+- **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
 #### CosmereRPG: GM Macros (18 macros)
 
-Macros para el GM que incluyen gestión de recursos y animaciones visuales. **⚠️ Requiere el módulo JB2A_DnD5e** para las animaciones.
+Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
-**Gestión de Recursos:**
-- **Incrementar Foco** 🎨 *[Usa JB2A]* - Añade 1 punto de foco con efecto visual de aura
-- **Reducir Foco** 🎨 *[Usa JB2A]* - Resta 1 punto de foco con animación
-- **Incrementar Salud** 🎨 *[Usa JB2A]* - Añade 1 punto de salud con efecto visual
-- **Reducir Salud** 🎨 *[Usa JB2A]* - Resta 1 punto de salud con animación
+**Resource Management:**
+- **Increase Focus** 🎨 *[Uses JB2A]* - Adds 1 focus point with aura visual effect
+- **Reduce Focus** 🎨 *[Uses JB2A]* - Subtracts 1 focus point with animation
+- **Increase Health** 🎨 *[Uses JB2A]* - Adds 1 health point with visual effect
+- **Reduce Health** 🎨 *[Uses JB2A]* - Subtracts 1 health point with animation
 
-**Ataques y Efectos de Combate:**
-- **Strike Hammer** 🎨 *[Usa JB2A]* - Animación de ataque con martillo
-- **Longspear Strike** 🎨 *[Usa JB2A]* - Animación de ataque con lanza larga
-- **Unarmed Strike** 🎨 *[Usa JB2A]* - Animación de ataque sin armas
-- **Knife** 🎨 *[Usa JB2A]* - Animación de ataque con cuchillo
-- **Bomb Throw** 🎨 *[Usa JB2A]* - Animación de lanzamiento de bomba
-- **Weapon Throw with Return** 🎨 *[Usa JB2A]* - Animación de arma arrojadiza que regresa
+**Attacks and Combat Effects:**
+- **Strike Hammer** 🎨 *[Uses JB2A]* - Hammer attack animation
+- **Longspear Strike** 🎨 *[Uses JB2A]* - Longspear attack animation
+- **Unarmed Strike** 🎨 *[Uses JB2A]* - Unarmed attack animation
+- **Knife** 🎨 *[Uses JB2A]* - Knife attack animation
+- **Bomb Throw** 🎨 *[Uses JB2A]* - Bomb throw animation
+- **Weapon Throw with Return** 🎨 *[Uses JB2A]* - Returning weapon animation
 
-**Efectos Especiales:**
-- **Critical Miss animation** 🎨 *[Usa JB2A]* - Animación para fallos críticos
-- **Hook 20 Natural** 🎨 *[Usa JB2A]* - Efecto visual para críticos naturales
-- **Hook Critical Failure** 🎨 *[Usa JB2A]* - Efecto visual para fallos críticos
-- **Teleport** 🎨 *[Usa JB2A]* - Animación de teletransporte
-- **Spreen flight** 🎨 *[Usa JB2A]* - Animación de vuelo de spren
+**Special Effects:**
+- **Critical Miss animation** 🎨 *[Uses JB2A]* - Animation for critical failures
+- **Hook 20 Natural** 🎨 *[Uses JB2A]* - Visual effect for natural 20s
+- **Hook Critical Failure** 🎨 *[Uses JB2A]* - Visual effect for critical failures
+- **Teleport** 🎨 *[Uses JB2A]* - Teleportation animation
+- **Spreen flight** 🎨 *[Uses JB2A]* - Spren flight animation
 
-**Utilidades:**
-- **Show Token** - Alterna visibilidad de tokens seleccionados
-- **Pedir Tirada** - Solicita tiradas a los jugadores
-- **Send message** - Envía mensajes personalizados
+**Utilities:**
+- **Show Token** - Toggles visibility of selected tokens
+- **Request Roll** - Requests rolls from players (players need the "Hook" macro to respond automatically)
+- **Send message** - Sends custom messages
 
-## 🚀 Instalación
+## 🚀 Installation
 
-### ⚠️ Requisitos
+### ⚠️ Requirements
 
-Este módulo requiere:
-- **Foundry VTT v12 o v13**
-- **Sistema Cosmere RPG** (para que los macros funcionen correctamente)
-- **JB2A_DnD5e** (módulo requerido para las animaciones de los macros de GM)
+This module requires:
+- **Foundry VTT v12 or v13**
+- **Cosmere RPG system** (for macros to work correctly)
+- **JB2A_DnD5e** (required module for GM macro animations)
 
-El módulo JB2A_DnD5e se instalará automáticamente como dependencia al activar este módulo.
+The JB2A_DnD5e module will be installed automatically as a dependency when you activate this module.
 
-## Disponibilidad en la tienda de modulos
+## Store Availability
 
-Una vez se encuentre disponible en la tienda, podrás instalar el modulo desde [este enlace de la tienda de Foundry VTT](https://foundryvtt.com/packages/cosmere-rpg-gm-tooling)
+Once available in the store, you can install the module from [this Foundry VTT store link](https://foundryvtt.com/packages/cosmere-rpg-gm-tooling)
 
 
-### Instalación Manual
+### Manual Installation
 
-1. Descarga la última versión del módulo desde [Releases](https://github.com/juange87/cosmere-rpg-tooling/releases)
-2. Extrae el archivo `.zip` en tu carpeta de módulos de Foundry VTT:
+1. Download the latest module version from [Releases](https://github.com/juange87/cosmere-rpg-tooling/releases)
+2. Extract the `.zip` file to your Foundry VTT modules folder:
    - Windows: `%localappdata%/FoundryVTT/Data/modules/`
    - macOS: `~/Library/Application Support/FoundryVTT/Data/modules/`
    - Linux: `~/.local/share/FoundryVTT/Data/modules/`
-3. Reinicia Foundry VTT
-4. Ve a **Game Settings** → **Manage Modules**
-5. Activa **CosmereRPG GM Tools**
+3. Restart Foundry VTT
+4. Go to **Game Settings** → **Manage Modules**
+5. Activate **CosmereRPG GM Tools**
 
-### Instalación desde Manifest URL
+### Installation from Manifest URL
 
-1. En Foundry VTT, ve a **Add-on Modules**
-2. Haz clic en **Install Module**
-3. Pega la siguiente URL en el campo "Manifest URL":
+1. In Foundry VTT, go to **Add-on Modules**
+2. Click **Install Module**
+3. Paste the following URL in the "Manifest URL" field:
    ```
    https://github.com/juange87/cosmere-rpg-tooling/releases/latest/download/module.json
    ```
-4. Haz clic en **Install**
+4. Click **Install**
 
-## 💡 Cómo Usar
+## 💡 How to Use
 
-### Acceso a las Tablas
+### Accessing the Tables
 
-Una vez activado el módulo (requiere ser GM la primera vez para crear las tablas):
+Once the module is activated (requires being GM the first time to create the tables):
 
-1. Abre el sidebar de Foundry VTT
-2. Ve a la pestaña **Roll Tables** (icono de dados)
-3. Encontrarás todas las 11 tablas disponibles
-4. Haz clic en el icono del dado en cualquier tabla para obtener un resultado aleatorio
+1. Open the Foundry VTT sidebar
+2. Go to the **Roll Tables** tab (dice icon)
+3. You'll find all 11 tables available
+4. Click the dice icon on any table to get a random result
 
-### Creación Rápida de Personajes
+### Quick Character Creation
 
-Para generar los tres componentes principales de un personaje:
+To generate the three main components of a character:
 
-1. Rolla en **Character Goals Table** para determinar el objetivo del personaje
-2. Rolla en **Character Obstacles Table** para descubrir su obstáculo personal
-3. Rolla en **Radiant Purpose Table** para encontrar su propósito (si es un Radiante)
+1. Roll on **Character Goals Table** to determine the character's goal
+2. Roll on **Character Obstacles Table** to discover their personal obstacle
+3. Roll on **Radiant Purpose Table** to find their purpose (if they're a Radiant)
 
-### Generación de Nombres
+### Name Generation
 
-1. Selecciona la tabla de nombres según la cultura de tu personaje
-2. Haz clic en el icono del dado para obtener un nombre aleatorio
-3. Puedes rollear múltiples veces hasta encontrar uno que te guste
+1. Select the name table according to your character's culture
+2. Click the dice icon to get a random name
+3. You can roll multiple times until you find one you like
 
-### Uso de los Macros
+### Using the Macros
 
-#### Para Jugadores
+#### For Players
 
-1. Abre el sidebar de Foundry VTT
-2. Ve a la pestaña **Compendium**
-3. Busca **CosmereRPG: Player Macros**
-4. Arrastra los macros que necesites a tu barra de macros
-5. **Recomendación**: Arrastra "Roll Skill" para tener acceso rápido a todas las tiradas
+1. Open the Foundry VTT sidebar
+2. Go to the **Compendium** tab
+3. Look for **CosmereRPG: Player Macros**
+4. Drag the macros you need to your macro bar
+5. **Recommendation**: Drag "Roll Skill" for quick access to all rolls
 
-**Uso del Selector de Habilidades:**
-1. Selecciona tu token en el mapa
-2. Ejecuta el macro "Roll Skill"
-3. Selecciona la habilidad del menú desplegable
-4. El sistema realizará la tirada automáticamente
+**Using the Skill Selector:**
+1. Select your token on the map
+2. Execute the "Roll Skill" macro
+3. Select the skill from the dropdown menu
+4. The system will perform the roll automatically
 
-**Uso de Macros Individuales:**
-1. Selecciona tu token
-2. Ejecuta el macro de la habilidad específica
-3. La tirada se realizará automáticamente
+**Using Individual Macros:**
+1. Select your token
+2. Execute the specific skill macro
+3. The roll will be performed automatically
 
-#### Para Game Masters
+**Responding to GM Roll Requests:**
+- The **Hook** macro allows your character to automatically respond when the GM requests a roll
+- Players should have this macro ready in their macro bar
+- When the GM uses "Request Roll", players with the Hook macro will be prompted to roll
 
-1. Abre el sidebar de Foundry VTT
-2. Ve a la pestaña **Compendium**
-3. Busca **CosmereRPG: GM Macros**
-4. Arrastra los macros que necesites a tu barra de macros
+#### For Game Masters
 
-**Gestión de Recursos:**
-- Selecciona el token del personaje
-- Ejecuta el macro correspondiente (Incrementar/Reducir Foco o Salud)
-- El valor se actualizará automáticamente con una animación visual 🎨
+1. Open the Foundry VTT sidebar
+2. Go to the **Compendium** tab
+3. Look for **CosmereRPG: GM Macros**
+4. Drag the macros you need to your macro bar
 
-**Efectos de Combate:**
-- Selecciona el token atacante
-- Ejecuta el macro del tipo de ataque
-- La animación JB2A se reproducirá automáticamente 🎨
+**Resource Management:**
+- Select the character's token
+- Execute the corresponding macro (Increase/Reduce Focus or Health)
+- The value will update automatically with a visual animation 🎨
 
-**Ejemplo de uso - Incrementar Foco:**
+**Combat Effects:**
+- Select the attacking token
+- Execute the attack type macro
+- The JB2A animation will play automatically 🎨
+
+**Requesting Rolls from Players:**
+- Use the **Request Roll** macro to ask players for specific rolls
+- Players who have the **Hook** macro will automatically receive the request
+- This streamlines gameplay by allowing the GM to trigger rolls for multiple players at once
+
+**Example usage - Increase Focus:**
 ```javascript
-// El macro hace esto automáticamente:
-// 1. Verifica que hay un token seleccionado
-// 2. Incrementa el foco en 1 (respetando el máximo)
-// 3. Muestra un efecto visual de aura JB2A
-// 4. Notifica el cambio en el chat
+// The macro does this automatically:
+// 1. Verifies a token is selected
+// 2. Increases focus by 1 (respecting maximum)
+// 3. Shows a JB2A aura visual effect
+// 4. Notifies the change in chat
 ```
 
-## 🎲 Macros Adicionales (Opcional)
+## 🎲 Additional Macros (Optional)
 
-Además de los macros incluidos, puedes crear macros personalizadas para automatizar tareas adicionales:
+In addition to the included macros, you can create custom macros to automate additional tasks:
 
 ### Macro: Character Creation
 
 ```javascript
-// Genera un personaje completo con Goal, Obstacle y Purpose
+// Generates a complete character with Goal, Obstacle, and Purpose
 async function createFirstStepCharacter() {
   const goal = await game.tables.getName("Character Goals Table")?.draw();
   const obstacle = await game.tables.getName("Character Obstacles Table")?.draw();
   const purpose = await game.tables.getName("Radiant Purpose Table")?.draw();
-  
+
   ChatMessage.create({
     content: `<h2>First Step Character</h2>
     <p><strong>Goal:</strong> ${goal.results[0].text}</p>
@@ -221,7 +231,7 @@ game.tables.getName("Alethi Names")?.draw();
 ### Macro: Name Generator Menu
 
 ```javascript
-// Diálogo para seleccionar cultura y generar nombre
+// Dialog to select culture and generate name
 new Dialog({
   title: "Cosmere Name Generator",
   content: `
@@ -256,80 +266,80 @@ new Dialog({
 ```
 
 
-## 🔧 Compatibilidad
+## 🔧 Compatibility
 
-- **Foundry VTT**: v12 - v13 (mínimo v12, verificado hasta v13)
-- **Sistema**: Cosmere RPG (los macros están diseñados específicamente para este sistema)
-- **Módulos requeridos**: JB2A_DnD5e (se instala automáticamente como dependencia)
-- **Tablas aleatorias**: Funcionan con cualquier sistema de juego
+- **Foundry VTT**: v12 - v13 (minimum v12, verified up to v13)
+- **System**: Cosmere RPG (macros are specifically designed for this system)
+- **Required Modules**: JB2A_DnD5e (installed automatically as a dependency)
+- **Random Tables**: Work with any game system
 
-## 🛠️ Desarrollo
+## 🛠️ Development
 
-### Clonar el repositorio
+### Clone the repository
 
 ```bash
 git clone https://github.com/juange87/cosmere-rpg-tooling.git
 cd cosmere-rpg-tooling
 ```
 
-### Añadir nuevas tablas
+### Adding new tables
 
-Para añadir nuevas tablas, edita `scripts/init.js` y añade un nuevo objeto al array `tables`:
+To add new tables, edit `scripts/init.js` and add an object to the `tables` array:
 
 ```javascript
 {
-  name: "Mi Nueva Tabla",
+  name: "My New Table",
   formula: "1d20",
   results: [
-    { text: "Resultado 1", weight: 1, range: [1, 1] },
-    { text: "Resultado 2", weight: 1, range: [2, 2] },
-    // ... más resultados
+    { text: "Result 1", weight: 1, range: [1, 1] },
+    { text: "Result 2", weight: 1, range: [2, 2] },
+    // ... more results
   ]
 }
 ```
 
 ## 📝 Roadmap
 
-Funcionalidades planeadas para futuras versiones:
+Features planned for future versions:
 
-... 
+...
 
-## 🤝 Contribuir
+## 🤝 Contributing
 
-Si quieres colaborar:
+If you want to collaborate:
 
-1. Haz un fork del repositorio
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -am 'Añade nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
-   
+1. Fork the repository
+2. Create a branch for your feature (`git checkout -b feature/new-feature`)
+3. Commit your changes (`git commit -am 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
 
-## 📄 Licencia
 
-Este módulo está bajo la licencia MIT. Ver el archivo [LICENSE](LICENSE) para más detalles.
+## 📄 License
 
-## 🙏 Créditos
+This module is under the MIT license. See the [LICENSE](LICENSE) file for more details.
 
-- **Autor**: JuanGeKal
-- **Inspirado en**: El universo del Cosmere de Brandon Sanderson
-- **Sistema base**: Cosmere RPG por Brotherwise Games
+## 🙏 Credits
 
-## 📞 Soporte
+- **Author**: JuanGeKal
+- **Inspired by**: Brandon Sanderson's Cosmere universe
+- **Base system**: Cosmere RPG by Brotherwise Games
 
-Si encuentras algún problema o tienes sugerencias:
+## 📞 Support
 
-- Abre un [Issue en GitHub](https://github.com/juange87/cosmere-rpg-tooling/issues)
+If you find any issues or have suggestions:
+
+- Open an [Issue on GitHub](https://github.com/juange87/cosmere-rpg-tooling/issues)
 
 ## ⚠️ Disclaimer
 
-Este es un proyecto de fans no oficial. Cosmere RPG y todos los elementos relacionados son propiedad de Brotherwise Games y Brandon Sanderson. Este módulo se distribuye de forma gratuita para uso personal en Foundry VTT.
+This is an unofficial fan project. Cosmere RPG and all related elements are property of Brotherwise Games and Brandon Sanderson. This module is distributed free of charge for personal use in Foundry VTT.
 
-### ⚠️ Disclaimer IA
+### ⚠️ AI Disclaimer
 
-Todo el contenido que contiene este modulo y que contendrá en un futuro ha sido y será generado a raíz de mi esfuerzo y trabajo peleandome con Foundry VTT (ahora solo hay rolltables, pero habrá mucho más).
+All content that this module contains and will contain in the future has been and will be generated from my effort and work wrestling with Foundry VTT (currently there are only roll tables, but there will be much more).
 
-Ahora, si he usado la IA para ayudarme a crear este modulo (basicamente para orientarme en la mejor forma de agregar las rolltables que tenía en este modulo) y para hacer consultas puntuales sobre los entresijos de Foundry VTT y Javascript.
+Now, I have used AI to help me create this module (basically to guide me on the best way to add the roll tables I had in this module) and to make specific queries about the intricacies of Foundry VTT and Javascript.
 
 
 ---
