@@ -1,17 +1,67 @@
+/**
+ * Script de inicialización del módulo Cosmere RPG Tooling
+ * Este script crea automáticamente las carpetas y tablas si no existen
+ */
 
 Hooks.once('ready', async () => {
-  // Solo el GM puede crear las tablas
   if (!game.user.isGM) {
     return;
   }
 
-  console.log("Cosmere RPG Tooling | Verificando tablas...");
+  console.log("Cosmere RPG Tooling | Verificando carpetas y tablas...");
 
-  // Array con todas las tablas a crear
+  
+  let parentFolder = game.folders.find(f => 
+    f.name === "CosmereRPG: Character Creation" && f.type === "RollTable"
+  );
+  
+  if (!parentFolder) {
+    console.log("Cosmere RPG Tooling | Creando carpeta padre CosmereRPG: Character Creation...");
+    parentFolder = await Folder.create({
+      name: "CosmereRPG: Character Creation",
+      type: "RollTable",
+      color: "#9b59b6",
+      sorting: "a"
+    });
+  }
+
+ 
+  let characterCreationFolder = game.folders.find(f => 
+    f.name === "Character Creation" && f.type === "RollTable" && f.folder?.id === parentFolder.id
+  );
+  
+  if (!characterCreationFolder) {
+    console.log("Cosmere RPG Tooling | Creando carpeta Character Creation...");
+    characterCreationFolder = await Folder.create({
+      name: "Character Creation",
+      type: "RollTable",
+      color: "#4a90e2",
+      folder: parentFolder.id,
+      sorting: "a"
+    });
+  }
+
+  let nameGeneratorsFolder = game.folders.find(f => 
+    f.name === "Name Generators" && f.type === "RollTable" && f.folder?.id === parentFolder.id
+  );
+  
+  if (!nameGeneratorsFolder) {
+    console.log("Cosmere RPG Tooling | Creando carpeta Name Generators...");
+    nameGeneratorsFolder = await Folder.create({
+      name: "Name Generators",
+      type: "RollTable",
+      color: "#e67e22",
+      folder: parentFolder.id,
+      sorting: "a"
+    });
+  }
+
+  
   const tables = [
     {
       name: "Character Goals Table",
       formula: "1d20",
+      folder: characterCreationFolder.id,
       results: [
         { text: "Become a noble", weight: 1, range: [1, 1] },
         { text: "Find a missing person", weight: 1, range: [2, 2] },
@@ -38,6 +88,7 @@ Hooks.once('ready', async () => {
     {
       name: "Character Obstacles Table",
       formula: "1d20",
+      folder: characterCreationFolder.id,
       results: [
         { text: "I thirst for revenge against those who wrong me.", weight: 1, range: [1, 1] },
         { text: "I blame myself for a tragedy in my past.", weight: 1, range: [2, 2] },
@@ -64,6 +115,7 @@ Hooks.once('ready', async () => {
     {
       name: "Radiant Purpose Table",
       formula: "1d20",
+      folder: characterCreationFolder.id,
       results: [
         { text: "Acknowledge my self-worth [Elsecaller]", weight: 1, range: [1, 1] },
         { text: "Face my fears [Lightweaver]", weight: 1, range: [2, 2] },
@@ -90,6 +142,7 @@ Hooks.once('ready', async () => {
     {
       name: "Alethi Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Alarik", weight: 1, range: [1, 1] },
         { text: "Ashlani", weight: 1, range: [2, 2] },
@@ -116,6 +169,7 @@ Hooks.once('ready', async () => {
     {
       name: "Azish Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Adana", weight: 1, range: [1, 1] },
         { text: "Adebazik", weight: 1, range: [2, 2] },
@@ -142,6 +196,7 @@ Hooks.once('ready', async () => {
     {
       name: "Herdazian Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Alvoro", weight: 1, range: [1, 1] },
         { text: "Anelma", weight: 1, range: [2, 2] },
@@ -168,6 +223,7 @@ Hooks.once('ready', async () => {
     {
       name: "Reshi Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Alin", weight: 1, range: [1, 1] },
         { text: "Avi-ra", weight: 1, range: [2, 2] },
@@ -194,6 +250,7 @@ Hooks.once('ready', async () => {
     {
       name: "Shin Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Bratha", weight: 1, range: [1, 1] },
         { text: "Dolven", weight: 1, range: [2, 2] },
@@ -220,6 +277,7 @@ Hooks.once('ready', async () => {
     {
       name: "Thaylen Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Alstrym", weight: 1, range: [1, 1] },
         { text: "Ardben", weight: 1, range: [2, 2] },
@@ -246,6 +304,7 @@ Hooks.once('ready', async () => {
     {
       name: "Unkalaki Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Ahinaku", weight: 1, range: [1, 1] },
         { text: "Aluni", weight: 1, range: [2, 2] },
@@ -272,6 +331,7 @@ Hooks.once('ready', async () => {
     {
       name: "Veden Names",
       formula: "1d20",
+      folder: nameGeneratorsFolder.id,
       results: [
         { text: "Amelith", weight: 1, range: [1, 1] },
         { text: "Batin", weight: 1, range: [2, 2] },
@@ -297,10 +357,25 @@ Hooks.once('ready', async () => {
     }
   ];
 
+  let tablasReorganizadas = 0;
+  
   for (const tableData of tables) {
-    const exists = game.tables.getName(tableData.name);
+    const existingTable = game.tables.getName(tableData.name);
     
-    if (!exists) {
+    if (existingTable && existingTable.folder?.id !== tableData.folder) {
+      console.log(`Cosmere RPG Tooling | ${tableData.name} existe pero no está en la carpeta correcta. Reorganizando...`);
+      
+      try {
+        await existingTable.delete();
+        tablasReorganizadas++;
+        console.log(`Cosmere RPG Tooling | ${tableData.name} eliminada para reorganización`);
+      } catch (error) {
+        console.error(`Cosmere RPG Tooling | Error al eliminar ${tableData.name}:`, error);
+        continue; // Saltar a la siguiente tabla si hay error
+      }
+    }
+    
+    if (!game.tables.getName(tableData.name)) {
       console.log(`Cosmere RPG Tooling | Creando ${tableData.name}...`);
       
       const data = {
@@ -308,6 +383,7 @@ Hooks.once('ready', async () => {
         formula: tableData.formula,
         replacement: true,
         displayRoll: true,
+        folder: tableData.folder,
         results: tableData.results
       };
 
@@ -317,10 +393,16 @@ Hooks.once('ready', async () => {
       } catch (error) {
         console.error(`Cosmere RPG Tooling | Error al crear ${tableData.name}:`, error);
       }
+    } else {
+      console.log(`Cosmere RPG Tooling | ${tableData.name} ya existe en la carpeta correcta`);
     }
   }
 
-  // Notificación final
-  ui.notifications.info("Cosmere RPG Tooling: Todas las tablas están listas!");
-  console.log("Cosmere RPG Tooling | Módulo cargado correctamente - 11 tablas disponibles");
+  if (tablasReorganizadas > 0) {
+    ui.notifications.info(`Cosmere RPG Tooling: ${tablasReorganizadas} tabla(s) reorganizada(s) en carpetas correctas!`);
+  } else {
+    ui.notifications.info("Cosmere RPG Tooling: Todas las tablas están listas!");
+  }
+  
+  console.log("Cosmere RPG Tooling | Módulo cargado correctamente - 3 carpetas (1 padre + 2 hijas), 11 tablas disponibles");
 });
