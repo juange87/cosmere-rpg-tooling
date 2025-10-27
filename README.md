@@ -1,6 +1,6 @@
 # Cosmere RPG Tooling
 
-![Foundry Version](https://img.shields.io/badge/Foundry-v12-informational)
+![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational)
 ![Module Version](https://img.shields.io/badge/version-1.0.0-blue)
 
 Módulo para Foundry VTT que proporciona herramientas esenciales para el Cosmere RPG, incluyendo tablas aleatorias para la creación de personajes (basandose en la información de los documentos proporcionados por Brotherwise para crear personajes de forma rápida) y macros útiles para jugadores y GMs.
@@ -83,7 +83,7 @@ Macros para el GM que incluyen gestión de recursos y animaciones visuales. **�
 ### ⚠️ Requisitos
 
 Este módulo requiere:
-- **Foundry VTT v12** o superior
+- **Foundry VTT v12 o v13**
 - **Sistema Cosmere RPG** (para que los macros funcionen correctamente)
 - **JB2A_DnD5e** (módulo requerido para las animaciones de los macros de GM)
 
@@ -258,7 +258,7 @@ new Dialog({
 
 ## 🔧 Compatibilidad
 
-- **Foundry VTT**: v12 (mínimo y verificado)
+- **Foundry VTT**: v12 - v13 (mínimo v12, verificado hasta v13)
 - **Sistema**: Cosmere RPG (los macros están diseñados específicamente para este sistema)
 - **Módulos requeridos**: JB2A_DnD5e (se instala automáticamente como dependencia)
 - **Tablas aleatorias**: Funcionan con cualquier sistema de juego

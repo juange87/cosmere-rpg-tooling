@@ -3,6 +3,11 @@
 /**
  * Compile JSON source files into Foundry VTT LevelDB compendium packs
  * This script creates .db files that Foundry can read directly
+ *
+ * Compatibility:
+ * - Foundry v12: Uses _id field
+ * - Foundry v13: Uses _key field (format: !macros!{id})
+ * - This script adds both fields for cross-version compatibility
  */
 
 const fs = require('fs');
@@ -39,6 +44,13 @@ for (const pack of packs) {
   for (const file of files) {
     const filePath = path.join(pack.inputDir, file);
     const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+
+    // Foundry v13 compatibility: add _key field if it doesn't exist
+    // v12 uses _id, v13 uses _key, so we include both for compatibility
+    if (data._id && !data._key) {
+      data._key = `!macros!${data._id}`;
+    }
+
     documents.push(data);
   }
 
