@@ -1,7 +1,7 @@
 {
   "id": "cosmere-rpg-tooling",
   "title": "CosmereRPG GM Tools",
-  "description": "CosmereRPG Tools and Content to improve the GM life: Rooltables",
+  "description": "CosmereRPG Tools and Content to improve the GM life: Rolltables",
   "version": "#{VERSION}#",
   "library": false,
   "manifestPlusVersion": "1.2.0",
