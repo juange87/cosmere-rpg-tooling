@@ -1,0 +1,15 @@
+{
+  "name": "Strike Hammer",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "modules/JB2A_DnD5e/Library/Generic/Weapon_Attacks/Melee/Hammer01_01_Regular_White_Thumb.webp",
+  "scope": "global",
+  "command": "let selectedToken = canvas.tokens.controlled[0]; // First selected token\nlet targets = Array.from(game.user.targets); // Array of targeted tokens\n\nfor(let target of targets){\n/*new Sequence()\n    .effect()\n        .atLocation(selectedToken)\n        .stretchTo(target)\n        .file(\"jb2a.unarmed_strike.physical.02.blue\")\n        .repeats(3, 200, 300)\n        .randomizeMirrorY()\n    .play();*/\n\n\nnew Sequence()\n    .effect()\n        .file(\"jb2a.hammer.melee.01.white\") //Replace the text between quotation marks.\n        .atLocation(selectedToken)\n        .stretchTo(target)  \n        .repeats(3, 200, 300)\n        .randomizeMirrorY()\n.delay(1000)\n    \n    .play();\n}",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "A6ksZ4rFKvgMdzd0"
+}

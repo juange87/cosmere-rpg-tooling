@@ -1,0 +1,15 @@
+{
+  "name": "Hook Critical FAilure",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/dice-target.svg",
+  "scope": "global",
+  "command": "Hooks.on(\"diceSoNiceRollComplete\", (messageId) => {\n  const msg = game.messages.get(messageId);\n  if (!msg?.isRoll) return;\n\n  // Analiza todos los rolls del mensaje\n  for (const roll of msg.rolls) {\n    // Filtra solo dados (terms) de tipo Die\n    for (const term of roll.terms) {\n      if (term instanceof Die && term.faces === 20) { // Solo d20\n        for (const result of term.results) {\n          if (result.result === 1) {\n            // Aquí va tu reacción: animación, efecto, etc\n            ui.notifications.info(\"¡Fallo crítico detectado! 🎲\");\n            \nconst center = {\n  x: canvas.scene.width / 2,\n  y: canvas.scene.height / 2\n};\n\nnew Sequence()\n    .effect()\n        .file(\"modules/JB2A_DnD5e/Library/Generic/UI/CriticalMiss_03_Red_200x200.webm\")\n        .atLocation(center).scale(5)\n    .play()\n            return; // Sale al detectar el primero\n          }\n        }\n      }\n    }\n  }\n});",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "mSA2KpnWle0X6E6m"
+}

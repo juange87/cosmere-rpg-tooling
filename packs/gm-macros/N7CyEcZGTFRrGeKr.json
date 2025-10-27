@@ -1,0 +1,22 @@
+{
+  "name": "Bomb Throw",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "modules/JB2A_DnD5e/Library/Generic/Weapon_Attacks/Ranged/ThrowBomb01_01_Regular_Black_Thumb.webp",
+  "scope": "global",
+  "command": "/*\n####################################################\n   This macro needs the Sequencer module to work.\n   Also, you need to target at least one token and select the one who will throw the bomb.\n####################################################\n*/\n\n// Let's create a function with arguments. That means that we can call this function later and define each argument (here they're called dbThrow, dbFracture and dbExplosion);\n// If you look at the end of the macro, we're using each arg to call a specific Database path. (i.e: await grenade('dbPath01', 'dbPath02', 'dbPath03'))\nasync function bombAnimation(dbThrow, dbFracture, dbExplosion, dbGroundImpact){\n    let source = token; // this is the first selected token\n    let targets = Array.from(game.user.targets); // This is an array that will contain all targeted tokens (we need at least one to know where to throw the potion or grenade)\n        for(let target of targets){ // The for loop will iterate for each target, if more than one token is targeted. Otherwise it will run it only once\n        new Sequence()\n        .effect() \n            .file(dbThrow)\n            .atLocation(source)\n            .stretchTo(target)\n            .waitUntilFinished(-150)\n        .effect()\n            .file(dbFracture)\n            .atLocation(target)\n            .scaleToObject(1.2) \n        .effect()\n            .file(dbExplosion)\n            .atLocation(target)\n        .effect()\n            .file(dbGroundImpact)\n            .atLocation(target)\n            .belowTokens()\n            .scaleToObject(2)\n            .scaleIn(0.1, 100, {ease: \"easeOutExpo\"})\n            .duration(5000)\n            .fadeOut(3250, {ease: \"easeInSine\"})    \n        .play();\n        \n        let delay = Sequencer.Helpers.random_int_between(600, 1000) // neat little helper from Sequencer giving us a whole number between two values\n        await Sequencer.Helpers.wait(delay) // another helper that allows us to delay the time between each loop (when we have more than one target)\n        \n        }\n    }\nawait bombAnimation('jb2a.throwable.throw.bomb.01.black','jb2a.explosion.shrapnel.bomb.01.black','jb2a.explosion.08.orange','jb2a.impact.ground_crack.orange');",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "core": {
+      "sourceId": "Macro.nvEzRX1QqW2iReIg"
+    },
+    "advanced-macros": {
+      "runForSpecificUser": ""
+    }
+  },
+  "_id": "N7CyEcZGTFRrGeKr"
+}

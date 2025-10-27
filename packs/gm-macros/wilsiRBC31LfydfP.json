@@ -1,0 +1,15 @@
+{
+  "name": "Send message",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/wall-direction.svg",
+  "scope": "global",
+  "command": "// Macro: Selección de usuario y envío de mensaje privado\n// Dev: pensado para usarlo como GM\n\n// Lista de usuarios jugadores (puedes incluir también el GM si quieres, quitando el .players)\nlet usuarios = game.users.players.map(u => `<option value=\"${u.id}\">${u.name}</option>`).join(\"\");\n\n// Diálogo para elegir usuario y escribir mensaje\nlet content = `\n<p><b>Selecciona el usuario:</b></p>\n<select id=\"usuario\">${usuarios}</select>\n<p><b>Mensaje:</b></p>\n<textarea id=\"mensaje\" rows=\"4\" style=\"width:100%;resize:none;\"></textarea>\n`;\n\nnew Dialog({\n  title: \"Enviar mensaje privado\",\n  content: content,\n  buttons: {\n    enviar: {\n      icon: '<i class=\"fas fa-paper-plane\"></i>',\n      label: \"Enviar\",\n      callback: async html => {\n        const userId = html.find(\"#usuario\").val();\n        const mensaje = html.find(\"#mensaje\").val().trim();\n        const jugador = game.users.get(userId);\n\n        if (!jugador) {\n          ui.notifications.error(\"Usuario no encontrado.\");\n          return;\n        }\n\n        if (!mensaje) {\n          ui.notifications.warn(\"No puedes enviar un mensaje vacío.\");\n          return;\n        }\n\n        // Crear mensaje privado (whisper) solo para ese jugador\n        await ChatMessage.create({\n          user: game.user.id, // el usuario que lo envía (tú)\n          whisper: [jugador.id],\n          speaker: { alias: game.user.name },\n          content: mensaje\n        });\n\n        ui.notifications.info(`Mensaje privado enviado a ${jugador.name}`);\n      }\n    },\n    cancelar: {\n      icon: '<i class=\"fas fa-times\"></i>',\n      label: \"Cancelar\"\n    }\n  },\n  default: \"enviar\"\n}).render(true);",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "wilsiRBC31LfydfP"
+}

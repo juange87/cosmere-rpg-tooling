@@ -1,0 +1,15 @@
+{
+  "name": "Spreen flight",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/dice-target.svg",
+  "scope": "global",
+  "command": "const center = {\n  x: (canvas.scene.width / 4) *3,\n  y: (canvas.scene.height / 8) * 8\n};\n\nnew Sequence()\n    .effect()\n        .file(\"jb2a.markers.light_orb.complete.blue\")\n        .atLocation(center)\n    .play()",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "J43Gdv2F7hL20Pjd"
+}

@@ -1,0 +1,22 @@
+{
+  "name": "Weapon Throw with Return",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "modules/JB2A_DnD5e/Library/Generic/Weapon_Attacks/Ranged/Dagger01_01_Regular_White_Return_Thumb.webp",
+  "scope": "global",
+  "command": "/*\n#########################################################################################\n   This macro needs the Sequencer module to work.\n   Also, you need to target at least one token and select the token throwing the weapon\n#########################################################################################\n*/\n//You can find the documentation for Sequencer on Github : https://github.com/fantasycalendar/FoundryVTT-Sequencer/wiki\n\nlet targets = Array.from(game.user.targets);\n\nfor(let target of targets){\n    new Sequence()\n        .effect()\n    //First it will play the throw sequence of the Dagger01 animation.\n            .file(\"jb2a.dagger.throw.01.white\")\n            .atLocation(token)\n            .stretchTo(target)\n            //OPTIONAL\n            //You can adjust the value below to play the return part before or after the throwing animation ends.\n            //The current value should make the transition seamless or barely noticeable.\n            //A negative value will play the return part before the throwing animation ends. And a positive value will add a pause between the throw and the return animation. \n            .waitUntilFinished(-700) //In milliseconds  \n        .effect()\n    //Then it will transition to the return animation of the Dagger01.\n            .file(\"jb2a.dagger.return.01.white\")\n            .atLocation(token)\n            .stretchTo(target)\n    .play()\n}",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "core": {
+      "sourceId": "Macro.kSfIaywHwfY3sKXI"
+    },
+    "advanced-macros": {
+      "runForSpecificUser": ""
+    }
+  },
+  "_id": "D8DqP5B4iB75DPEG"
+}

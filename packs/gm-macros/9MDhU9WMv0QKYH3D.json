@@ -1,0 +1,15 @@
+{
+  "name": "Critical Miss animation",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/dice-target.svg",
+  "scope": "global",
+  "command": "const center = {\n  x: canvas.scene.width / 2,\n  y: canvas.scene.height / 2\n};\n\nnew Sequence()\n    .effect()\n        .file(\"modules/JB2A_DnD5e/Library/Generic/UI/CriticalMiss_03_Red_200x200.webm\")\n        .atLocation(center).scale(5)\n    .play()",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "9MDhU9WMv0QKYH3D"
+}

@@ -1,0 +1,15 @@
+{
+  "name": "Incrementar Foco",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/skills/targeting/crosshair-bars-yellow.webp",
+  "scope": "global",
+  "command": "// Valor a modificar (+4 para sumar, -4 para restar)\nconst delta = 1;\n\n// Verifica que hay un token seleccionado\nconst token = canvas.tokens.controlled[0];\nif (!token) {\n  ui.notifications.warn(\"Debes seleccionar un token.\");\n  return;\n}\n\nconst actor = token.actor;\n\n// Salud actual y máxima\nconst currHP = actor.system.resources.foc.value;\nconst maxHP = actor.system.resources.foc.max.value; // Si usas el override como máximo\n\n// Calcula nueva salud\nconst newHP = Math.min(Math.max(currHP + delta, 0), maxHP);\n\n// Actualiza el valor de salud\nactor.update({ \"system.resources.foc.value\": newHP });\n\nui.notifications.info(`Foco actualizado a ${newHP}.`);\n\n\nnew Sequence()\n    .effect()\n        .file(\"jb2a.aura_themed\")\n        .atLocation(canvas.tokens.controlled[0])\n        .scaleToObject(3)\n        .belowTokens()\n        .fadeIn(1500, {ease: \"easeOutCubic\", delay: 50})\n        .fadeOut(1500)\n        .rotateIn(90, 2500, {ease: \"easeInOutCubic\"})\n        .rotateOut(350, 1500, {ease: \"easeInCubic\"})\n        .scaleIn(2, 2500, {ease: \"easeInOutCubic\"})\n        .scaleOut(0, 1500, {ease: \"easeInCubic\"})\n    .play()",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "8UNPEwp2pTovSVEy"
+}

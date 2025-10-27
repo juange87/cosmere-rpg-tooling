@@ -1,7 +1,7 @@
 {
   "id": "cosmere-rpg-tooling",
   "title": "CosmereRPG GM Tools",
-  "description": "CosmereRPG Tools and Content to improve the GM life: Rolltables",
+  "description": "CosmereRPG Tools and Content to improve the GM life: Rolltables, Player Macros, and GM Macros",
   "version": "#{VERSION}#",
   "library": false,
   "manifestPlusVersion": "1.2.0",
@@ -9,6 +9,16 @@
     "minimum": 12,
     "verified": 12,
     "maximum": 13
+  },
+  "relationships": {
+    "requires": [
+      {
+        "id": "JB2A_DnD5e",
+        "type": "module",
+        "manifest": "https://github.com/Jules-Bens-Aa/JB2A_DnD5e/releases/latest/download/module.json",
+        "compatibility": {}
+      }
+    ]
   },
   "authors": [
     {
@@ -23,5 +33,29 @@
   "readme": "README.md",
   "esmodules": [
     "scripts/init.js"
+  ],
+  "packs": [
+    {
+      "name": "player-macros",
+      "label": "CosmereRPG: Player Macros",
+      "path": "packs/player-macros",
+      "type": "Macro",
+      "system": "cosmere-rpg",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "gm-macros",
+      "label": "CosmereRPG: GM Macros",
+      "path": "packs/gm-macros",
+      "type": "Macro",
+      "system": "cosmere-rpg",
+      "ownership": {
+        "PLAYER": "NONE",
+        "ASSISTANT": "OWNER"
+      }
+    }
   ]
 }

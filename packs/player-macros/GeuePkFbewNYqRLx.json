@@ -1,0 +1,22 @@
+{
+  "name": "Tirada Insight / Perspicacia",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/dice-target.svg",
+  "scope": "global",
+  "command": "// Macro para hacer una tirada de habilidad en Foundry VTT\n// Cambia \"ste\" por la abreviatura de la habilidad que quieras (sigilo = \"ste\", acrobacias = \"acr\", etc.)\n\n// Primero, obtiene el token seleccionado\nlet token = canvas.tokens.controlled[0];\nif (!token) {\n  return ui.notifications.warn(\"Por favor, selecciona un token antes de usar este macro.\");\n}\n\n// Haz la tirada de la habilidad deseada (ejemplo con sigilo)\ntoken.actor.rollSkill(\"ins\");",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {
+    "exportSource": {
+      "world": "vinculosyjur-69b5b203",
+      "system": "cosmere-rpg",
+      "coreVersion": "12.343",
+      "systemVersion": "1.0.1"
+    }
+  },
+  "_id": "GeuePkFbewNYqRLx"
+}

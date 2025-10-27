@@ -1,0 +1,15 @@
+{
+  "name": "Teleport",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/daze.svg",
+  "scope": "global",
+  "command": "let position = await Sequencer.Crosshair.show({\n    size: 1,\n    gridHighlight: false,\n    label: {\n        text: \"Teleport to\",\n    }\n}, { show: async (crosshair) => {\n\n    new Sequence()\n        .effect()\n            .from(token)\n            .attachTo(crosshair)\n            .persist()\n            .opacity(0.5)\n        .play();\n\n}})\n\nif(!position){\n    return;\n}\n\nnew Sequence()\n    .effect()\n        .from(token)\n        .fadeIn(50)\n        .duration(550)\n        .fadeOut(250)\n        .filter(\"Blur\")\n        .elevation(0)\n    .effect()\n        .file(\"jb2a.chain_lightning.secondary.blue\")\n        .atLocation(token)\n        .stretchTo(position)\n        .elevation(0)\n    .wait(100)\n    .animation()\n        .on(token)\n        .teleportTo(position)\n        .snapToGrid()\n        .waitUntilFinished()\n    .effect()\n        .file(\"jb2a.static_electricity.03.blue\")\n        .atLocation(token)\n        .scaleToObject()\n    .play();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "bEpngKnkXvyYyriw"
+}
