@@ -1,7 +1,7 @@
 # Cosmere RPG Tooling
 
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational)
-![Module Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Module Version](https://img.shields.io/badge/version-1.2.2-blue)
 
 A Foundry VTT module that provides essential tools for Cosmere RPG, including random tables for character creation (based on Brotherwise's quick character creation documents) and useful macros for players and GMs.
 
