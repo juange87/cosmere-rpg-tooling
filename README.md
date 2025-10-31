@@ -339,7 +339,7 @@ This is an unofficial fan project. Cosmere RPG and all related elements are prop
 
 All content that this module contains and will contain in the future has been and will be generated from my effort and work wrestling with Foundry VTT (currently there are only roll tables, but there will be much more).
 
-Now, I have used AI to help me create this module (basically to guide me on the best way to add the roll tables I had in this module) and to make specific queries about the intricacies of Foundry VTT and Javascript.
+Nevertheless, I have used AI to help me create this module (basically to guide me on the best way to add the roll tables I had in this module) and to make specific queries about the intricacies of Foundry VTT and Javascript.
 
 
 ---
