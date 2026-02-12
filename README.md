@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 38 total macros (20 for players, 18 for GMs)
+- **2 macro compendiums** with 39 total macros (21 for players, 18 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -34,11 +34,12 @@ Name generators for each Roshar culture:
 
 ### 🎭 Macro Compendiums
 
-#### CosmereRPG: Player Macros (20 macros)
+#### CosmereRPG: Player Macros (21 macros)
 
 Macros for players that facilitate skill rolls in the Cosmere RPG system:
 
-- **Roll Skill** - Interactive dialog to select and roll any skill
+- **Roll Skill** - Dropdown dialog to select and roll any skill
+- **Roll Skill (Table View)** - Visual table with skills organized by category (Physical, Cognitive, Spiritual), showing associated attributes and total bonuses
 - **Individual Skill Rolls** (18 macros):
   - Agility, Athletics, Stealth, Thievery
   - Heavy Weapons, Light Weapons
