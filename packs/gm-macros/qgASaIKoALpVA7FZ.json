@@ -1,0 +1,15 @@
+{
+  "name": "Palabras Aceptadas",
+  "type": "script",
+  "author": "qUfD5KYQYHHgdqCR",
+  "img": "icons/logo-scifi-blank.png",
+  "scope": "global",
+  "command": "const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));\n\nasync function ejecutarSonidos() {\n  // 1. Reproducir el primer sonido inmediatamente\n  AudioHelper.play({\n    src: \"modules/cosmere-rpg-tooling/sounds/palabrasaceptadas.mp3\",\n    volume: 0.8,\n    loop: false\n  }, true);\n\n  // 2. Esperar 500ms\n  await wait(500);\n\n  // 3. Reproducir el segundo sonido\n  AudioHelper.play({\n    src: \"modules/cosmere-rpg-tooling/sounds/thunder.mp3\",\n    volume: 1.0,\n    loop: false\n  }, true);\n}\n\nejecutarSonidos();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {},
+  "_id": "qgASaIKoALpVA7FZ"
+}

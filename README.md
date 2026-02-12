@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 39 total macros (21 for players, 18 for GMs)
+- **2 macro compendiums** with 40 total macros (21 for players, 19 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (18 macros)
+#### CosmereRPG: GM Macros (19 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -73,6 +73,9 @@ Macros for the GM that include resource management and visual animations. **⚠�
 - **Hook Critical Failure** 🎨 *[Uses JB2A]* - Visual effect for critical failures
 - **Teleport** 🎨 *[Uses JB2A]* - Teleportation animation
 - **Spreen flight** 🎨 *[Uses JB2A]* - Spren flight animation
+
+**Sound Effects:**
+- **Palabras Aceptadas** - Plays a dramatic two-part sound effect (ideal words accepted announcement + thunder) for all connected players
 
 **Utilities:**
 - **Show Token** - Toggles visibility of selected tokens
