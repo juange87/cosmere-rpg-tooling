@@ -2,65 +2,42 @@
 
 /**
  * Compile JSON source files into Foundry VTT LevelDB compendium packs
- * This script creates .db files that Foundry can read directly
+ * Uses @foundryvtt/foundryvtt-cli for proper LevelDB format (v11+)
  *
- * Compatibility:
- * - Foundry v12: Uses _id field
- * - Foundry v13: Uses _key field (format: !macros!{id})
- * - This script adds both fields for cross-version compatibility
+ * Source files: packs/_source/<pack-name>/*.json
+ * Output:      packs/<pack-name>/ (LevelDB directory)
  */
 
-const fs = require('fs');
-const path = require('path');
+import { compilePack } from "@foundryvtt/foundryvtt-cli";
+import { existsSync, readdirSync, rmSync } from "fs";
+import { resolve } from "path";
 
 const packs = [
-  {
-    name: 'player-macros',
-    inputDir: 'packs/player-macros',
-    outputFile: 'packs/player-macros.db'
-  },
-  {
-    name: 'gm-macros',
-    inputDir: 'packs/gm-macros',
-    outputFile: 'packs/gm-macros.db'
-  }
+  { name: "player-macros" },
+  { name: "gm-macros" }
 ];
 
-console.log('Compiling compendium packs to LevelDB format...\n');
+console.log("Compiling compendium packs to LevelDB format...\n");
 
 for (const pack of packs) {
-  console.log(`Processing: ${pack.name}`);
+  const src = resolve("packs/_source", pack.name);
+  const out = resolve("packs", pack.name);
 
-  // Read all JSON files from the source directory
-  const files = fs.readdirSync(pack.inputDir).filter(f => f.endsWith('.json'));
-
-  if (files.length === 0) {
-    console.log(`  ⚠️  No JSON files found in ${pack.inputDir}`);
+  if (!existsSync(src)) {
+    console.log(`  ⚠️  Source directory not found: ${src}`);
     continue;
   }
 
-  // Collect all documents
-  const documents = [];
-  for (const file of files) {
-    const filePath = path.join(pack.inputDir, file);
-    const data = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+  const fileCount = readdirSync(src).filter(f => f.endsWith(".json")).length;
 
-    // Foundry v13 compatibility: add _key field if it doesn't exist
-    // v12 uses _id, v13 uses _key, so we include both for compatibility
-    if (data._id && !data._key) {
-      data._key = `!macros!${data._id}`;
-    }
-
-    documents.push(data);
+  // Clean previous compiled output
+  if (existsSync(out)) {
+    rmSync(out, { recursive: true });
   }
 
-  // Write as NeDB format (one JSON per line)
-  const dbContent = documents.map(doc => JSON.stringify(doc)).join('\n');
-  fs.writeFileSync(pack.outputFile, dbContent, 'utf8');
-
-  console.log(`  ✓ Created ${pack.outputFile} with ${documents.length} documents\n`);
+  console.log(`Processing: ${pack.name} (${fileCount} documents)`);
+  await compilePack(src, out);
+  console.log(`  ✓ Compiled packs/${pack.name}/\n`);
 }
 
-console.log('Compilation complete!');
-console.log('\n⚠️  Note: You may need to use Foundry\'s built-in pack compilation tools');
-console.log('or the @foundryvtt/foundryvtt-cli package for proper LevelDB format.');
+console.log("Compilation complete!");

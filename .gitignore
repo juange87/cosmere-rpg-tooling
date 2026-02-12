@@ -1,0 +1,5 @@
+node_modules/
+
+# Compiled LevelDB packs (rebuilt from packs/_source/ during release)
+packs/player-macros/
+packs/gm-macros/

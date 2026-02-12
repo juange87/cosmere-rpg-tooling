@@ -103,12 +103,13 @@ jobs:
           DOWNLOAD: ${{ env.release_module_url }}
 
 
+      # Install dependencies for pack compilation
+      - name: Install Dependencies
+        run: npm ci
+
       # Compile compendium packs from source JSON to LevelDB format
       - name: Compile Compendium Packs
-        run: |
-          if [ -f "compile-packs.js" ]; then
-            node compile-packs.js
-          fi
+        run: node compile-packs.js
 
       # Create a "module.zip" archive containing all the module's required files.
       # If you have other directories or files that will need to be added to
@@ -129,7 +130,8 @@ jobs:
             templates                            \
             scripts/                             \
             styles/                              \
-            packs/*.db                           \
+            packs/player-macros/                 \
+            packs/gm-macros/                     \
             sounds/                              \
             language/                            \
             lang/

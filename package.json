@@ -1,0 +1,23 @@
+{
+  "name": "cosmere-rpg-tooling",
+  "version": "1.0.0",
+  "description": "![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational) ![Module Version](https://img.shields.io/badge/version-1.2.2-blue)",
+  "type": "module",
+  "scripts": {
+    "compile": "node compile-packs.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juange87/cosmere-rpg-tooling.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/juange87/cosmere-rpg-tooling/issues"
+  },
+  "homepage": "https://github.com/juange87/cosmere-rpg-tooling#readme",
+  "devDependencies": {
+    "@foundryvtt/foundryvtt-cli": "^3.0.3"
+  }
+}
