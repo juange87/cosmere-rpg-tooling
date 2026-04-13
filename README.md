@@ -1,7 +1,7 @@
 # Cosmere RPG Tooling
 
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational)
-![Module Version](https://img.shields.io/badge/version-1.2.2-blue)
+![Module Version](https://img.shields.io/badge/version-1.2.6-blue)
 
 A Foundry VTT module that provides essential tools for Cosmere RPG, including random tables for character creation (based on Brotherwise's quick character creation documents) and useful macros for players and GMs.
 
@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 40 total macros (21 for players, 19 for GMs)
+- **2 macro compendiums** with 42 total macros (21 for players, 21 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (19 macros)
+#### CosmereRPG: GM Macros (21 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -76,6 +76,10 @@ Macros for the GM that include resource management and visual animations. **⚠�
 
 **Sound Effects:**
 - **Palabras Aceptadas** - Plays a dramatic two-part sound effect (ideal words accepted announcement + thunder) for all connected players
+
+**Economy:**
+- **Distribuir Esferas** - Distributes spheres (currency) to player characters with support for splitting evenly and chat notifications
+- **Eliminar Esferas** - Removes spheres from player characters with deficit detection and real-time inventory validation
 
 **Utilities:**
 - **Show Token** - Toggles visibility of selected tokens
