@@ -111,6 +111,7 @@ test("ships a GM macro that opens the highstorm toolkit", async () => {
   assert.equal(macro._key, "!macros!HighstormTool01");
   assert.equal(macro.name, "Highstorm Toolkit");
   assert.equal(macro.type, "script");
+  assert.equal(macro.img, "icons/svg/lightning.svg");
   assert.match(macro.command, /highstorm-toolkit\.js/);
   assert.match(macro.command, /openHighstormToolkit/);
 });

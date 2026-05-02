@@ -4,7 +4,7 @@
   "name": "Highstorm Toolkit",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
-  "img": "icons/magic/air/wind-tornado-cyclone-gray-blue.webp",
+  "img": "icons/svg/lightning.svg",
   "scope": "global",
   "command": "const { openHighstormToolkit } = await import(\"/modules/cosmere-rpg-tooling/scripts/highstorm-toolkit.js\");\n\nopenHighstormToolkit();",
   "folder": null,
