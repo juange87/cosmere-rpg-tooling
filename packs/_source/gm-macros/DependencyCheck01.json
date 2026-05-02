@@ -1,0 +1,16 @@
+{
+  "_id": "DependencyCheck01",
+  "_key": "!macros!DependencyCheck01",
+  "name": "Chequeo de Dependencias",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/hazard.svg",
+  "scope": "global",
+  "command": "const { runDependencyCheck } = await import(\"/modules/cosmere-rpg-tooling/scripts/dependency-checker.js\");\n\nrunDependencyCheck();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

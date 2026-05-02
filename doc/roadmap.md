@@ -68,15 +68,23 @@ Valor: los jugadores no tendrian que acordarse de ejecutar macros de hook al ent
 
 ### 3. Chequeo de dependencias
 
-Anadir validaciones claras antes de usar APIs externas:
+Estado: hecho en `codex/dependency-checker`.
+
+Se creo una macro oficial del compendio GM y un helper reutilizable para revisar dependencias opcionales:
 
 - `Sequence` y `Sequencer.Crosshair` para animaciones avanzadas.
 - JB2A para rutas de efectos.
 - Dice So Nice para el hook `diceSoNiceRollComplete`.
 
-Si falta una dependencia, la macro deberia avisar con una notificacion legible en vez de fallar en consola.
+Notas:
 
-Valor: menos errores durante partida y mejor experiencia de instalacion.
+- La macro publica una tarjeta de chat con el estado de cada dependencia.
+- Si falta algo, muestra una notificacion legible en vez de depender de errores de consola.
+- La logica principal vive en `scripts/dependency-checker.js`.
+- La macro fuente vive en `packs/_source/gm-macros/DependencyCheck01.json`.
+- La feature esta cubierta por tests en `tests/dependency-checker.test.mjs`.
+
+Valor entregado: menos errores durante partida y mejor experiencia de instalacion.
 
 ### 4. Helpers compartidos
 
@@ -358,7 +366,7 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 
 1. Panel GM Cosmere.
 2. Hooks globales configurables.
-3. Chequeo de dependencias.
+3. Chequeo de dependencias. Hecho.
 4. Gestor de Plot Die.
 5. First Step Character Generator. Hecho.
 
