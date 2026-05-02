@@ -1,0 +1,16 @@
+{
+  "_id": "RosharNPCGen0001",
+  "_key": "!macros!RosharNPCGen0001",
+  "name": "Generador de PNJ Roshar",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/mystery-man.svg",
+  "scope": "global",
+  "command": "const { openRosharNpcGenerator } = await import(\"/modules/cosmere-rpg-tooling/scripts/roshar-npc-generator.js\");\n\nopenRosharNpcGenerator();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

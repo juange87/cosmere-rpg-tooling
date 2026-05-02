@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 44 total macros (21 for players, 23 for GMs)
+- **2 macro compendiums** with 45 total macros (21 for players, 24 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (23 macros)
+#### CosmereRPG: GM Macros (24 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -84,6 +84,7 @@ Macros for the GM that include resource management and visual animations. **⚠�
 
 **Utilities:**
 - **First Step Character Generator** - Generates a quick character seed from the goal, obstacle, purpose, and optional name tables
+- **Generador de PNJ Roshar** - Generates a quick Roshar NPC with name, culture, attitude, problem, secret, resource, and scene hook
 - **Show Token** - Toggles visibility of selected tokens
 - **Request Roll** - Requests rolls from players (players need the "Hook" macro to respond automatically)
 - **Send message** - Sends custom messages
@@ -221,6 +222,13 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - Select a Rosharan culture if you want the macro to include a random name
 - Use **Enviar solo al GM** when preparing NPCs or secrets privately
 - The result is posted as a chat card and can be copied into an Actor biography or notes
+
+**Generating Roshar NPCs:**
+- Use **Generador de PNJ Roshar** to improvise a quick non-player character during prep or live play
+- Choose **Aleatoria** to roll a culture/name table automatically, or select a specific Rosharan culture
+- Keep **Enviar solo al GM** enabled when the NPC has secrets or hooks you want to reveal later
+- The chat card includes name, culture, attitude, immediate problem, secret, useful resource, and rumor or scene hook
+- The macro creates a narrative NPC seed in chat. It does not create a Foundry Actor automatically.
 
 **Running Highstorm Toolkit:**
 - Use **Highstorm Toolkit** to announce highstorm beats during a scene or generate an upcoming storm calendar

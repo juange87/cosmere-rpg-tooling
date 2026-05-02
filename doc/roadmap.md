@@ -139,7 +139,9 @@ Valor entregado: feature pequena, muy tematica y facil de usar desde el compendi
 
 ### 8. Generador de PNJ Roshar
 
-Crear tablas y macro para improvisar PNJs:
+Estado: hecho en `codex/roshar-npc-generator`.
+
+Se creo una macro oficial del compendio GM para improvisar PNJs:
 
 - Nombre.
 - Cultura.
@@ -149,7 +151,15 @@ Crear tablas y macro para improvisar PNJs:
 - Recurso que puede ofrecer.
 - Rumor o gancho de escena.
 
-Valor: util en casi cualquier sesion y coherente con las tablas existentes.
+Notas:
+
+- La macro usa las tablas de nombres existentes para generar nombre y cultura.
+- Los rasgos narrativos viven en `scripts/roshar-npc-generator.js`.
+- La macro fuente vive en `packs/_source/gm-macros/RosharNPCGen0001.json`.
+- La feature esta cubierta por tests en `tests/roshar-npc-generator.test.mjs`.
+- La macro genera una semilla narrativa en chat; no crea automaticamente un Actor de Foundry.
+
+Valor entregado: util en casi cualquier sesion y coherente con las tablas existentes.
 
 ## Fase 3: Atmosfera y momentos dramaticos
 
@@ -357,7 +367,7 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 1. Highstorm Toolkit. Hecho.
 2. Palabras Aceptadas Deluxe.
 3. Gestor de conversaciones y endeavors.
-4. Generador de PNJ Roshar.
+4. Generador de PNJ Roshar. Hecho.
 5. Gestor de esferas avanzado.
 
 ### Could have
