@@ -1,0 +1,16 @@
+{
+  "_id": "HighstormTool01",
+  "_key": "!macros!HighstormTool01",
+  "name": "Highstorm Toolkit",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/magic/air/wind-tornado-cyclone-gray-blue.webp",
+  "scope": "global",
+  "command": "const { openHighstormToolkit } = await import(\"/modules/cosmere-rpg-tooling/scripts/highstorm-toolkit.js\");\n\nopenHighstormToolkit();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

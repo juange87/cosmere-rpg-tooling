@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 43 total macros (21 for players, 22 for GMs)
+- **2 macro compendiums** with 44 total macros (21 for players, 23 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (22 macros)
+#### CosmereRPG: GM Macros (23 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -76,6 +76,7 @@ Macros for the GM that include resource management and visual animations. **⚠�
 
 **Sound Effects:**
 - **Palabras Aceptadas** - Plays a dramatic two-part sound effect (ideal words accepted announcement + thunder) for all connected players
+- **Highstorm Toolkit** - Publishes highstorm scene beats with optional thunder sound, countdown, GM note, and GM-only whisper mode
 
 **Economy:**
 - **Distribuir Esferas** - Distributes spheres (currency) to player characters with support for splitting evenly and chat notifications
@@ -220,6 +221,14 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - Select a Rosharan culture if you want the macro to include a random name
 - Use **Enviar solo al GM** when preparing NPCs or secrets privately
 - The result is posted as a chat card and can be copied into an Actor biography or notes
+
+**Running Highstorm Toolkit:**
+- Use **Highstorm Toolkit** to announce highstorm beats during a scene
+- Choose a moment: approaching, arrival, eye of the storm, or passing
+- Set a countdown in minutes if you want the chat card to show when the next change arrives
+- Add an optional GM note for scene-specific details
+- Toggle **Reproducir trueno** to play the bundled thunder sound for all connected players
+- Use **Enviar solo al GM** when preparing private storm timing or hidden scene notes
 
 **Example usage - Increase Focus:**
 ```javascript

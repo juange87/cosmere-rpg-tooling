@@ -155,15 +155,24 @@ Valor: util en casi cualquier sesion y coherente con las tablas existentes.
 
 ### 9. Highstorm Toolkit
 
-Crear herramientas para tormentas:
+Estado: hecho en `codex/highstorm-toolkit`.
+
+Se creo una macro oficial del compendio GM para manejar momentos de tormenta alta:
 
 - Iniciar cuenta atras de highstorm.
 - Reproducir trueno o ambiente.
 - Publicar avisos narrativos.
-- Cambiar iluminacion o aplicar efecto visual si es viable.
-- Detener sonidos o restaurar estado.
+- Anadir una nota de GM a la tarjeta de chat.
+- Enviar la tarjeta solo al GM cuando haga falta preparar informacion privada.
 
-Valor: las tormentas son una firma de Roshar y el modulo ya incluye sonido de trueno.
+Notas:
+
+- La primera version no cambia iluminacion ni estado de escena; evita modificar la escena activa de forma inesperada.
+- La logica principal vive en `scripts/highstorm-toolkit.js`.
+- La macro fuente vive en `packs/_source/gm-macros/HighstormTool01.json`.
+- La feature esta cubierta por tests en `tests/highstorm-toolkit.test.mjs`.
+
+Valor entregado: las tormentas son una firma de Roshar y el modulo ya incluye sonido de trueno.
 
 ### 10. Palabras Aceptadas Deluxe
 
@@ -342,7 +351,7 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 
 ### Should have
 
-1. Highstorm Toolkit.
+1. Highstorm Toolkit. Hecho.
 2. Palabras Aceptadas Deluxe.
 3. Gestor de conversaciones y endeavors.
 4. Generador de PNJ Roshar.
