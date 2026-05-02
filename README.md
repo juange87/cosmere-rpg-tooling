@@ -76,7 +76,7 @@ Macros for the GM that include resource management and visual animations. **тЪая
 
 **Sound Effects:**
 - **Palabras Aceptadas** - Plays a dramatic two-part sound effect (ideal words accepted announcement + thunder) for all connected players
-- **Highstorm Toolkit** - Publishes highstorm scene beats with optional thunder sound, countdown, GM note, and GM-only whisper mode
+- **Highstorm Toolkit** - Publishes highstorm scene beats and generates highstorm calendars with optional chat and Journal output
 
 **Economy:**
 - **Distribuir Esferas** - Distributes spheres (currency) to player characters with support for splitting evenly and chat notifications
@@ -223,12 +223,15 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - The result is posted as a chat card and can be copied into an Actor biography or notes
 
 **Running Highstorm Toolkit:**
-- Use **Highstorm Toolkit** to announce highstorm beats during a scene
+- Use **Highstorm Toolkit** to announce highstorm beats during a scene or generate an upcoming storm calendar
 - Choose a moment: approaching, arrival, eye of the storm, or passing
 - Set a countdown in minutes if you want the chat card to show when the next change arrives
 - Add an optional GM note for scene-specific details
 - Toggle **Reproducir trueno** to play the bundled thunder sound for all connected players
 - Use **Enviar solo al GM** when preparing private storm timing or hidden scene notes
+- To generate a calendar, set the starting day/hour, average interval in days, maximum random variation in hours, number of storms, and seed
+- Enable **Publicar calendario en chat** to post the schedule as a chat card
+- Enable **Crear Journal Entry** to create a persistent calendar handout in the Journal tab
 
 **Example usage - Increase Focus:**
 ```javascript

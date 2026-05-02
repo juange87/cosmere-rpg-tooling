@@ -164,10 +164,13 @@ Se creo una macro oficial del compendio GM para manejar momentos de tormenta alt
 - Publicar avisos narrativos.
 - Anadir una nota de GM a la tarjeta de chat.
 - Enviar la tarjeta solo al GM cuando haga falta preparar informacion privada.
+- Generar calendarios de proximas altas tormentas con dia, hora e intensidad.
+- Publicar el calendario en chat y crear una Journal Entry persistente.
 
 Notas:
 
 - La primera version no cambia iluminacion ni estado de escena; evita modificar la escena activa de forma inesperada.
+- El calendario usa una semilla configurable para poder repetir la misma secuencia.
 - La logica principal vive en `scripts/highstorm-toolkit.js`.
 - La macro fuente vive en `packs/_source/gm-macros/HighstormTool01.json`.
 - La feature esta cubierta por tests en `tests/highstorm-toolkit.test.mjs`.
