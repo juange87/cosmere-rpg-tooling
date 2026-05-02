@@ -1,0 +1,16 @@
+{
+  "_id": "PlotDieManager01",
+  "_key": "!macros!PlotDieManager01",
+  "name": "Gestor de Plot Die",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/dice-target.svg",
+  "scope": "global",
+  "command": "const { openPlotDieManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/plot-die-manager.js\");\n\nopenPlotDieManager();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

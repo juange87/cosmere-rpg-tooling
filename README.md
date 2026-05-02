@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 46 total macros (21 for players, 25 for GMs)
+- **2 macro compendiums** with 47 total macros (21 for players, 26 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (25 macros)
+#### CosmereRPG: GM Macros (26 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -86,6 +86,7 @@ Macros for the GM that include resource management and visual animations. **⚠�
 - **Chequeo de Dependencias** - Reports whether JB2A, Sequencer/Sequence, Sequencer.Crosshair, and Dice So Nice are available for optional macro features
 - **First Step Character Generator** - Generates a quick character seed from the goal, obstacle, purpose, and optional name tables
 - **Generador de PNJ Roshar** - Generates a quick Roshar NPC with name, culture, attitude, problem, secret, resource, and scene hook
+- **Gestor de Plot Die** - Records a Plot Die result, success/failure, Opportunity, Complication, and GM notes in a chat card
 - **Show Token** - Toggles visibility of selected tokens
 - **Request Roll** - Requests rolls from players (players need the "Hook" macro to respond automatically)
 - **Send message** - Sends custom messages
@@ -236,6 +237,14 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - The macro posts a chat card listing the status of JB2A, Sequencer/Sequence, Sequencer.Crosshair, and Dice So Nice
 - Missing dependencies are reported with readable details instead of forcing you to hunt through the browser console
 - This is especially useful before using animation macros, teleport/crosshair effects, or Dice So Nice hook macros
+
+**Managing Plot Die outcomes:**
+- Use **Gestor de Plot Die** to record a Plot Die moment after a roll
+- Enter actor/focus, roll label, total, optional difficulty, and Plot Die value
+- Leave the narrative result in **Automatico por valor** to treat 6 as Opportunity and 1 as Complication, or override it manually
+- Add Opportunity, Complication, and GM note text when useful
+- Enable **Enviar solo al GM** for private consequences or prep notes
+- The macro publishes a narrative chat card. It does not replace the Cosmere RPG system roll.
 
 **Running Highstorm Toolkit:**
 - Use **Highstorm Toolkit** to announce highstorm beats during a scene or generate an upcoming storm calendar

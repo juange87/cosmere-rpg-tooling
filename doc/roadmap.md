@@ -103,15 +103,28 @@ Valor: macros mas pequenas, mas faciles de mantener y menos bugs duplicados.
 
 ### 5. Gestor de Plot Die
 
-Crear una herramienta para manejar "raise the stakes":
+Estado: hecho en `codex/plot-die-manager`.
 
-- Solicitar tirada con Plot Die.
+Se creo una macro oficial del compendio GM para registrar momentos de Plot Die:
+
+- Registrar una tirada con Plot Die despues de resolverla.
+- Mostrar exito/fallo cuando se indica dificultad.
 - Registrar Opportunity y Complication.
 - Publicar resultados narrativos en chat.
 - Permitir al GM anadir texto de oportunidad/complicacion.
-- Opcionalmente disparar efectos en natural 20 o natural 1.
+- Enviar la tarjeta solo al GM cuando el resultado sea privado.
 
-Valor: convierte una mecanica diferencial del Cosmere RPG en algo visible y memorable en Foundry.
+Notas:
+
+- La primera version registra el resultado despues de una tirada; no reemplaza la tirada oficial del sistema Cosmere RPG.
+- El modo automatico interpreta 6 como Opportunity y 1 como Complication, con opcion de override manual.
+- La tarjeta permite resultado publico o whisper al GM.
+- La logica principal vive en `scripts/plot-die-manager.js`.
+- La macro fuente vive en `packs/_source/gm-macros/PlotDieManager01.json`.
+- La feature esta cubierta por tests en `tests/plot-die-manager.test.mjs`.
+- Los efectos visuales para natural 20 o natural 1 quedan como mejora futura, apoyados por el chequeo de dependencias.
+
+Valor entregado: convierte una mecanica diferencial del Cosmere RPG en algo visible y memorable en Foundry.
 
 ### 6. Gestor de conversaciones y endeavors
 
@@ -367,7 +380,7 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 1. Panel GM Cosmere.
 2. Hooks globales configurables.
 3. Chequeo de dependencias. Hecho.
-4. Gestor de Plot Die.
+4. Gestor de Plot Die. Hecho.
 5. First Step Character Generator. Hecho.
 
 ### Should have
