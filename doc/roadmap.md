@@ -119,14 +119,23 @@ Valor: refuerza una parte central del sistema que puede quedar menos automatizad
 
 ### 7. First Step Character Generator
 
-Convertir el ejemplo del README en macro oficial:
+Estado: hecho en `codex/first-step-character-generator`.
+
+Se convirtio el ejemplo del README en una macro oficial del compendio GM:
 
 - Tirar objetivo, obstaculo y proposito Radiant.
 - Opcionalmente tirar cultura y nombre.
 - Publicar una tarjeta de personaje rapido en chat.
 - Permitir whisper al GM o mensaje publico.
 
-Valor: feature pequena, muy tematica y facil de vender en README.
+Notas:
+
+- La macro genera una semilla narrativa en chat; no crea automaticamente un Actor de Foundry.
+- La logica principal vive en `scripts/first-step-character-generator.js`.
+- La macro fuente vive en `packs/_source/gm-macros/FStepCharGen0001.json`.
+- La feature esta cubierta por tests en `tests/first-step-character-generator.test.mjs`.
+
+Valor entregado: feature pequena, muy tematica y facil de usar desde el compendio GM.
 
 ### 8. Generador de PNJ Roshar
 
@@ -329,7 +338,7 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 2. Hooks globales configurables.
 3. Chequeo de dependencias.
 4. Gestor de Plot Die.
-5. First Step Character Generator.
+5. First Step Character Generator. Hecho.
 
 ### Should have
 
@@ -365,7 +374,7 @@ Alcance recomendado:
 - Mover hooks de tiradas a inicializacion configurable.
 - Anadir chequeo de dependencias.
 - Crear Panel GM Cosmere basico.
-- Incorporar First Step Character Generator como macro oficial.
+- Incorporar First Step Character Generator como macro oficial. Hecho.
 - Actualizar README.
 
 Este hito consolidaria la base actual sin abrir demasiados frentes y dejaria el modulo preparado para features mas narrativas en versiones posteriores.

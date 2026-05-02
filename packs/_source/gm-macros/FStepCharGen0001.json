@@ -1,0 +1,16 @@
+{
+  "_id": "FStepCharGen0001",
+  "_key": "!macros!FStepCharGen0001",
+  "name": "First Step Character Generator",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/d20-grey.svg",
+  "scope": "global",
+  "command": "const { openFirstStepCharacterGenerator } = await import(\"/modules/cosmere-rpg-tooling/scripts/first-step-character-generator.js\");\n\nopenFirstStepCharacterGenerator();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

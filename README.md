@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 42 total macros (21 for players, 21 for GMs)
+- **2 macro compendiums** with 43 total macros (21 for players, 22 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (21 macros)
+#### CosmereRPG: GM Macros (22 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -82,6 +82,7 @@ Macros for the GM that include resource management and visual animations. **⚠�
 - **Eliminar Esferas** - Removes spheres from player characters with deficit detection and real-time inventory validation
 
 **Utilities:**
+- **First Step Character Generator** - Generates a quick character seed from the goal, obstacle, purpose, and optional name tables
 - **Show Token** - Toggles visibility of selected tokens
 - **Request Roll** - Requests rolls from players (players need the "Hook" macro to respond automatically)
 - **Send message** - Sends custom messages
@@ -136,11 +137,29 @@ Once the module is activated (requires being GM the first time to create the tab
 
 ### Quick Character Creation
 
-To generate the three main components of a character:
+To generate the three main components of a character manually:
 
 1. Roll on **Character Goals Table** to determine the character's goal
 2. Roll on **Character Obstacles Table** to discover their personal obstacle
 3. Roll on **Radiant Purpose Table** to find their purpose (if they're a Radiant)
+
+Alternatively, GMs can use the **First Step Character Generator** macro from **CosmereRPG: GM Macros** to generate the full seed in one action.
+
+**Using First Step Character Generator:**
+1. Open **Compendium Packs**
+2. Open **CosmereRPG: GM Macros**
+3. Drag **First Step Character Generator** to your macro bar, or execute it from the compendium
+4. Choose a culture/name table, or select **Sin nombre** to skip name generation
+5. Enable **Enviar solo al GM** if the result should be whispered to GMs only
+6. Click **Generar**
+
+The macro publishes a chat card with:
+- Optional Rosharan name and culture table
+- Character goal
+- Character obstacle
+- Radiant purpose, including the associated order when present in the table result
+
+This macro creates a narrative character seed in chat. It does not create a Foundry Actor automatically.
 
 ### Name Generation
 
@@ -196,6 +215,12 @@ To generate the three main components of a character:
 - Players who have the **Hook** macro will automatically receive the request
 - This streamlines gameplay by allowing the GM to trigger rolls for multiple players at once
 
+**Generating First Step Characters:**
+- Use **First Step Character Generator** to create a quick character seed from the roll tables
+- Select a Rosharan culture if you want the macro to include a random name
+- Use **Enviar solo al GM** when preparing NPCs or secrets privately
+- The result is posted as a chat card and can be copied into an Actor biography or notes
+
 **Example usage - Increase Focus:**
 ```javascript
 // The macro does this automatically:
@@ -208,27 +233,6 @@ To generate the three main components of a character:
 ## 🎲 Additional Macros (Optional)
 
 In addition to the included macros, you can create custom macros to automate additional tasks:
-
-### Macro: Character Creation
-
-```javascript
-// Generates a complete character with Goal, Obstacle, and Purpose
-async function createFirstStepCharacter() {
-  const goal = await game.tables.getName("Character Goals Table")?.draw();
-  const obstacle = await game.tables.getName("Character Obstacles Table")?.draw();
-  const purpose = await game.tables.getName("Radiant Purpose Table")?.draw();
-
-  ChatMessage.create({
-    content: `<h2>First Step Character</h2>
-    <p><strong>Goal:</strong> ${goal.results[0].text}</p>
-    <p><strong>Obstacle:</strong> ${obstacle.results[0].text}</p>
-    <p><strong>Purpose:</strong> ${purpose.results[0].text}</p>`,
-    speaker: ChatMessage.getSpeaker()
-  });
-}
-
-createFirstStepCharacter();
-```
 
 ### Macro: Random Alethi Name
 
