@@ -1,0 +1,16 @@
+{
+  "_id": "GMPanel01",
+  "_key": "!macros!GMPanel01",
+  "name": "Panel GM Cosmere",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/upgrade.svg",
+  "scope": "global",
+  "command": "const { openGmPanel } = await import(\"/modules/cosmere-rpg-tooling/scripts/gm-panel.js\");\n\nopenGmPanel();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

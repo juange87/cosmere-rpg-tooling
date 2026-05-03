@@ -1,0 +1,16 @@
+{
+  "_id": "SurgeProgression01",
+  "_key": "!macros!SurgeProgression01",
+  "name": "Surgebinding FX: Progression",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/heal.svg",
+  "scope": "global",
+  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"progression\" } });",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

@@ -1,0 +1,16 @@
+{
+  "_id": "LocationGenerator01",
+  "_key": "!macros!LocationGenerator01",
+  "name": "Generador de Localizaciones",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/map.svg",
+  "scope": "global",
+  "command": "const { openLocationGenerator } = await import(\"/modules/cosmere-rpg-tooling/scripts/location-generator.js\");\n\nopenLocationGenerator();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

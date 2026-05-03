@@ -41,6 +41,8 @@ Esto deja una base muy buena para evolucionar hacia herramientas mas integradas:
 
 ### 1. Panel GM Cosmere
 
+Estado: hecho en `codex/gm-panel`.
+
 Crear una macro o aplicacion ligera que centralice herramientas del GM:
 
 - Gestion de salud y foco.
@@ -54,6 +56,8 @@ Crear una macro o aplicacion ligera que centralice herramientas del GM:
 Valor: reduce la dependencia de una barra de macros enorme y mejora mucho el ritmo de sesion.
 
 ### 2. Hooks globales configurables
+
+Estado: hecho en `codex/settings-and-hooks`.
 
 Mover los hooks de natural 20, fallo critico y solicitud de tiradas desde macros manuales a `scripts/init.js`.
 
@@ -87,6 +91,8 @@ Notas:
 Valor entregado: menos errores durante partida y mejor experiencia de instalacion.
 
 ### 4. Helpers compartidos
+
+Estado: hecho en `codex/cosmere-helpers`.
 
 Extraer utilidades repetidas a scripts comunes:
 
@@ -128,6 +134,8 @@ Valor entregado: convierte una mecanica diferencial del Cosmere RPG en algo visi
 
 ### 6. Gestor de conversaciones y endeavors
 
+Estado: hecho en `codex/conversation-endeavor-manager`.
+
 Crear macros o un panel para escenas no-combate:
 
 - Crear una conversacion con PNJ objetivo, resistencia o foco.
@@ -135,6 +143,11 @@ Crear macros o un panel para escenas no-combate:
 - Registrar avances, fallos, oportunidades y complicaciones.
 - Publicar estado al chat.
 - Permitir finalizar con resumen.
+
+Notas de cierre:
+
+- La macro incluye una accion especifica **Finalizar con resumen**.
+- Al finalizar, el progreso se completa y la tarjeta muestra **Resumen final**.
 
 Valor: refuerza una parte central del sistema que puede quedar menos automatizada que el combate.
 
@@ -202,6 +215,7 @@ Notas:
 
 - La primera version no cambia iluminacion ni estado de escena; evita modificar la escena activa de forma inesperada.
 - El calendario usa una semilla configurable para poder repetir la misma secuencia.
+- La macro permite elegir entre trueno puntual y ambiente highstorm en loop.
 - La logica principal vive en `scripts/highstorm-toolkit.js`.
 - La macro fuente vive en `packs/_source/gm-macros/HighstormTool01.json`.
 - La feature esta cubierta por tests en `tests/highstorm-toolkit.test.mjs`.
@@ -209,6 +223,8 @@ Notas:
 Valor entregado: las tormentas son una firma de Roshar y el modulo ya incluye sonido de trueno.
 
 ### 10. Palabras Aceptadas Deluxe
+
+Estado: hecho en `codex/oath-accepted-deluxe`.
 
 Expandir la macro actual:
 
@@ -220,9 +236,16 @@ Expandir la macro actual:
 - Publicar chat card dramatica.
 - Permitir whisper previo al jugador.
 
+Notas de cierre:
+
+- El whisper previo se envia como mensaje real al jugador seleccionado antes de publicar la tarjeta final.
+- La tarjeta final puede seguir siendo publica o solo para GM.
+
 Valor: convierte uno de los momentos mas importantes de campana en una escena especial.
 
 ### 11. Surgebinding FX Pack
+
+Estado: hecho en `codex/surgebinding-fx-pack`.
 
 Crear macros visuales por surge:
 
@@ -243,6 +266,8 @@ Valor: mucho sabor Cosmere con bajo riesgo si se mantiene como capa visual.
 
 ### 12. Pack de sonidos
 
+Estado: hecho en `codex/sound-pack`.
+
 Ampliar la carpeta `sounds/` con efectos tematicos:
 
 - Highstorm loop.
@@ -258,6 +283,8 @@ Valor: mejora identidad del modulo y acompana bien las macros de escena.
 ## Fase 4: Contenido y preparacion de partida
 
 ### 13. Nuevas roll tables
+
+Estado: hecho en `codex/roshar-roll-tables`.
 
 Ampliar el sistema de tablas con carpetas nuevas:
 
@@ -275,6 +302,8 @@ Ampliar el sistema de tablas con carpetas nuevas:
 Valor: complementa la funcionalidad actual sin tocar demasiada logica.
 
 ### 14. Generador de localizaciones
+
+Estado: hecho en `codex/location-generator`.
 
 Macro o tablas para crear rapidamente:
 
@@ -294,6 +323,8 @@ Salida ideal:
 
 ### 15. Compendio de escenas rapidas
 
+Estado: hecho en `codex/quick-scene-compendium`.
+
 Crear macros o journals para escenas recurrentes:
 
 - Persecucion.
@@ -310,6 +341,8 @@ Valor: ayuda al GM a arrancar estructuras de escena sin preparar todo desde cero
 
 ### 16. Gestor de esferas avanzado
 
+Estado: hecho en `codex/sphere-manager`.
+
 Evolucionar las macros actuales:
 
 - Mostrar balance total por actor.
@@ -319,9 +352,16 @@ Evolucionar las macros actuales:
 - Detectar fondos insuficientes antes de confirmar.
 - Publicar resumen de tesoreria al chat.
 
+Notas de cierre:
+
+- El panel avanzado expone acciones para resumen, conversion infused/dun, gasto grupal y drenaje por Investiture.
+- Las operaciones bloquean la aplicacion cuando hay deficit y publican una tarjeta de resultado cuando se solicita.
+
 Valor: aprovecha una linea ya iniciada en el repo y la convierte en herramienta completa.
 
 ### 17. Control rapido de recursos
+
+Estado: hecho en `codex/resource-control`.
 
 Macro o panel para modificar recursos en bloque:
 
@@ -337,9 +377,16 @@ Opciones:
 - Aplicar a todos los tokens seleccionados.
 - Publicar resumen opcional.
 
+Notas de cierre:
+
+- La macro aplica salud, foco e Investiture sobre tokens seleccionados o personaje del usuario.
+- Tambien permite aplicar o retirar estados narrativos simples: con ventaja, expuesto, agotado e inspirado.
+
 ## Fase 6: Mantenibilidad y release
 
 ### 18. Settings del modulo
+
+Estado: hecho en `codex/settings-and-hooks`.
 
 Registrar ajustes de mundo:
 
@@ -352,6 +399,8 @@ Registrar ajustes de mundo:
 
 ### 19. Validacion de macros
 
+Estado: hecho en `codex/macro-validator`.
+
 Crear script de validacion para `packs/_source`:
 
 - Verificar `_id` y `_key`.
@@ -362,6 +411,8 @@ Crear script de validacion para `packs/_source`:
 - Comprobar que `npm run compile` genera packs sin errores.
 
 ### 20. Documentacion de contribucion
+
+Estado: hecho en `codex/readme-contribution-docs`.
 
 Anadir guias cortas:
 
@@ -377,8 +428,8 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 
 ### Must have
 
-1. Panel GM Cosmere.
-2. Hooks globales configurables.
+1. Panel GM Cosmere. Hecho.
+2. Hooks globales configurables. Hecho.
 3. Chequeo de dependencias. Hecho.
 4. Gestor de Plot Die. Hecho.
 5. First Step Character Generator. Hecho.
@@ -386,18 +437,18 @@ Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 ### Should have
 
 1. Highstorm Toolkit. Hecho.
-2. Palabras Aceptadas Deluxe.
-3. Gestor de conversaciones y endeavors.
+2. Palabras Aceptadas Deluxe. Hecho.
+3. Gestor de conversaciones y endeavors. Hecho.
 4. Generador de PNJ Roshar. Hecho.
-5. Gestor de esferas avanzado.
+5. Gestor de esferas avanzado. Hecho.
 
 ### Could have
 
-1. Surgebinding FX Pack.
-2. Pack de sonidos ampliado.
-3. Generador de localizaciones.
-4. Compendio de escenas rapidas.
-5. Nuevas roll tables tematicas.
+1. Surgebinding FX Pack. Hecho.
+2. Pack de sonidos ampliado. Hecho.
+3. Generador de localizaciones. Hecho.
+4. Compendio de escenas rapidas. Hecho.
+5. Nuevas roll tables tematicas. Hecho.
 
 ## Riesgos y consideraciones
 

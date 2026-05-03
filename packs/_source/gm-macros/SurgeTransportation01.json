@@ -1,0 +1,16 @@
+{
+  "_id": "SurgeTransportation01",
+  "_key": "!macros!SurgeTransportation01",
+  "name": "Surgebinding FX: Transportation",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/teleport.svg",
+  "scope": "global",
+  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"transportation\" } });",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

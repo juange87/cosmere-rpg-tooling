@@ -1,0 +1,16 @@
+{
+  "_id": "SurgeTransformation01",
+  "_key": "!macros!SurgeTransformation01",
+  "name": "Surgebinding FX: Transformation",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/upgrade.svg",
+  "scope": "global",
+  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"transformation\" } });",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

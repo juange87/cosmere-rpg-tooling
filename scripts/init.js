@@ -1,3 +1,14 @@
+import { registerCosmereSettings, activateCosmereGlobalHooks } from "./settings-and-hooks.js";
+import { ensureRoadmapRollTables } from "./roshar-roll-tables.js";
+
+Hooks.once("init", () => {
+  registerCosmereSettings();
+});
+
+Hooks.once("ready", () => {
+  activateCosmereGlobalHooks();
+});
+
 /**
  * Script de inicialización del módulo Cosmere RPG Tooling
  * Este script crea automáticamente las carpetas y tablas si no existen
@@ -398,11 +409,13 @@ Hooks.once('ready', async () => {
     }
   }
 
+  const roadmapTables = await ensureRoadmapRollTables({ parentFolder });
+
   if (tablasReorganizadas > 0) {
     ui.notifications.info(`Cosmere RPG Tooling: ${tablasReorganizadas} tabla(s) reorganizada(s) en carpetas correctas!`);
   } else {
     ui.notifications.info("Cosmere RPG Tooling: Todas las tablas están listas!");
   }
   
-  console.log("Cosmere RPG Tooling | Módulo cargado correctamente - 3 carpetas (1 padre + 2 hijas), 11 tablas disponibles");
+  console.log(`Cosmere RPG Tooling | Módulo cargado correctamente - tablas base listas y ${roadmapTables.total} tablas tematicas disponibles`);
 });

@@ -4,7 +4,9 @@
   "description": "![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational) ![Module Version](https://img.shields.io/badge/version-1.2.2-blue)",
   "type": "module",
   "scripts": {
-    "compile": "node compile-packs.js"
+    "compile": "node compile-packs.js",
+    "test": "node --test tests/*.test.mjs",
+    "validate": "node scripts/macro-validator.js"
   },
   "repository": {
     "type": "git",

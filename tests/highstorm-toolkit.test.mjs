@@ -6,6 +6,7 @@ import {
   HIGHSTORM_CALENDAR_DEFAULTS,
   HIGHSTORM_CUES,
   HIGHSTORM_SOUND,
+  HIGHSTORM_SOUNDS,
   buildHighstormCalendarChatCard,
   buildHighstormCalendarJournalContent,
   buildHighstormChatCard,
@@ -17,6 +18,9 @@ import {
 
 test("defines the highstorm cues and bundled thunder sound", () => {
   assert.equal(HIGHSTORM_SOUND, "modules/cosmere-rpg-tooling/sounds/thunder.mp3");
+  assert.deepEqual(Object.keys(HIGHSTORM_SOUNDS), ["thunder", "ambient"]);
+  assert.equal(HIGHSTORM_SOUNDS.ambient.src, "modules/cosmere-rpg-tooling/sounds/highstorm-loop.wav");
+  assert.equal(HIGHSTORM_SOUNDS.ambient.loop, true);
   assert.deepEqual(Object.keys(HIGHSTORM_CUES), ["approach", "arrival", "eye", "passing"]);
   assert.equal(HIGHSTORM_CUES.arrival.title, "La tormenta alta golpea");
 });
@@ -76,6 +80,32 @@ test("runs a highstorm cue by posting chat and playing thunder", async () => {
   assert.equal(messages.length, 1);
   assert.match(messages[0].content, /Las ventanas tiemblan\./);
   assert.deepEqual(messages[0].speaker, { alias: "GM" });
+});
+
+test("can play highstorm ambient loop instead of thunder", async () => {
+  const played = [];
+  await runHighstormCue({
+    cueKey: "approach",
+    soundKey: "ambient",
+    AudioHelper: {
+      play(sound, broadcast) {
+        played.push({ sound, broadcast });
+      },
+    },
+    ChatMessage: {
+      getSpeaker() {
+        return { alias: "GM" };
+      },
+      async create(data) {
+        return data;
+      },
+    },
+  });
+
+  assert.deepEqual(played, [{
+    sound: { src: HIGHSTORM_SOUNDS.ambient.src, volume: 0.6, loop: true },
+    broadcast: true,
+  }]);
 });
 
 test("can whisper to GMs and skip sound playback", async () => {

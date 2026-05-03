@@ -1,0 +1,16 @@
+{
+  "_id": "ResourceControl01",
+  "_key": "!macros!ResourceControl01",
+  "name": "Control Rapido de Recursos",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/regen.svg",
+  "scope": "global",
+  "command": "const { openResourceControl } = await import(\"/modules/cosmere-rpg-tooling/scripts/resource-control.js\");\n\nopenResourceControl();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

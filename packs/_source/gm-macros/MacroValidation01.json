@@ -1,0 +1,16 @@
+{
+  "_id": "MacroValidation01",
+  "_key": "!macros!MacroValidation01",
+  "name": "Validacion de Macros",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/checkmark.svg",
+  "scope": "global",
+  "command": "const { runMacroValidation } = await import(\"/modules/cosmere-rpg-tooling/scripts/macro-validator.js\");\n\nrunMacroValidation();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

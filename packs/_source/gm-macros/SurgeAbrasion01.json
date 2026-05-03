@@ -1,0 +1,16 @@
+{
+  "_id": "SurgeAbrasion01",
+  "_key": "!macros!SurgeAbrasion01",
+  "name": "Surgebinding FX: Abrasion",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/windmill.svg",
+  "scope": "global",
+  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"abrasion\" } });",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

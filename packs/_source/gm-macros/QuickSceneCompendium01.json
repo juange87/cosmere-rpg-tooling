@@ -1,0 +1,16 @@
+{
+  "_id": "QuickSceneCompendium01",
+  "_key": "!macros!QuickSceneCompendium01",
+  "name": "Compendio de Escenas Rapidas",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/book.svg",
+  "scope": "global",
+  "command": "const { openQuickSceneCompendium } = await import(\"/modules/cosmere-rpg-tooling/scripts/quick-scene-compendium.js\");\n\nopenQuickSceneCompendium();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

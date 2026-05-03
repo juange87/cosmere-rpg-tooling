@@ -1,0 +1,16 @@
+{
+  "_id": "SphereManager01",
+  "_key": "!macros!SphereManager01",
+  "name": "Gestor de Esferas Avanzado",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/coins.svg",
+  "scope": "global",
+  "command": "const { openSphereManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/sphere-manager.js\");\n\nopenSphereManager();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

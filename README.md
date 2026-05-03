@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 47 total macros (21 for players, 26 for GMs)
+- **2 macro compendiums** with 65 total macros (21 for players, 44 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (26 macros)
+#### CosmereRPG: GM Macros (44 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -75,18 +75,27 @@ Macros for the GM that include resource management and visual animations. **⚠�
 - **Spreen flight** 🎨 *[Uses JB2A]* - Spren flight animation
 
 **Sound Effects:**
-- **Palabras Aceptadas** - Plays a dramatic two-part sound effect (ideal words accepted announcement + thunder) for all connected players
-- **Highstorm Toolkit** - Publishes highstorm scene beats and generates highstorm calendars with optional chat and Journal output
+- **Palabras Aceptadas Deluxe** - Plays a dramatic two-part sound effect, lets the GM choose actor, Radiant order, ideal text, optional aura, a real pre-oath player whisper, chat card, and GM-only output
+- **Highstorm Toolkit** - Publishes highstorm scene beats with thunder or ambient audio, and generates highstorm calendars with optional chat and Journal output
 
 **Economy:**
 - **Distribuir Esferas** - Distributes spheres (currency) to player characters with support for splitting evenly and chat notifications
 - **Eliminar Esferas** - Removes spheres from player characters with deficit detection and real-time inventory validation
+- **Gestor de Esferas Avanzado** - Shows actor balances, converts infused/dun spheres, spends from the party pool, drains infused spheres after Investiture, detects deficits, and publishes treasury summaries
 
 **Utilities:**
+- **Panel GM Cosmere** - Centralizes resource control, spheres, roll requests, private messages, sounds, visual effects, and token visibility
 - **Chequeo de Dependencias** - Reports whether JB2A, Sequencer/Sequence, Sequencer.Crosshair, and Dice So Nice are available for optional macro features
+- **Gestor de Conversaciones y Endeavors** - Tracks non-combat progress, failures, Opportunity, Complication, and final scene summaries
 - **First Step Character Generator** - Generates a quick character seed from the goal, obstacle, purpose, and optional name tables
 - **Generador de PNJ Roshar** - Generates a quick Roshar NPC with name, culture, attitude, problem, secret, resource, and scene hook
+- **Generador de Localizaciones** - Creates Roshar locations with chat output and optional Journal Entry
+- **Compendio de Escenas Rapidas** - Publishes reusable scene structures for chase, infiltration, social duel, discovery, travel, negotiation, and storm preparation
 - **Gestor de Plot Die** - Records a Plot Die result, success/failure, Opportunity, Complication, and GM notes in a chat card
+- **Control Rapido de Recursos** - Applies health, focus, or Investiture changes and simple narrative states to selected tokens with optional chat summary
+- **Surgebinding FX Pack** - Provides narrative/visual cues for the ten Surges while degrading to chat if Sequencer is missing
+- **Individual Surge FX macros** - Adhesion, Gravitation, Division, Abrasion, Progression, Illumination, Transformation, Transportation, Cohesion, and Tension
+- **Validacion de Macros** - Checks source macro metadata, `_key` consistency, duplicate names, empty commands, and optional dependency references
 - **Show Token** - Toggles visibility of selected tokens
 - **Request Roll** - Requests rolls from players (players need the "Hook" macro to respond automatically)
 - **Send message** - Sends custom messages
@@ -251,11 +260,21 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - Choose a moment: approaching, arrival, eye of the storm, or passing
 - Set a countdown in minutes if you want the chat card to show when the next change arrives
 - Add an optional GM note for scene-specific details
-- Toggle **Reproducir trueno** to play the bundled thunder sound for all connected players
+- Toggle **Reproducir sonido** and choose **Trueno** or **Ambiente highstorm** depending on whether you want a one-shot cue or the bundled loop
 - Use **Enviar solo al GM** when preparing private storm timing or hidden scene notes
 - To generate a calendar, set the starting day/hour, average interval in days, maximum random variation in hours, number of storms, and seed
 - Enable **Publicar calendario en chat** to post the schedule as a chat card
 - Enable **Crear Journal Entry** to create a persistent calendar handout in the Journal tab
+
+**Using GM Flow tools:**
+- Use **Panel GM Cosmere** as the first macro on the GM bar when you want a single launcher for resources, spheres, roll requests, messages, sounds, FX, and token visibility
+- Use **Gestor de Conversaciones y Endeavors** for non-combat scenes with progress, failures, Opportunity, Complication, and the **Finalizar con resumen** action when the scene closes
+- Use **Palabras Aceptadas Deluxe** for oath moments: choose actor, Radiant order, ideal, optional pre-oath player whisper, audio, aura, and whether the final card is public or GM-only
+- Use **Surgebinding FX Pack** for a narrative/visual cue for any of the ten Surges; it posts a chat card even if Sequencer is unavailable
+- Use **Generador de Localizaciones** and **Compendio de Escenas Rapidas** when prep needs a quick place or scene structure
+- Use **Gestor de Esferas Avanzado** to publish a party treasury summary, convert infused/dun spheres, spend from the group, or drain infused spheres after Investiture
+- Use **Control Rapido de Recursos** to apply +/- changes to health, focus, or Investiture across selected tokens, or to apply/remove simple narrative states
+- Use **Validacion de Macros** or `npm run validate` before compiling packs or preparing a release
 
 **Example usage - Increase Focus:**
 ```javascript
@@ -332,7 +351,7 @@ cd cosmere-rpg-tooling
 
 ### Adding new tables
 
-To add new tables, edit `scripts/init.js` and add an object to the `tables` array:
+To add base character creation tables, edit `scripts/init.js` and add an object to the `tables` array:
 
 ```javascript
 {
@@ -345,6 +364,37 @@ To add new tables, edit `scripts/init.js` and add an object to the `tables` arra
   ]
 }
 ```
+
+For thematic GM tables, prefer adding data to `scripts/roshar-roll-tables.js`; `scripts/init.js` calls `ensureRoadmapRollTables()` during GM initialization.
+
+### Creating a new macro
+
+1. Add the macro source JSON to `packs/_source/gm-macros/` or `packs/_source/player-macros/`.
+2. Keep `_id` unique and set `_key` to `!macros!{_id}`.
+3. Put reusable logic in `scripts/<feature>.js` and keep the macro command as a short dynamic import.
+4. Add or update a Node test in `tests/`.
+5. Run `npm test`, `npm run validate`, and `npm run compile`.
+
+### Testing macros in Foundry
+
+1. Run `npm run compile`.
+2. Link or copy the module directory into your Foundry VTT development `Data/modules/` directory.
+3. Enable **CosmereRPG GM Tools** in a test world using the Cosmere RPG system.
+4. Open the relevant compendium, drag the macro to the macro bar, and test with selected tokens and missing optional modules.
+
+### Adding sounds
+
+1. Add audio files under `sounds/`.
+2. Reference them as `modules/cosmere-rpg-tooling/sounds/<file>`.
+3. Keep new sound playback behind a volume setting or macro checkbox when possible.
+4. Prefer graceful fallback to chat cards if audio is missing or muted.
+
+### Preparing a release
+
+1. Run `npm test`.
+2. Run `npm run validate`.
+3. Run `npm run compile`.
+4. Create a GitHub release tag such as `v1.3.0`; the workflow replaces manifest placeholders and uploads the compiled module archive.
 
 ## 📝 Roadmap
 

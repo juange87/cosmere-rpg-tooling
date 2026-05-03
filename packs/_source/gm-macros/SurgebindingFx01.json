@@ -1,0 +1,16 @@
+{
+  "_id": "SurgebindingFx01",
+  "_key": "!macros!SurgebindingFx01",
+  "name": "Surgebinding FX Pack",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/lightning.svg",
+  "scope": "global",
+  "command": "const { openSurgebindingFxDialog } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nopenSurgebindingFxDialog();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

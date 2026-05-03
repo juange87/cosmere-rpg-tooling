@@ -1,0 +1,16 @@
+{
+  "_id": "ConversationEndeavor01",
+  "_key": "!macros!ConversationEndeavor01",
+  "name": "Gestor de Conversaciones y Endeavors",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/conversation.svg",
+  "scope": "global",
+  "command": "const { openConversationEndeavorManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/conversation-endeavor-manager.js\");\n\nopenConversationEndeavorManager();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

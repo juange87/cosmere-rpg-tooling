@@ -32,7 +32,7 @@ async function drawTableText(game, tableName) {
 
   const draw = await table.draw({ displayChat: false });
   const result = draw?.results?.[0];
-  const text = result?.text ?? result?.description ?? "";
+  const text = result?.name ?? result?.description ?? result?.text ?? "";
 
   if (!text) {
     throw new Error(`La tabla "${tableName}" no devolvio ningun resultado.`);

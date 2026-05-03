@@ -1,5 +1,10 @@
 export const HIGHSTORM_SOUND = "modules/cosmere-rpg-tooling/sounds/thunder.mp3";
 
+export const HIGHSTORM_SOUNDS = {
+  thunder: { label: "Trueno", src: HIGHSTORM_SOUND, volume: 1, loop: false },
+  ambient: { label: "Ambiente highstorm", src: "modules/cosmere-rpg-tooling/sounds/highstorm-loop.wav", volume: 0.6, loop: true },
+};
+
 export const HIGHSTORM_CALENDAR_DEFAULTS = {
   startDay: 1,
   startHour: 18,
@@ -43,6 +48,14 @@ function escapeHtml(value) {
 
 function getCue(cueKey) {
   return HIGHSTORM_CUES[cueKey] ?? HIGHSTORM_CUES.approach;
+}
+
+function getHighstormSound(soundKey) {
+  return HIGHSTORM_SOUNDS[soundKey] ?? HIGHSTORM_SOUNDS.thunder;
+}
+
+function resolveAudioHelper() {
+  return globalThis.foundry?.audio?.AudioHelper ?? globalThis.AudioHelper;
 }
 
 function normalizeMinutes(minutes) {
@@ -225,8 +238,9 @@ export async function runHighstormCue({
   minutes = 0,
   note = "",
   playSound = true,
+  soundKey = "thunder",
   whisperOnly = false,
-  AudioHelper = globalThis.AudioHelper,
+  AudioHelper = resolveAudioHelper(),
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
@@ -237,7 +251,8 @@ export async function runHighstormCue({
   const cue = getCue(cueKey);
 
   if (playSound && AudioHelper?.play) {
-    AudioHelper.play({ src: HIGHSTORM_SOUND, volume: 1, loop: false }, true);
+    const sound = getHighstormSound(soundKey);
+    AudioHelper.play({ src: sound.src, volume: sound.volume, loop: sound.loop }, true);
   }
 
   const whisper = whisperOnly
@@ -325,6 +340,9 @@ function buildDialogContent() {
   const cueOptions = Object.entries(HIGHSTORM_CUES)
     .map(([key, cue]) => `<option value="${escapeHtml(key)}">${escapeHtml(cue.label)}</option>`)
     .join("");
+  const soundOptions = Object.entries(HIGHSTORM_SOUNDS)
+    .map(([key, sound]) => `<option value="${escapeHtml(key)}">${escapeHtml(sound.label)}</option>`)
+    .join("");
 
   return `
     <form>
@@ -345,8 +363,12 @@ function buildDialogContent() {
       <div class="form-group">
         <label>
           <input type="checkbox" id="cr-highstorm-sound" name="playSound" checked>
-          Reproducir trueno
+          Reproducir sonido
         </label>
+      </div>
+      <div class="form-group">
+        <label for="cr-highstorm-sound-key">Tipo de sonido</label>
+        <select id="cr-highstorm-sound-key" name="soundKey">${soundOptions}</select>
       </div>
       <div class="form-group">
         <label>
@@ -404,7 +426,7 @@ function buildDialogContent() {
 export function openHighstormToolkit({
   Dialog = globalThis.Dialog,
   ChatMessage = globalThis.ChatMessage,
-  AudioHelper = globalThis.AudioHelper,
+  AudioHelper = resolveAudioHelper(),
   JournalEntry = globalThis.JournalEntry,
   ui = globalThis.ui,
 } = {}) {
@@ -426,6 +448,7 @@ export function openHighstormToolkit({
               minutes: html.find("#cr-highstorm-minutes").val(),
               note: html.find("#cr-highstorm-note").val(),
               playSound: html.find("#cr-highstorm-sound").is(":checked"),
+              soundKey: html.find("#cr-highstorm-sound-key").val(),
               whisperOnly: html.find("#cr-highstorm-whisper").is(":checked"),
               AudioHelper,
               ChatMessage,
