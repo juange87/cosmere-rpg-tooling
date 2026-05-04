@@ -8,6 +8,7 @@ import {
   normalizeText,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const RESOURCE_KEYS = [
   { key: "health", label: "Salud", path: "system.resources.hea.value", maxPath: "system.resources.hea.max" },
@@ -168,7 +169,9 @@ export function openResourceControl({
   game = globalThis.game,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) throw new Error("Foundry no esta disponible para abrir recursos.");
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
+    throw new Error("Foundry no esta disponible para abrir recursos.");
+  }
   const actors = getControlledActors({
     controlledTokens: canvas?.tokens?.controlled ?? [],
     fallbackActor: game?.user?.character,
@@ -178,7 +181,7 @@ export function openResourceControl({
     return;
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "Control Rapido de Recursos",
     content: `
       <form>
@@ -246,5 +249,5 @@ export function openResourceControl({
       cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
     },
     default: "apply",
-  }).render(true);
+  }, { Dialog });
 }

@@ -1,3 +1,5 @@
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
+
 export const FIRST_STEP_TABLES = {
   goal: "Character Goals Table",
   obstacle: "Character Obstacles Table",
@@ -118,11 +120,11 @@ export function openFirstStepCharacterGenerator({
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir el generador.");
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "First Step Character Generator",
     content: buildDialogContent(),
     buttons: {
@@ -156,5 +158,5 @@ export function openFirstStepCharacterGenerator({
       },
     },
     default: "generate",
-  }).render(true);
+  }, { Dialog });
 }

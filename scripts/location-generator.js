@@ -3,6 +3,7 @@ import {
   normalizeText,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const LOCATION_TYPES = [
   { key: "warcamp", label: "Campamentos de guerra" },
@@ -147,8 +148,10 @@ export function openLocationGenerator({
   JournalEntry = globalThis.JournalEntry,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) throw new Error("Foundry no esta disponible para abrir el generador de localizaciones.");
-  new Dialog({
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
+    throw new Error("Foundry no esta disponible para abrir el generador de localizaciones.");
+  }
+  openCosmereDialog({
     title: "Generador de Localizaciones",
     content: `
       <form>
@@ -184,5 +187,5 @@ export function openLocationGenerator({
       cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
     },
     default: "generate",
-  }).render(true);
+  }, { Dialog });
 }

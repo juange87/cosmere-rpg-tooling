@@ -9,7 +9,7 @@ A Foundry VTT module that provides essential tools for Cosmere RPG, including ra
 
 This module includes:
 - **11 random tables** for character creation and name generation
-- **2 macro compendiums** with 65 total macros (21 for players, 44 for GMs)
+- **2 macro compendiums** with 66 total macros (21 for players, 45 for GMs)
 
 ### ⚔️ Character Creation Tables (3 tables)
 
@@ -49,7 +49,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
   - Survival
 - **Hook** - Responds to GM roll requests automatically (works with the GM's "Request Roll" macro)
 
-#### CosmereRPG: GM Macros (44 macros)
+#### CosmereRPG: GM Macros (45 macros)
 
 Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
 
@@ -96,6 +96,7 @@ Macros for the GM that include resource management and visual animations. **⚠�
 - **Surgebinding FX Pack** - Provides narrative/visual cues for the ten Surges while degrading to chat if Sequencer is missing
 - **Individual Surge FX macros** - Adhesion, Gravitation, Division, Abrasion, Progression, Illumination, Transformation, Transportation, Cohesion, and Tension
 - **Validacion de Macros** - Checks source macro metadata, `_key` consistency, duplicate names, empty commands, and optional dependency references
+- **Chequeo de Macros Instaladas** - Detects imported world copies that still use old module macro code, reports duplicates, and updates only the selected outdated copies
 - **Show Token** - Toggles visibility of selected tokens
 - **Request Roll** - Requests rolls from players (players need the "Hook" macro to respond automatically)
 - **Send message** - Sends custom messages
@@ -247,6 +248,13 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - Missing dependencies are reported with readable details instead of forcing you to hunt through the browser console
 - This is especially useful before using animation macros, teleport/crosshair effects, or Dice So Nice hook macros
 
+**Checking imported macro copies:**
+- Use **Chequeo de Macros Instaladas** after updating the module if your world already has Cosmere macros dragged to the macro bar or stored in the world macro directory
+- The macro compares world macro copies with the current **CosmereRPG: GM Macros** and **CosmereRPG: Player Macros** compendiums by name and checks `command`, `type`, `img`, and `scope`
+- Macros that were never imported are reported as **No importada al mundo** and need no migration; they can still be executed from the compendium
+- Outdated world copies are listed with the changed fields and are only replaced when the GM marks their checkbox and clicks **Actualizar seleccionadas**
+- Existing custom or unrelated macros are not touched; same-name duplicates are reported so the GM can decide which copy to keep
+
 **Managing Plot Die outcomes:**
 - Use **Gestor de Plot Die** to record a Plot Die moment after a roll
 - Enter actor/focus, roll label, total, optional difficulty, and Plot Die value
@@ -275,6 +283,7 @@ This macro creates a narrative character seed in chat. It does not create a Foun
 - Use **Gestor de Esferas Avanzado** to publish a party treasury summary, convert infused/dun spheres, spend from the group, or drain infused spheres after Investiture
 - Use **Control Rapido de Recursos** to apply +/- changes to health, focus, or Investiture across selected tokens, or to apply/remove simple narrative states
 - Use **Validacion de Macros** or `npm run validate` before compiling packs or preparing a release
+- Use **Chequeo de Macros Instaladas** after a module update when a world already contains imported copies of module macros
 
 **Example usage - Increase Focus:**
 ```javascript
@@ -298,9 +307,9 @@ game.tables.getName("Alethi Names")?.draw();
 ### Macro: Name Generator Menu
 
 ```javascript
-// Dialog to select culture and generate name
-new Dialog({
-  title: "Cosmere Name Generator",
+// DialogV2 menu to select culture and generate name
+const formData = await foundry.applications.api.DialogV2.input({
+  window: { title: "Cosmere Name Generator" },
   content: `
     <form>
       <div class="form-group">
@@ -318,18 +327,14 @@ new Dialog({
       </div>
     </form>
   `,
-  buttons: {
-    generate: {
-      icon: '<i class="fas fa-dice"></i>',
-      label: "Generate Name",
-      callback: async (html) => {
-        const culture = html.find('[name="culture"]').val();
-        await game.tables.getName(culture)?.draw();
-      }
-    }
+  ok: {
+    icon: "fas fa-dice",
+    label: "Generate Name",
   },
-  default: "generate"
-}).render(true);
+  rejectClose: false,
+});
+
+if (formData?.culture) await game.tables.getName(formData.culture)?.draw();
 ```
 
 
@@ -338,6 +343,8 @@ new Dialog({
 - **Foundry VTT**: v12 - v13 (minimum v12, verified up to v13)
 - **System**: Cosmere RPG (macros are specifically designed for this system)
 - **Required Modules**: JB2A_DnD5e (installed automatically as a dependency)
+- **Dialogs**: module scripts and bundled macro dialogs use `DialogV2` on Foundry v13 through `scripts/foundry-dialogs.js`, with automatic fallback to Dialog V1 for Foundry v12.
+- **Imported macro copies**: Foundry keeps macros dragged from a compendium as world documents. Module updates do not overwrite those copies automatically; use **Chequeo de Macros Instaladas** to review and selectively update old copies.
 - **Random Tables**: Work with any game system
 
 ## 🛠️ Development

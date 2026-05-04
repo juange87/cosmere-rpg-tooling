@@ -3,6 +3,7 @@ import {
   normalizeText,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const SURGES = [
   { key: "adhesion", label: "Adhesion", file: "jb2a.impact.ground_crack.blue", cue: "Une superficies, juramentos o atencion en un instante clave." },
@@ -93,11 +94,11 @@ export function openSurgebindingFxDialog({
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir Surgebinding FX Pack.");
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "Surgebinding FX Pack",
     content: `
       <form>
@@ -133,5 +134,5 @@ export function openSurgebindingFxDialog({
       cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
     },
     default: "play",
-  }).render(true);
+  }, { Dialog });
 }

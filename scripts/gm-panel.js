@@ -1,4 +1,5 @@
 import { buildCosmereChatCard } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const GM_PANEL_ACTIONS = [
   { key: "resources", label: "Salud y foco", description: "Modificar recursos de tokens seleccionados." },
@@ -87,11 +88,11 @@ export function openGmPanel({
   ui = globalThis.ui,
   ...dependencies
 } = {}) {
-  if (!Dialog) {
+  if (!hasCosmereDialogSupport({ Dialog })) {
     throw new Error("Foundry no esta disponible para abrir el Panel GM Cosmere.");
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "Panel GM Cosmere",
     content: buildPanelContent(),
     buttons: {
@@ -110,5 +111,5 @@ export function openGmPanel({
       });
     },
     width: 520,
-  }).render(true);
+  }, { Dialog });
 }

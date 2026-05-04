@@ -563,6 +563,7 @@ test("ships official GM macros for all roadmap tools", async () => {
     ["SphereManager01.json", ["SphereManager01", "Gestor de Esferas Avanzado", "sphere-manager.js"]],
     ["ResourceControl01.json", ["ResourceControl01", "Control Rapido de Recursos", "resource-control.js"]],
     ["MacroValidation01.json", ["MacroValidation01", "Validacion de Macros", "macro-validator.js"]],
+    ["MacroUpgradeCheck01.json", ["MacroUpgradeCheck01", "Chequeo de Macros Instaladas", "macro-upgrade-checker.js"]],
     ["SurgebindingFx01.json", ["SurgebindingFx01", "Surgebinding FX Pack", "surgebinding-fx-pack.js"]],
   ]);
 
@@ -618,10 +619,12 @@ test("init, package, docs, and sounds expose completed roadmap features", async 
   assert.match(init, /ensureRoadmapRollTables/);
   assert.equal(pkg.scripts.test, "node --test tests/*.test.mjs");
   assert.equal(pkg.scripts.validate, "node scripts/macro-validator.js");
-  assert.equal((roadmap.match(/Estado: hecho/g) ?? []).length, 20);
+  assert.equal((roadmap.match(/Estado: hecho/g) ?? []).length, 22);
   assert.match(readme, /Panel GM Cosmere/);
   assert.match(readme, /Palabras Aceptadas Deluxe/);
   assert.match(readme, /Validacion de Macros/);
+  assert.match(readme, /Chequeo de Macros Instaladas/);
+  assert.match(readme, /DialogV2/);
 
   const requiredSounds = [
     "sounds/highstorm-loop.wav",

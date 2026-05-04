@@ -1,3 +1,5 @@
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
+
 export const ROSHAR_NPC_CULTURE_TABLES = [
   "Alethi Names",
   "Azish Names",
@@ -191,11 +193,11 @@ export function openRosharNpcGenerator({
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir el generador de PNJ.");
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "Generador de PNJ Roshar",
     content: buildDialogContent(),
     buttons: {
@@ -229,5 +231,5 @@ export function openRosharNpcGenerator({
       },
     },
     default: "generate",
-  }).render(true);
+  }, { Dialog });
 }

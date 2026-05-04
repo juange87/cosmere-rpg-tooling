@@ -5,6 +5,7 @@ import {
   normalizeNumber,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const SPHERE_DENOMINATIONS = [
   { key: "spheres|chip", currency: "spheres", denom: "chip", label: "Chip infused", value: 1 },
@@ -381,9 +382,11 @@ export function openSphereManager({
   game = globalThis.game,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) throw new Error("Foundry no esta disponible para abrir el gestor de esferas.");
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
+    throw new Error("Foundry no esta disponible para abrir el gestor de esferas.");
+  }
   const actors = getPlayerActors({ game });
-  new Dialog({
+  openCosmereDialog({
     title: "Gestor de Esferas Avanzado",
     content: buildSphereManagerDialogContent(actors),
     buttons: {
@@ -469,5 +472,5 @@ export function openSphereManager({
     },
     default: "publish",
     width: 560,
-  }).render(true);
+  }, { Dialog });
 }

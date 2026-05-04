@@ -1,3 +1,5 @@
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
+
 export const PLOT_DIE_OUTCOMES = [
   { key: "auto", label: "Automatico por valor" },
   { key: "opportunity", label: "Opportunity" },
@@ -244,11 +246,11 @@ export function openPlotDieManager({
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir el gestor de Plot Die.");
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "Gestor de Plot Die",
     content: buildDialogContent(),
     buttons: {
@@ -284,5 +286,5 @@ export function openPlotDieManager({
       },
     },
     default: "publish",
-  }).render(true);
+  }, { Dialog });
 }

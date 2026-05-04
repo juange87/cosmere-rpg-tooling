@@ -3,6 +3,7 @@ import {
   normalizeText,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const QUICK_SCENE_TYPES = [
   { key: "chase", label: "Persecucion" },
@@ -82,8 +83,10 @@ export function openQuickSceneCompendium({
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) throw new Error("Foundry no esta disponible para abrir escenas rapidas.");
-  new Dialog({
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
+    throw new Error("Foundry no esta disponible para abrir escenas rapidas.");
+  }
+  openCosmereDialog({
     title: "Compendio de Escenas Rapidas",
     content: `
       <form>
@@ -114,5 +117,5 @@ export function openQuickSceneCompendium({
       cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
     },
     default: "publish",
-  }).render(true);
+  }, { Dialog });
 }

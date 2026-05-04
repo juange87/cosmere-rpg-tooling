@@ -1,3 +1,5 @@
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
+
 export const HIGHSTORM_SOUND = "modules/cosmere-rpg-tooling/sounds/thunder.mp3";
 
 export const HIGHSTORM_SOUNDS = {
@@ -430,11 +432,11 @@ export function openHighstormToolkit({
   JournalEntry = globalThis.JournalEntry,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir Highstorm Toolkit.");
   }
 
-  new Dialog({
+  openCosmereDialog({
     title: "Highstorm Toolkit",
     content: buildDialogContent(),
     buttons: {
@@ -491,5 +493,5 @@ export function openHighstormToolkit({
       },
     },
     default: "announce",
-  }).render(true);
+  }, { Dialog });
 }

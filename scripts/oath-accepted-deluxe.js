@@ -5,6 +5,7 @@ import {
   gmWhisper,
   normalizeText,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const RADIANT_ORDERS = [
   { key: "windrunner", label: "Windrunner", color: "#2f80ed", aura: "jb2a.magic_signs.circle.02.abjuration.loop.blue" },
@@ -157,7 +158,7 @@ export function openOathAcceptedDeluxe({
   game = globalThis.game,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir Palabras Aceptadas Deluxe.");
   }
 
@@ -167,7 +168,7 @@ export function openOathAcceptedDeluxe({
       .map(user => `<option value="${escapeHtml(user.id)}">${escapeHtml(user.name)}</option>`),
   ].join("");
 
-  new Dialog({
+  openCosmereDialog({
     title: "Palabras Aceptadas Deluxe",
     content: `
       <form>
@@ -213,5 +214,5 @@ export function openOathAcceptedDeluxe({
       cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
     },
     default: "publish",
-  }).render(true);
+  }, { Dialog });
 }

@@ -5,6 +5,7 @@ import {
   normalizeText,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const TRACK_TYPES = [
   { key: "conversation", label: "Conversacion" },
@@ -166,7 +167,7 @@ export function openConversationEndeavorManager({
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
 } = {}) {
-  if (!Dialog || !ChatMessage) {
+  if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
     throw new Error("Foundry no esta disponible para abrir el gestor no-combate.");
   }
 
@@ -193,7 +194,7 @@ export function openConversationEndeavorManager({
     });
   };
 
-  new Dialog({
+  openCosmereDialog({
     title: "Gestor de Conversaciones y Endeavors",
     content: buildTrackDialogContent(),
     buttons: {
@@ -222,5 +223,5 @@ export function openConversationEndeavorManager({
       cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
     },
     default: "publish",
-  }).render(true);
+  }, { Dialog });
 }

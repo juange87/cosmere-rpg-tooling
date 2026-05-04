@@ -1,0 +1,16 @@
+{
+  "_id": "MacroUpgradeCheck01",
+  "_key": "!macros!MacroUpgradeCheck01",
+  "name": "Chequeo de Macros Instaladas",
+  "type": "script",
+  "author": "6cxUP4dSannVjU9o",
+  "img": "icons/svg/upgrade.svg",
+  "scope": "global",
+  "command": "const { openMacroUpgradeChecker } = await import(\"/modules/cosmere-rpg-tooling/scripts/macro-upgrade-checker.js\");\n\nawait openMacroUpgradeChecker();",
+  "folder": null,
+  "sort": 0,
+  "ownership": {
+    "default": 0
+  },
+  "flags": {}
+}

@@ -424,6 +424,41 @@ Anadir guias cortas:
 
 Valor: reduce coste de mantenimiento y facilita futuras contribuciones.
 
+### 21. Migracion de dialogos a DialogV2
+
+Estado: hecho en `codex/dialog-v2-migration`.
+
+Se migro la apertura de dialogos del modulo desde la API de Dialog V1 hacia `foundry.applications.api.DialogV2`:
+
+- Los scripts del modulo usan `scripts/foundry-dialogs.js` como capa comun.
+- En Foundry v13, la capa comun instancia DialogV2 y traduce botones, ancho, render callbacks y callbacks de formulario.
+- En Foundry v12, la misma capa mantiene fallback a Dialog V1 mientras el modulo declare compatibilidad v12.
+- Los macros legacy del compendio que abrian Dialog V1 directamente ahora importan la capa comun.
+- Los tests detectan si vuelve a aparecer `new Dialog(...)` en scripts o fuentes de macros y verifican que los comandos embebidos siguen parseando.
+
+Valor: elimina warnings de deprecacion en Foundry v13 sin cortar compatibilidad con mesas que sigan usando v12.
+
+### 22. Chequeo de macros instaladas
+
+Estado: hecho en `codex/dialog-v2-migration`.
+
+Se anadio una macro oficial del compendio GM para proteger mundos que ya tienen copias importadas de macros del modulo:
+
+- Escanea las macros del mundo por nombre y las compara contra los compendios **CosmereRPG: GM Macros** y **CosmereRPG: Player Macros**.
+- Detecta copias actualizadas, copias obsoletas, macros no importadas al mundo y duplicados con el mismo nombre.
+- Compara `command`, `type`, `img` y `scope`, evitando tocar propiedades propias del mundo como carpeta, ownership o posicion en la barra.
+- No modifica nada durante el escaneo.
+- Actualiza solo las copias obsoletas que el GM marca explicitamente en el dialogo.
+- Registra en flags del modulo una pequena auditoria de la ultima actualizacion aplicada.
+
+Notas:
+
+- La logica principal vive en `scripts/macro-upgrade-checker.js`.
+- La macro fuente vive en `packs/_source/gm-macros/MacroUpgradeCheck01.json`.
+- La feature esta cubierta por tests en `tests/macro-upgrade-checker.test.mjs`.
+
+Valor: evita que mundos antiguos sigan ejecutando versiones obsoletas de macros importadas sin sobrescribir cambios del GM de forma automatica.
+
 ## Priorizacion recomendada
 
 ### Must have
