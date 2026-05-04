@@ -606,20 +606,28 @@ test("ships individual Surgebinding macros for every Surge", async () => {
 });
 
 test("init, package, docs, and sounds expose completed roadmap features", async () => {
-  const [init, pkgRaw, roadmap, readme] = await Promise.all([
+  const [init, pkgRaw, lockRaw, roadmap, readme] = await Promise.all([
     readFile("scripts/init.js", "utf8"),
     readFile("package.json", "utf8"),
+    readFile("package-lock.json", "utf8"),
     readFile("doc/roadmap.md", "utf8"),
     readFile("README.md", "utf8"),
   ]);
   const pkg = JSON.parse(pkgRaw);
+  const lock = JSON.parse(lockRaw);
 
   assert.match(init, /registerCosmereSettings/);
   assert.match(init, /activateCosmereGlobalHooks/);
   assert.match(init, /ensureRoadmapRollTables/);
   assert.equal(pkg.scripts.test, "node --test tests/*.test.mjs");
   assert.equal(pkg.scripts.validate, "node scripts/macro-validator.js");
+  assert.equal(pkg.version, "2.0.0");
+  assert.equal(lock.version, "2.0.0");
+  assert.equal(lock.packages[""].version, "2.0.0");
   assert.equal((roadmap.match(/Estado: hecho/g) ?? []).length, 22);
+  assert.match(roadmap, /Release 2\.0\.0/);
+  assert.doesNotMatch(roadmap, /v1\.3\.0/);
+  assert.doesNotMatch(readme, /1\.2\.6|1\.2\.2|v1\.3\.0/);
   assert.match(readme, /Panel GM Cosmere/);
   assert.match(readme, /Palabras Aceptadas Deluxe/);
   assert.match(readme, /Validacion de Macros/);

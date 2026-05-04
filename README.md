@@ -1,7 +1,7 @@
 # Cosmere RPG Tooling
 
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational)
-![Module Version](https://img.shields.io/badge/version-1.2.6-blue)
+![Module Version](https://img.shields.io/badge/version-2.0.0-blue)
 
 A Foundry VTT module that provides essential tools for Cosmere RPG, including random tables for character creation (based on Brotherwise's quick character creation documents) and useful macros for players and GMs.
 
@@ -401,7 +401,7 @@ For thematic GM tables, prefer adding data to `scripts/roshar-roll-tables.js`; `
 1. Run `npm test`.
 2. Run `npm run validate`.
 3. Run `npm run compile`.
-4. Create a GitHub release tag such as `v1.3.0`; the workflow replaces manifest placeholders and uploads the compiled module archive.
+4. Create a GitHub release tag such as `v2.0.0`; the workflow replaces manifest placeholders and uploads the compiled module archive.
 
 ## 📝 Roadmap
 

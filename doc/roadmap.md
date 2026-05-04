@@ -1,6 +1,6 @@
 # Roadmap de funcionalidades para Cosmere RPG Tooling
 
-Fecha: 2026-05-02
+Fecha: 2026-05-04
 
 ## Vision
 
@@ -13,20 +13,21 @@ El foco principal deberia ser:
 - Mejorar momentos dramaticos con chat cards, audio y animaciones.
 - Mantener el modulo sencillo de instalar, mantener y evolucionar.
 
-## Estado actual
+## Estado para release 2.0.0
 
 El modulo ya incluye:
 
-- Tablas de creacion de personaje y generadores de nombres.
-- Macros de tiradas de habilidad para jugadores.
-- Macro de solicitud de tiradas del GM.
-- Gestion basica de salud y foco.
-- Gestion de esferas Mark encendidas y apagadas.
-- Macros de efectos visuales con JB2A.
-- Sonidos para "Palabras Aceptadas".
-- Hooks opcionales para natural 20 y fallo critico ejecutados desde macro.
+- 11 tablas de creacion de personaje, generadores de nombres y tablas tematicas de Roshar.
+- 66 macros distribuidas en los compendios de jugadores y GM.
+- Panel GM Cosmere para centralizar recursos, esferas, solicitudes de tirada, mensajes, sonidos, FX y visibilidad de tokens.
+- Hooks globales configurables para natural 20, natural 1 y solicitudes de tirada.
+- Herramientas narrativas para Plot Die, conversaciones, endeavors, PNJs, localizaciones y escenas rapidas.
+- Gestores avanzados de esferas, recursos, estados narrativos y dependencias opcionales.
+- Pack de sonidos y macros de atmosfera para highstorms, juramentos y Surgebinding FX.
+- Compatibilidad de dialogos con DialogV2 en Foundry v13 y fallback a Dialog V1 en Foundry v12.
+- Chequeo de macros instaladas para revisar copias importadas al mundo antes de actualizar.
 
-Esto deja una base muy buena para evolucionar hacia herramientas mas integradas: menos macros sueltas, mas flujos guiados.
+El alcance original del roadmap queda cerrado para `v2.0.0`; las siguientes mejoras deberian tratarse como roadmap posterior.
 
 ## Principios de producto
 
@@ -485,25 +486,22 @@ Valor: evita que mundos antiguos sigan ejecutando versiones obsoletas de macros 
 4. Compendio de escenas rapidas. Hecho.
 5. Nuevas roll tables tematicas. Hecho.
 
-## Riesgos y consideraciones
+## Riesgos residuales
 
-- Las macros actuales mezclan logica, estilos HTML y llamadas a Foundry. Antes de crecer mucho, conviene extraer helpers.
-- Algunas macros dependen de modulos no declarados explicitamente. Hay que decidir si seran dependencias requeridas, recomendadas o simplemente opcionales.
-- Foundry v12 y v13 pueden diferir en APIs de aplicaciones y dialogos. Si se crea un panel, conviene probar ambas versiones declaradas.
+- Algunas macros legacy de efectos visuales siguen dependiendo de JB2A, Sequencer o Dice So Nice; el modulo debe mantener degradacion legible cuando falten.
+- Foundry v12 y v13 pueden diferir en APIs no cubiertas por DialogV2; conviene probar ambas versiones declaradas antes de releases mayores.
+- Los mundos con copias importadas de macros pueden conservar versiones antiguas; el GM debe usar **Chequeo de Macros Instaladas** tras actualizar.
 - El contenido de Cosmere debe evitar copiar texto protegido de libros o material oficial no permitido. Mejor crear tablas originales inspiradas en tono y uso de mesa.
-- El modulo deberia seguir funcionando aunque no existan JB2A, Sequencer o Dice So Nice, degradando a chat/notificacion cuando falten.
 
-## Primer hito sugerido
+## Release 2.0.0
 
-El primer hito podria ser `v1.3.0 - GM Flow`.
+Release candidata: `v2.0.0 - GM Flow`.
 
-Alcance recomendado:
+Alcance cerrado:
 
-- Crear helpers compartidos.
-- Mover hooks de tiradas a inicializacion configurable.
-- Anadir chequeo de dependencias.
-- Crear Panel GM Cosmere basico.
-- Incorporar First Step Character Generator como macro oficial. Hecho.
-- Actualizar README.
+- Todas las features 1-22 marcadas como hechas.
+- README actualizado con macros, DialogV2, chequeo de macros instaladas y flujo de release.
+- Tests automatizados cubriendo helpers, macros nuevas, migracion de dialogos y consistencia documental.
+- `npm test`, `npm run validate` y `npm run compile` como puerta de validacion previa al tag.
 
-Este hito consolidaria la base actual sin abrir demasiados frentes y dejaria el modulo preparado para features mas narrativas en versiones posteriores.
+La release 2.0.0 consolida el modulo como pack de herramientas GM listo para mesa. El siguiente roadmap deberia centrarse en mejoras post-release, integracion mas profunda con el sistema oficial cuando su API sea estable y pulido visual en Foundry.
