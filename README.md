@@ -1,9 +1,17 @@
 # Cosmere RPG Tooling
 
 ![Foundry Version](https://img.shields.io/badge/Foundry-v12--v13-informational)
-![Module Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Module Version](https://img.shields.io/badge/version-2.1.0-blue)
 
 A Foundry VTT module that provides essential tools for Cosmere RPG, including random tables for character creation (based on Brotherwise's quick character creation documents) and useful macros for players and GMs.
+
+## What's new in 2.1.0
+
+- English and Spanish support for dialogs, settings, notifications, skill labels, and generated text, with a world-level language override.
+- Bilingual compendium macro names and recognition of legacy names when checking imported world macros.
+- Support for either the free JB2A module or the Patreon Complete Collection, without requiring both editions to install the module.
+
+After updating, run **Installed Macro Check / Chequeo de Macros Instaladas** to review and update imported world copies. Choose the module language in Foundry's settings and reload to apply it.
 
 ## English and Spanish
 
@@ -418,7 +426,7 @@ For thematic GM tables, prefer adding data to `scripts/roshar-roll-tables.js`; `
 1. Run `npm test`.
 2. Run `npm run validate`.
 3. Run `npm run compile`.
-4. Create a GitHub release tag such as `v2.0.0`; the workflow replaces manifest placeholders and uploads the compiled module archive.
+4. Create a GitHub release tag such as `v2.1.0`; the workflow replaces manifest placeholders and uploads the compiled module archive.
 
 ## 📝 Roadmap
 

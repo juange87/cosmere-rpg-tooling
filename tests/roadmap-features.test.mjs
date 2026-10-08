@@ -624,9 +624,10 @@ test("init, package, docs, and sounds expose completed roadmap features", async 
   assert.match(init, /ensureRoadmapRollTables/);
   assert.equal(pkg.scripts.test, "node --test tests/*.test.mjs");
   assert.equal(pkg.scripts.validate, "node scripts/macro-validator.js");
-  assert.equal(pkg.version, "2.0.0");
-  assert.equal(lock.version, "2.0.0");
-  assert.equal(lock.packages[""].version, "2.0.0");
+  assert.equal(pkg.version, "2.1.0");
+  assert.equal(lock.version, pkg.version);
+  assert.equal(lock.packages[""].version, pkg.version);
+  assert.ok(readme.includes(`badge/version-${pkg.version}-blue`));
   assert.equal((roadmap.match(/Estado: hecho/g) ?? []).length, 22);
   assert.match(roadmap, /Release 2\.0\.0/);
   assert.doesNotMatch(roadmap, /v1\.3\.0/);
