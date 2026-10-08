@@ -1,7 +1,7 @@
 {
   "_id": "RosharNPCGen0001",
   "_key": "!macros!RosharNPCGen0001",
-  "name": "Generador de PNJ Roshar",
+  "name": "Roshar NPC Generator / Generador de PNJ Roshar",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/mystery-man.svg",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyNames": [
+        "Generador de PNJ Roshar"
+      ]
+    }
+  }
 }

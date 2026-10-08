@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { localize } from "./localization.js";
 const DEPENDENCY_PATTERNS = [
   { pattern: /new Sequence|Sequence\(/, label: "Sequence" },
   { pattern: /Sequencer\./, label: "Sequencer" },
@@ -33,21 +34,21 @@ export function validateMacroSourceFile(filePath, macro) {
   const errors = [];
   const warnings = [];
 
-  if (!macro?._id) errors.push(`${filePath}: falta _id.`);
-  if (!macro?._key) errors.push(`${filePath}: falta _key.`);
+  if (!macro?._id) errors.push(`${filePath}${localize("MissingId")}`);
+  if (!macro?._key) errors.push(`${filePath}${localize("MissingKey")}`);
   if (macro?._id && macro?._key && macro._key !== `!macros!${macro._id}`) {
-    errors.push(`${filePath}: _key no coincide con !macros!{_id}.`);
+    errors.push(`${filePath}${localize("KeyDoesNotMatchMacrosId")}`);
   }
-  if (!macro?.name) errors.push(`${filePath}: falta name.`);
-  if (!macro?.type) errors.push(`${filePath}: falta type.`);
-  if (!String(macro?.command ?? "").trim()) errors.push(`${filePath}: command vacio.`);
+  if (!macro?.name) errors.push(`${filePath}${localize("MissingName")}`);
+  if (!macro?.type) errors.push(`${filePath}${localize("MissingType")}`);
+  if (!String(macro?.command ?? "").trim()) errors.push(`${filePath}${localize("EmptyCommand")}`);
 
   for (const dependency of DEPENDENCY_PATTERNS) {
     if (dependency.pattern.test(String(macro?.command ?? "")) || dependency.pattern.test(String(macro?.img ?? ""))) {
       warnings.push({
         filePath,
         dependency: dependency.label,
-        message: `${filePath}: referencia a ${dependency.label}; revisar disponibilidad antes de ejecutar.`,
+        message: `${filePath}${localize("ReferenceTo")}${dependency.label}${localize("CheckAvailabilityBeforeRunning")}`,
       });
     }
   }
@@ -75,7 +76,7 @@ export async function validateMacroSourcePack(packPath) {
     try {
       macro = JSON.parse(await readFile(filePath, "utf8"));
     } catch (error) {
-      errors.push(`${filePath}: JSON invalido (${error.message}).`);
+      errors.push(`${filePath}${localize("InvalidJSON")}${error.message}).`);
       continue;
     }
 
@@ -86,7 +87,7 @@ export async function validateMacroSourcePack(packPath) {
 
     if (macro?.name) {
       if (names.has(macro.name)) {
-        errors.push(`${filePath}: nombre duplicado "${macro.name}" tambien en ${names.get(macro.name)}.`);
+        errors.push(`${filePath}${localize("DuplicateName")}${macro.name}${localize("AlsoIn")}${names.get(macro.name)}.`);
       } else {
         names.set(macro.name, filePath);
       }
@@ -108,7 +109,7 @@ export function runCompileValidation({
 } = {}) {
   const spawnSync = globalThis.__cosmereSpawnSync ?? nodeSpawnSync;
   if (!spawnSync) {
-    throw new Error("La validacion de compilacion solo esta disponible en Node.");
+    throw new Error(localize("CompilationValidationIsOnlyAvailableInNode"));
   }
   const result = spawnSync(command, args, {
     encoding: "utf8",
@@ -133,7 +134,7 @@ export async function validateAllMacroSources({
   }
   const compileReport = checkCompile ? runCompileValidation() : null;
   const compileErrors = compileReport && !compileReport.ok
-    ? [`npm run compile fallo con codigo ${compileReport.status}: ${compileReport.stderr || compileReport.stdout}`]
+    ? [`${localize("NpmRunCompileFailedWithCode")}${compileReport.status}: ${compileReport.stderr || compileReport.stdout}`]
     : [];
   return {
     ok: packReports.every(report => report.ok) && compileErrors.length === 0,
@@ -146,8 +147,8 @@ export async function validateAllMacroSources({
 
 export function buildMacroValidationChatCard(report) {
   const sections = [
-    { label: "Errores", value: report.errors.length ? report.errors.join(" | ") : "Sin errores" },
-    { label: "Advertencias", value: report.warnings.length ? `${report.warnings.length} referencia(s) a dependencias opcionales` : "Sin advertencias" },
+    { label: localize("Errors"), value: report.errors.length ? report.errors.join(" | ") : localize("NoErrors") },
+    { label: localize("Warnings"), value: report.warnings.length ? `${report.warnings.length}${localize("ReferenceSToOptionalDependencies")}` : localize("NoWarnings") },
   ];
   return `<div>${sections.map(section => `<p><strong>${section.label}</strong>: ${section.value}</p>`).join("")}</div>`;
 }
@@ -160,7 +161,7 @@ export async function runMacroValidation({
     const report = {
       ok: true,
       errors: [],
-      warnings: [{ message: "Ejecuta npm run validate en el repositorio para revisar los JSON fuente y compilar packs." }],
+      warnings: [{ message: localize("RunNpmRunValidateInTheRepositoryToCheckSourceJSONFilesAndCompilePacks") }],
     };
     if (ChatMessage) {
       await ChatMessage.create({
@@ -168,7 +169,7 @@ export async function runMacroValidation({
         speaker: ChatMessage.getSpeaker?.(),
       });
     }
-    ui?.notifications?.info?.("Validacion local: ejecuta npm run validate fuera de Foundry.");
+    ui?.notifications?.info?.(localize("LocalValidationRunNpmRunValidateOutsideFoundry"));
     return report;
   }
 
@@ -179,8 +180,8 @@ export async function runMacroValidation({
       speaker: ChatMessage.getSpeaker?.(),
     });
   }
-  if (report.ok) ui?.notifications?.info?.("Validacion de macros completada sin errores.");
-  else ui?.notifications?.error?.("La validacion de macros encontro errores.");
+  if (report.ok) ui?.notifications?.info?.(localize("MacroValidationCompletedWithoutErrors"));
+  else ui?.notifications?.error?.(localize("MacroValidationFoundErrors"));
   return report;
 }
 

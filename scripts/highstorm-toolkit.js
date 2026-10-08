@@ -1,10 +1,11 @@
+import { localize } from "./localization.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const HIGHSTORM_SOUND = "modules/cosmere-rpg-tooling/sounds/thunder.mp3";
 
 export const HIGHSTORM_SOUNDS = {
-  thunder: { label: "Trueno", src: HIGHSTORM_SOUND, volume: 1, loop: false },
-  ambient: { label: "Ambiente highstorm", src: "modules/cosmere-rpg-tooling/sounds/highstorm-loop.wav", volume: 0.6, loop: true },
+  thunder: { get label() { return localize("Thunder"); }, src: HIGHSTORM_SOUND, volume: 1, loop: false },
+  ambient: { get label() { return localize("HighstormAmbience"); }, src: "modules/cosmere-rpg-tooling/sounds/highstorm-loop.wav", volume: 0.6, loop: true },
 };
 
 export const HIGHSTORM_CALENDAR_DEFAULTS = {
@@ -18,24 +19,24 @@ export const HIGHSTORM_CALENDAR_DEFAULTS = {
 
 export const HIGHSTORM_CUES = {
   approach: {
-    label: "Se acerca",
-    title: "La tormenta alta se acerca",
-    body: "El viento cambia de direccion y el horizonte empieza a oscurecerse.",
+    get label() { return localize("Approaching"); },
+    get title() { return localize("TheHighstormApproaches"); },
+    get body() { return localize("TheWindChangesDirectionAndTheHorizonBeginsToDarken"); },
   },
   arrival: {
-    label: "Golpea",
-    title: "La tormenta alta golpea",
-    body: "La lluvia cae como una muralla y cada trueno hace vibrar la piedra.",
+    get label() { return localize("Striking"); },
+    get title() { return localize("TheHighstormStrikes"); },
+    get body() { return localize("RainFallsLikeAWallAndEveryThunderclapMakesTheStoneTremble"); },
   },
   eye: {
-    label: "Ojo de la tormenta",
-    title: "El ojo de la tormenta",
-    body: "Por un momento imposible, el mundo se queda suspendido y casi en silencio.",
+    get label() { return localize("StormEye"); },
+    get title() { return localize("TheEyeOfTheStorm"); },
+    get body() { return localize("ForAnImpossibleMomentTheWorldHangsSuspendedAndAlmostSilent"); },
   },
   passing: {
-    label: "Se aleja",
-    title: "La tormenta alta se aleja",
-    body: "La furia se rompe en lluvia dispersa y el aire queda cargado de luz.",
+    get label() { return localize("Passing"); },
+    get title() { return localize("TheHighstormPasses"); },
+    get body() { return localize("TheFuryBreaksIntoScatteredRainAndTheAirIsChargedWithLight"); },
   },
 };
 
@@ -94,7 +95,7 @@ function formatStormLabel(totalHours) {
   return {
     day,
     hour,
-    label: `Dia ${day}, ${String(hour).padStart(2, "0")}:00`,
+    label: `${localize("Day")}${day}, ${String(hour).padStart(2, "0")}:00`,
   };
 }
 
@@ -105,7 +106,7 @@ export function generateHighstormCalendar(options = {}) {
   const varianceHours = normalizeInteger(options.varianceHours, HIGHSTORM_CALENDAR_DEFAULTS.varianceHours, { min: 0, max: 48 });
   const count = normalizeInteger(options.count, HIGHSTORM_CALENDAR_DEFAULTS.count, { min: 1, max: 30 });
   const random = createSeededRandom(options.seed ?? HIGHSTORM_CALENDAR_DEFAULTS.seed);
-  const intensities = ["suave", "moderada", "intensa", "devastadora"];
+  const intensities = [localize("Mild"), localize("Moderate"), localize("Intense"), localize("Devastating")];
   const startTotalHours = ((startDay - 1) * 24) + startHour;
 
   return Array.from({ length: count }, (_, index) => {
@@ -133,13 +134,13 @@ export function buildHighstormChatCard({ cueKey = "approach", minutes = 0, note 
   const countdownBlock = countdown
     ? `
       <div style="margin-top:8px;padding:7px 9px;border-left:3px solid #4a90e2;background:rgba(74,144,226,0.08);">
-        <strong>${countdown} minutos</strong> hasta el siguiente cambio de la tormenta.
+        <strong>${countdown} ${localize("Minutes")}</strong> ${localize("UntilTheNextChangeInTheStorm")}
       </div>`
     : "";
   const noteBlock = note
     ? `
       <div style="margin-top:8px;">
-        <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.04em;">Nota del GM</div>
+        <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.04em;">${localize("GMNote")}</div>
         <div>${escapeHtml(note)}</div>
       </div>`
     : "";
@@ -169,14 +170,14 @@ function buildCalendarRows(calendar) {
 
 export function buildHighstormCalendarChatCard({
   calendar,
-  title = "Calendario de altas tormentas",
+  title = localize("HighstormCalendar"),
   note = "",
 } = {}) {
   const schedule = Array.isArray(calendar) && calendar.length ? calendar : generateHighstormCalendar();
   const noteBlock = note
     ? `
       <div style="margin-top:8px;">
-        <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.04em;">Nota del GM</div>
+        <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.04em;">${localize("GMNote")}</div>
         <div>${escapeHtml(note)}</div>
       </div>`
     : "";
@@ -191,8 +192,8 @@ export function buildHighstormCalendarChatCard({
         <thead>
           <tr>
             <th style="padding:4px 6px;text-align:right;">#</th>
-            <th style="padding:4px 6px;text-align:left;">Llegada</th>
-            <th style="padding:4px 6px;text-align:left;">Intensidad</th>
+            <th style="padding:4px 6px;text-align:left;">${localize("Arrival")}</th>
+            <th style="padding:4px 6px;text-align:left;">${localize("Intensity")}</th>
           </tr>
         </thead>
         <tbody>${buildCalendarRows(schedule)}</tbody>
@@ -204,22 +205,22 @@ export function buildHighstormCalendarChatCard({
 
 export function buildHighstormCalendarJournalContent({
   calendar,
-  title = "Calendario de altas tormentas",
+  title = localize("HighstormCalendar"),
   note = "",
 } = {}) {
   const schedule = Array.isArray(calendar) && calendar.length ? calendar : generateHighstormCalendar();
-  const noteBlock = note ? `<p><strong>Nota del GM:</strong> ${escapeHtml(note)}</p>` : "";
+  const noteBlock = note ? `<p><strong>${localize("GMNote2")}</strong> ${escapeHtml(note)}</p>` : "";
 
   return `
     <h1>${escapeHtml(title)}</h1>
-    <p>Calendario generado por Highstorm Toolkit.</p>
+    <p>${localize("CalendarGeneratedByHighstormToolkit")}</p>
     ${noteBlock}
     <table>
       <thead>
         <tr>
           <th>#</th>
-          <th>Llegada</th>
-          <th>Intensidad</th>
+          <th>${localize("Arrival")}</th>
+          <th>${localize("Intensity")}</th>
         </tr>
       </thead>
       <tbody>
@@ -247,7 +248,7 @@ export async function runHighstormCue({
   ui = globalThis.ui,
 } = {}) {
   if (!ChatMessage) {
-    throw new Error("Foundry no esta disponible para publicar la tormenta.");
+    throw new Error(localize("FoundryIsNotAvailableToPostTheStorm"));
   }
 
   const cue = getCue(cueKey);
@@ -274,18 +275,18 @@ export async function runHighstormCue({
 
 export async function createHighstormCalendarJournal({
   calendar,
-  title = "Calendario de altas tormentas",
+  title = localize("HighstormCalendar"),
   note = "",
   JournalEntry = globalThis.JournalEntry,
 } = {}) {
   if (!JournalEntry) {
-    throw new Error("Foundry no esta disponible para crear el Journal.");
+    throw new Error(localize("FoundryIsNotAvailableToCreateTheJournal"));
   }
 
   return JournalEntry.create({
     name: title,
     pages: [{
-      name: "Calendario",
+      name: localize("Calendar"),
       type: "text",
       text: {
         format: 1,
@@ -302,7 +303,7 @@ export async function runHighstormCalendar({
   varianceHours = HIGHSTORM_CALENDAR_DEFAULTS.varianceHours,
   count = HIGHSTORM_CALENDAR_DEFAULTS.count,
   seed = HIGHSTORM_CALENDAR_DEFAULTS.seed,
-  title = "Calendario de altas tormentas",
+  title = localize("HighstormCalendar"),
   note = "",
   publishChat = true,
   createJournal = false,
@@ -317,7 +318,7 @@ export async function runHighstormCalendar({
 
   if (publishChat) {
     if (!ChatMessage) {
-      throw new Error("Foundry no esta disponible para publicar el calendario.");
+      throw new Error(localize("FoundryIsNotAvailableToPostTheCalendar"));
     }
     const whisper = whisperOnly
       ? ChatMessage.getWhisperRecipients("GM").map(user => user.id)
@@ -333,7 +334,7 @@ export async function runHighstormCalendar({
     journal = await createHighstormCalendarJournal({ calendar, title, note, JournalEntry });
   }
 
-  ui?.notifications?.info?.("Calendario de altas tormentas generado.");
+  ui?.notifications?.info?.(localize("HighstormCalendarGenerated"));
 
   return { calendar, message, journal };
 }
@@ -348,77 +349,77 @@ function buildDialogContent() {
 
   return `
     <form>
-      <h3>Momento de tormenta</h3>
+      <h3>${localize("StormPhase")}</h3>
       <div class="form-group">
-        <label for="cr-highstorm-cue">Momento</label>
+        <label for="cr-highstorm-cue">${localize("Phase")}</label>
         <select id="cr-highstorm-cue" name="cueKey">${cueOptions}</select>
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-minutes">Cuenta atras</label>
+        <label for="cr-highstorm-minutes">${localize("Countdown")}</label>
         <input id="cr-highstorm-minutes" name="minutes" type="number" value="10" min="0" step="1">
-        <p class="notes">Minutos hasta el siguiente cambio. Usa 0 para ocultarlo.</p>
+        <p class="notes">${localize("MinutesUntilTheNextChangeUse0ToHideIt")}</p>
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-note">Nota del GM</label>
+        <label for="cr-highstorm-note">${localize("GMNote")}</label>
         <textarea id="cr-highstorm-note" name="note" rows="3" style="resize:vertical;"></textarea>
       </div>
       <div class="form-group">
         <label>
           <input type="checkbox" id="cr-highstorm-sound" name="playSound" checked>
-          Reproducir sonido
+          ${localize("PlaySound")}
         </label>
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-sound-key">Tipo de sonido</label>
+        <label for="cr-highstorm-sound-key">${localize("SoundType")}</label>
         <select id="cr-highstorm-sound-key" name="soundKey">${soundOptions}</select>
       </div>
       <div class="form-group">
         <label>
           <input type="checkbox" id="cr-highstorm-whisper" name="whisper">
-          Enviar solo al GM
+          ${localize("SendOnlyToGM")}
         </label>
       </div>
       <hr>
-      <h3>Calendario de altas tormentas</h3>
+      <h3>${localize("HighstormCalendar")}</h3>
       <div class="form-group">
-        <label for="cr-highstorm-calendar-title">Titulo</label>
-        <input id="cr-highstorm-calendar-title" name="calendarTitle" type="text" value="Calendario de altas tormentas">
+        <label for="cr-highstorm-calendar-title">${localize("Title")}</label>
+        <input id="cr-highstorm-calendar-title" name="calendarTitle" type="text" value="${localize("HighstormCalendar")}">
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-start-day">Dia inicial</label>
+        <label for="cr-highstorm-start-day">${localize("StartingDay")}</label>
         <input id="cr-highstorm-start-day" name="startDay" type="number" value="${HIGHSTORM_CALENDAR_DEFAULTS.startDay}" min="1" step="1">
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-start-hour">Hora inicial</label>
+        <label for="cr-highstorm-start-hour">${localize("StartingHour")}</label>
         <input id="cr-highstorm-start-hour" name="startHour" type="number" value="${HIGHSTORM_CALENDAR_DEFAULTS.startHour}" min="0" max="23" step="1">
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-interval-days">Intervalo medio en dias</label>
+        <label for="cr-highstorm-interval-days">${localize("AverageIntervalInDays")}</label>
         <input id="cr-highstorm-interval-days" name="intervalDays" type="number" value="${HIGHSTORM_CALENDAR_DEFAULTS.intervalDays}" min="1" step="1">
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-variance-hours">Variacion maxima en horas</label>
+        <label for="cr-highstorm-variance-hours">${localize("MaximumVariationInHours")}</label>
         <input id="cr-highstorm-variance-hours" name="varianceHours" type="number" value="${HIGHSTORM_CALENDAR_DEFAULTS.varianceHours}" min="0" max="48" step="1">
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-calendar-count">Numero de tormentas</label>
+        <label for="cr-highstorm-calendar-count">${localize("NumberOfStorms")}</label>
         <input id="cr-highstorm-calendar-count" name="count" type="number" value="${HIGHSTORM_CALENDAR_DEFAULTS.count}" min="1" max="30" step="1">
       </div>
       <div class="form-group">
-        <label for="cr-highstorm-calendar-seed">Semilla</label>
+        <label for="cr-highstorm-calendar-seed">${localize("Seed")}</label>
         <input id="cr-highstorm-calendar-seed" name="seed" type="text" value="${HIGHSTORM_CALENDAR_DEFAULTS.seed}">
-        <p class="notes">Usa la misma semilla para repetir el mismo calendario.</p>
+        <p class="notes">${localize("UseTheSameSeedToRepeatTheSameCalendar")}</p>
       </div>
       <div class="form-group">
         <label>
           <input type="checkbox" id="cr-highstorm-calendar-chat" name="publishChat" checked>
-          Publicar calendario en chat
+          ${localize("PostCalendarToChat")}
         </label>
       </div>
       <div class="form-group">
         <label>
           <input type="checkbox" id="cr-highstorm-calendar-journal" name="createJournal" checked>
-          Crear Journal Entry
+          ${localize("CreateJournalEntry")}
         </label>
       </div>
     </form>
@@ -433,7 +434,7 @@ export function openHighstormToolkit({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir Highstorm Toolkit.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenHighstormToolkit"));
   }
 
   openCosmereDialog({
@@ -442,7 +443,7 @@ export function openHighstormToolkit({
     buttons: {
       announce: {
         icon: '<i class="fas fa-bolt"></i>',
-        label: "Anunciar",
+        label: localize("Announce"),
         callback: async html => {
           try {
             await runHighstormCue({
@@ -463,7 +464,7 @@ export function openHighstormToolkit({
       },
       calendar: {
         icon: '<i class="fas fa-calendar"></i>',
-        label: "Generar calendario",
+        label: localize("GenerateCalendar"),
         callback: async html => {
           try {
             await runHighstormCalendar({
@@ -489,7 +490,7 @@ export function openHighstormToolkit({
       },
       cancel: {
         icon: '<i class="fas fa-times"></i>',
-        label: "Cancelar",
+        label: localize("Cancel"),
       },
     },
     default: "announce",

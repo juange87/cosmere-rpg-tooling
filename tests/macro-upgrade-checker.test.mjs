@@ -1,3 +1,6 @@
+// These existing behavior checks exercise the Spanish interface.
+globalThis.game = { i18n: { lang: "es" } };
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -188,7 +191,7 @@ test("ships the GM macro for checking imported world macro copies", async () => 
 
   assert.equal(macro._id, "MacroUpgradeCheck01");
   assert.equal(macro._key, "!macros!MacroUpgradeCheck01");
-  assert.equal(macro.name, "Chequeo de Macros Instaladas");
+  assert.ok(macro.name.includes("Installed Macro Check"));
   assert.equal(macro.type, "script");
   assert.match(macro.command, /macro-upgrade-checker\.js/);
 });

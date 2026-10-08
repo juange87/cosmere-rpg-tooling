@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import { getActiveJb2aModuleId, resolveJb2aAssetPath } from "../scripts/jb2a-assets.js";
 import { checkCosmereDependencies } from "../scripts/dependency-checker.js";
+import { localize } from "../scripts/localization.js";
 
 function createGame(activeIds = [], inactiveIds = []) {
   return {
@@ -58,6 +59,7 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
       const macro = JSON.parse(await readFile(`packs/_source/gm-macros/${id}.json`, "utf8"));
       const files = [];
       const callbacks = [];
+      const notifications = [];
       const game = createGame(edition ? [edition] : []);
       class Die {
         faces = 20;
@@ -77,16 +79,21 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
           update() {},
         } }] },
       };
-      const command = macro.command.replace(/^const \{ resolveJb2aAssetPath \} = await import\([^\n]+\);\n/, "");
-      await new AsyncFunction("game", "canvas", "Sequence", "ui", "Hooks", "Die", "resolveJb2aAssetPath", command)(
+      const command = macro.command.replace(/^const \{ (?:resolveJb2aAssetPath|localize) \} = await import\([^\n]+\);\n/gm, "");
+      await new AsyncFunction("game", "canvas", "Sequence", "ui", "Hooks", "Die", "resolveJb2aAssetPath", "localize", command)(
         game, canvas, function Sequence() { return sequence; },
-        { notifications: { info() {}, warn() {} } },
+        { notifications: { info(message) { notifications.push(message); }, warn() {} } },
         { on: (_, callback) => callbacks.push(callback) }, Die,
         path => resolveJb2aAssetPath(path, game),
+        localize,
       );
       for (const callback of callbacks) callback("roll-id");
       assert.equal(files.length, edition ? 1 : 0, macro.name);
       if (edition) assert.ok(files[0].startsWith(`modules/${edition}/Library/`), macro.name);
+      if (id !== "9MDhU9WMv0QKYH3D") {
+        assert.equal(notifications.length, 1, macro.name);
+        assert.match(notifications[0], /Health updated|natural 20|Critical failure detected/, macro.name);
+      }
     }
   });
 }

@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
@@ -11,16 +12,16 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const RESOURCE_KEYS = [
-  { key: "health", label: "Salud", path: "system.resources.hea.value", maxPath: "system.resources.hea.max" },
-  { key: "focus", label: "Foco", path: "system.resources.foc.value", maxPath: "system.resources.foc.max" },
+  { key: "health", get label() { return localize("Health"); }, path: "system.resources.hea.value", maxPath: "system.resources.hea.max" },
+  { key: "focus", get label() { return localize("Focus"); }, path: "system.resources.foc.value", maxPath: "system.resources.foc.max" },
   { key: "investiture", label: "Investiture", path: "system.resources.inv.value", maxPath: "system.resources.inv.max" },
 ];
 
 export const NARRATIVE_STATES = [
-  { key: "advantaged", label: "Con ventaja", tone: "Impulso narrativo favorable." },
-  { key: "exposed", label: "Expuesto", tone: "Posicion vulnerable o coste pendiente." },
-  { key: "exhausted", label: "Agotado", tone: "Cansancio, presion o desgaste acumulado." },
-  { key: "inspired", label: "Inspirado", tone: "Determinacion, luz o apoyo en la escena." },
+  { key: "advantaged", get label() { return localize("Advantaged"); }, get tone() { return localize("FavorableNarrativeMomentum"); } },
+  { key: "exposed", get label() { return localize("Exposed"); }, get tone() { return localize("VulnerablePositionOrUnresolvedCost"); } },
+  { key: "exhausted", get label() { return localize("Exhausted"); }, get tone() { return localize("AccumulatedFatiguePressureOrStrain"); } },
+  { key: "inspired", get label() { return localize("Inspired"); }, get tone() { return localize("DeterminationLightOrSupportInTheScene"); } },
 ];
 
 function resolveResource(resourceKey) {
@@ -54,7 +55,7 @@ export function buildResourceUpdatePlan({
     const next = max > 0 ? clamp(unclampedNext, 0, max) : Math.max(0, unclampedNext);
     return {
       actorId: actor?.id,
-      actorName: actor?.name ?? "Sin actor",
+      actorName: actor?.name ?? localize("NoActor"),
       path: resource.path,
       current,
       next,
@@ -67,7 +68,7 @@ export function buildResourceUpdatePlan({
 
 export function buildResourceSummaryChatCard(plan) {
   return buildCosmereChatCard({
-    eyebrow: "Control Rapido de Recursos",
+    eyebrow: localize("QuickResourceControl"),
     title: plan.resource.label,
     sections: plan.results.map(result => ({
       label: result.actorName,
@@ -92,7 +93,7 @@ export function buildNarrativeStatePlan({
     note: cleanNote,
     results: actors.map(actor => ({
       actorId: actor?.id,
-      actorName: actor?.name ?? "Sin actor",
+      actorName: actor?.name ?? localize("NoActor"),
       action: normalizedMode,
       label: state.label,
       note: cleanNote,
@@ -102,8 +103,8 @@ export function buildNarrativeStatePlan({
 
 export function buildNarrativeStateSummaryChatCard(plan) {
   return buildCosmereChatCard({
-    eyebrow: "Control Rapido de Recursos",
-    title: plan.mode === "remove" ? "Estado narrativo retirado" : "Estado narrativo aplicado",
+    eyebrow: localize("QuickResourceControl"),
+    title: plan.mode === "remove" ? localize("NarrativeStateRemoved") : localize("NarrativeStateApplied"),
     sections: plan.results.map(result => ({
       label: result.actorName,
       value: `${result.label}${result.note ? `: ${result.note}` : ""}`,
@@ -170,42 +171,42 @@ export function openResourceControl({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir recursos.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenResourceControl"));
   }
   const actors = getControlledActors({
     controlledTokens: canvas?.tokens?.controlled ?? [],
     fallbackActor: game?.user?.character,
   });
   if (!actors.length) {
-    ui?.notifications?.warn?.("Selecciona tokens o configura un personaje de usuario.");
+    ui?.notifications?.warn?.(localize("SelectTokensOrAssignACharacterToYourUser"));
     return;
   }
 
   openCosmereDialog({
-    title: "Control Rapido de Recursos",
+    title: localize("QuickResourceControl"),
     content: `
       <form>
-        <h3>Recursos numericos</h3>
-        <div class="form-group"><label>Recurso</label><select name="resourceKey">${resourceOptions()}</select></div>
-        <div class="form-group"><label>Incremento</label><input name="delta" type="number" value="1" /></div>
+        <h3>${localize("NumericResources")}</h3>
+        <div class="form-group"><label>${localize("Resource")}</label><select name="resourceKey">${resourceOptions()}</select></div>
+        <div class="form-group"><label>${localize("Increment")}</label><input name="delta" type="number" value="1" /></div>
         <hr>
-        <h3>Estado narrativo simple</h3>
-        <div class="form-group"><label>Estado narrativo</label><select name="stateKey">${stateOptions()}</select></div>
+        <h3>${localize("SimpleNarrativeState")}</h3>
+        <div class="form-group"><label>${localize("NarrativeState")}</label><select name="stateKey">${stateOptions()}</select></div>
         <div class="form-group">
-          <label>Accion</label>
+          <label>${localize("Action")}</label>
           <select name="stateMode">
-            <option value="add">Aplicar</option>
-            <option value="remove">Retirar</option>
+            <option value="add">${localize("Apply")}</option>
+            <option value="remove">${localize("Remove2")}</option>
           </select>
         </div>
-        <div class="form-group"><label>Nota</label><input name="stateNote" type="text" /></div>
-        <label><input name="publishChat" type="checkbox" checked /> Publicar resumen</label>
+        <div class="form-group"><label>${localize("Note")}</label><input name="stateNote" type="text" /></div>
+        <label><input name="publishChat" type="checkbox" checked /> ${localize("PostSummary")}</label>
       </form>
     `,
     buttons: {
       apply: {
         icon: '<i class="fas fa-heart"></i>',
-        label: "Aplicar",
+        label: localize("Apply"),
         callback: async html => {
           try {
             const plan = buildResourceUpdatePlan({
@@ -226,7 +227,7 @@ export function openResourceControl({
       },
       state: {
         icon: '<i class="fas fa-tag"></i>',
-        label: "Aplicar estado",
+        label: localize("ApplyState"),
         callback: async html => {
           try {
             const plan = buildNarrativeStatePlan({
@@ -246,7 +247,7 @@ export function openResourceControl({
           }
         },
       },
-      cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
+      cancel: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") },
     },
     default: "apply",
   }, { Dialog });

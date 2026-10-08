@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
@@ -5,25 +6,27 @@ import {
 import { resolveJb2aAssetPath } from "./jb2a-assets.js";
 
 export const COSMERE_SETTINGS = [
-  { key: "automaticRollHooks", type: Boolean, default: true, name: "Activar hooks automaticos" },
-  { key: "natural20Effects", type: Boolean, default: true, name: "Efectos de natural 20" },
-  { key: "natural1Effects", type: Boolean, default: true, name: "Efectos de natural 1" },
-  { key: "rollRequestButtons", type: Boolean, default: true, name: "Botones de respuesta a solicitudes" },
-  { key: "rollHookNotifications", type: Boolean, default: true, name: "Notificaciones de hooks" },
-  { key: "rollHookChatCards", type: Boolean, default: true, name: "Chat cards de hooks" },
-  { key: "rollHookSound", type: Boolean, default: false, name: "Sonido en hooks" },
-  { key: "rollHookAnimation", type: Boolean, default: true, name: "Animacion en hooks" },
-  { key: "soundVolume", type: Number, default: 0.8, name: "Volumen de sonidos" },
-  { key: "useAnimations", type: Boolean, default: true, name: "Usar animaciones si hay dependencias" },
-  { key: "publishChatDefault", type: Boolean, default: true, name: "Publicar resultados en chat por defecto" },
+  { key: "automaticRollHooks", type: Boolean, default: true, get name() { return localize("EnableAutomaticHooks"); } },
+  { key: "natural20Effects", type: Boolean, default: true, get name() { return localize("Natural20Effects"); } },
+  { key: "natural1Effects", type: Boolean, default: true, get name() { return localize("Natural1Effects"); } },
+  { key: "rollRequestButtons", type: Boolean, default: true, get name() { return localize("RollRequestResponseButtons"); } },
+  { key: "rollHookNotifications", type: Boolean, default: true, get name() { return localize("HookNotifications"); } },
+  { key: "rollHookChatCards", type: Boolean, default: true, get name() { return localize("HookChatCards"); } },
+  { key: "rollHookSound", type: Boolean, default: false, get name() { return localize("HookSounds"); } },
+  { key: "rollHookAnimation", type: Boolean, default: true, get name() { return localize("HookAnimations"); } },
+  { key: "soundVolume", type: Number, default: 0.8, get name() { return localize("SoundVolume"); } },
+  { key: "useAnimations", type: Boolean, default: true, get name() { return localize("UseAnimationsWhenDependenciesAreAvailable"); } },
+  { key: "publishChatDefault", type: Boolean, default: true, get name() { return localize("PostResultsToChatByDefault"); } },
   {
     key: "labelLanguage",
     type: String,
-    default: "es",
-    name: "Idioma preferido de etiquetas",
-    choices: { es: "Espanol", en: "English" },
+    default: "auto",
+    get name() { return localize("ModuleLanguage"); },
+    get hint() { return localize("ModuleLanguageHint"); },
+    requiresReload: true,
+    choices: { get auto() { return localize("FollowFoundryLanguage"); }, es: "Español", en: "English" },
   },
-  { key: "experimentalTools", type: Boolean, default: false, name: "Habilitar herramientas experimentales" },
+  { key: "experimentalTools", type: Boolean, default: false, get name() { return localize("EnableExperimentalTools"); } },
 ];
 
 let hooksActivated = false;
@@ -52,21 +55,33 @@ export function createSettingsRegistrationPlan() {
       default: setting.default,
       name: setting.name,
       choices: setting.choices,
+      hint: setting.hint,
+      requiresReload: setting.requiresReload,
     })),
   };
 }
 
 export function registerCosmereSettings({ game = globalThis.game } = {}) {
-  const plan = createSettingsRegistrationPlan();
-  for (const setting of plan.settings) {
-    game?.settings?.register?.(plan.moduleId, setting.key, {
+  const register = setting => {
+    game?.settings?.register?.(COSMERE_MODULE_ID, setting.key, {
       name: setting.name,
       scope: setting.scope,
       config: setting.config,
       type: setting.type,
       default: setting.default,
       choices: setting.choices,
+      hint: setting.hint,
+      requiresReload: setting.requiresReload,
     });
+  };
+  // Register the preference first so settings.get can read a saved override
+  // while the remaining settings' labels are being resolved.
+  const language = createSettingsRegistrationPlan().settings.find(setting => setting.key === "labelLanguage");
+  language.name = "Module language / Idioma del módulo";
+  register(language);
+  const plan = createSettingsRegistrationPlan();
+  for (const setting of plan.settings) {
+    if (setting.key !== "labelLanguage") register(setting);
   }
   return plan;
 }
@@ -111,13 +126,13 @@ async function publishHookCard({ type, ChatMessage = globalThis.ChatMessage } = 
   const natural20 = type === "natural20";
   await ChatMessage.create({
     content: buildCosmereChatCard({
-      eyebrow: "Hook global Cosmere",
-      title: natural20 ? "Natural 20" : "Fallo critico",
+      eyebrow: localize("CosmereGlobalHook"),
+      title: natural20 ? "Natural 20" : localize("CriticalFailure"),
       sections: [{
-        label: "Resultado",
+        label: localize("Result"),
         value: natural20
-          ? "Una tirada con d20 mostro un 20 natural."
-          : "Una tirada con d20 mostro un 1 natural.",
+          ? localize("AD20RollShowedANatural20")
+          : localize("AD20RollShowedANatural1"),
       }],
       accent: natural20 ? "#237a3b" : "#9f3a38",
     }),
@@ -132,8 +147,8 @@ async function handleDiceHook(messageId, context) {
   const rollInspection = inspectD20Rolls(message);
 
   for (const [key, enabledSetting, label] of [
-    ["natural20", "natural20Effects", "Natural 20 detectado"],
-    ["natural1", "natural1Effects", "Fallo critico detectado"],
+    ["natural20", "natural20Effects", localize("Natural20Detected")],
+    ["natural1", "natural1Effects", localize("CriticalFailureDetected")],
   ]) {
     const found = key === "natural20" ? rollInspection.hasNatural20 : rollInspection.hasNatural1;
     if (!found || !settingValue(game, enabledSetting)) continue;
@@ -166,7 +181,7 @@ function handleRollRequestButtons(message, html, { game, ui }) {
     const skill = event.currentTarget.dataset.skill;
     const actor = game?.actors?.get?.(actorId);
     if (!actor?.rollSkill) {
-      ui?.notifications?.error?.("No se encontro el actor para la tirada.");
+      ui?.notifications?.error?.(localize("CouldNotFindTheActorForTheRoll"));
       return;
     }
     actor.rollSkill(skill, { chatMessage: true });

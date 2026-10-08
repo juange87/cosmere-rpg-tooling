@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
   {
     folderName: "Roshar GM Tables",
@@ -315,7 +316,7 @@ export async function ensureRoadmapRollTables({
   }
 
   if (created || reorganized) {
-    ui?.notifications?.info?.(`Cosmere RPG Tooling: ${created} tabla(s) tematicas creadas, ${reorganized} reorganizada(s).`);
+    ui?.notifications?.info?.(`Cosmere RPG Tooling: ${created}${localize("ThemedTableSCreated")}${reorganized}${localize("Reorganized")}`);
   }
 
   return { folder, created, reorganized, total: group.tables.length };

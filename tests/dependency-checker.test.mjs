@@ -1,3 +1,6 @@
+// These existing behavior checks exercise the Spanish interface.
+globalThis.game = { i18n: { lang: "es" } };
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -129,7 +132,7 @@ test("ships a GM macro that opens the dependency checker", async () => {
 
   assert.equal(macro._id, "DependencyCheck01");
   assert.equal(macro._key, "!macros!DependencyCheck01");
-  assert.equal(macro.name, "Chequeo de Dependencias");
+  assert.equal(macro.name, "Dependency Check / Chequeo de Dependencias");
   assert.equal(macro.type, "script");
   assert.match(macro.command, /dependency-checker\.js/);
   assert.match(macro.command, /runDependencyCheck/);

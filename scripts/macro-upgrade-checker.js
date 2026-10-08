@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
@@ -19,9 +20,9 @@ export const MACRO_UPGRADE_PACKS = [
 const COMPARISON_FIELDS = ["command", "type", "img", "scope"];
 
 const STATUS_LABELS = {
-  current: "Actualizada",
-  outdated: "Obsoleta",
-  missing: "No importada al mundo",
+  get current() { return localize("UpToDate"); },
+  get outdated() { return localize("Outdated"); },
+  get missing() { return localize("NotImportedIntoTheWorld"); },
 };
 
 function collectionToArray(collection) {
@@ -87,8 +88,13 @@ export function buildMacroUpgradeReport({
   }
 
   const entries = [];
+  const matchedWorldCopies = new Map();
   for (const source of sources) {
-    const matches = worldByName.get(source.name) ?? [];
+    // Bilingual compendium names still match copies imported before English
+    // support. Updating a macro preserves its world name and hotbar ID.
+    const names = new Set([source.name, ...(source.flags?.[COSMERE_MODULE_ID]?.legacyNames ?? [])]);
+    const matches = Array.from(names).flatMap(name => worldByName.get(name) ?? []);
+    matchedWorldCopies.set(source, matches.length);
     if (!matches.length) {
       entries.push({
         key: buildEntryKey(source),
@@ -118,13 +124,8 @@ export function buildMacroUpgradeReport({
     }
   }
 
-  const duplicateSourceNames = new Set(
-    sources
-      .filter(source => (worldByName.get(source.name) ?? []).length > 1)
-      .map(source => source.name),
-  );
-  const duplicates = Array.from(duplicateSourceNames)
-    .reduce((total, name) => total + Math.max(0, (worldByName.get(name) ?? []).length - 1), 0);
+  const duplicates = Array.from(matchedWorldCopies.values())
+    .reduce((total, count) => total + Math.max(0, count - 1), 0);
 
   const counts = {
     sourceTotal: sources.length,
@@ -204,10 +205,10 @@ export async function applyMacroUpgradeSelection({
 
 function buildStatusSummary(counts) {
   return [
-    `Actualizadas: ${counts.current}`,
-    `Obsoletas: ${counts.outdated}`,
-    `No importadas: ${counts.missing}`,
-    `Duplicadas: ${counts.duplicates}`,
+    `${localize("UpToDate2")}${counts.current}`,
+    `${localize("Outdated2")}${counts.outdated}`,
+    `${localize("NotImported")}${counts.missing}`,
+    `${localize("Duplicates")}${counts.duplicates}`,
   ].join(" | ");
 }
 
@@ -217,7 +218,7 @@ function buildDialogRows(entries) {
     const changed = entry.changedFields.length ? entry.changedFields.join(", ") : "-";
     const worldId = entry.worldMacro?.id ? `#${entry.worldMacro.id}` : "-";
     const selector = canSelect
-      ? `<input type="checkbox" name="macro-upgrade" value="${escapeHtml(entry.key)}" aria-label="Actualizar ${escapeHtml(entry.source.name)}">`
+      ? `<input type="checkbox" name="macro-upgrade" value="${escapeHtml(entry.key)}" aria-label="${localize("Update2")}${escapeHtml(entry.source.name)}">`
       : "";
 
     return `
@@ -248,10 +249,10 @@ export function buildMacroUpgradeDialogContent(report) {
   return `
     <form class="cosmere-macro-upgrade" style="display:grid;gap:10px;">
       <p style="margin:0;color:#334155;">
-        Revisa copias importadas al mundo. Las macros no importadas se pueden ejecutar desde el compendio y no necesitan cambios.
+        ${localize("ReviewCopiesImportedIntoTheWorldMacrosThatHaveNotBeenImportedCanRunFromTheCompendiumA")}
       </p>
       <p style="margin:0;color:#334155;">
-        No se modifica nada automaticamente: marca solo las copias obsoletas que quieras reemplazar con la version del compendio.
+        ${localize("NothingChangesAutomaticallySelectOnlyTheOutdatedCopiesYouWantToReplaceWithTheCompendi")}
       </p>
       <div style="padding:8px 10px;background:#f7fafc;border:1px solid rgba(31,41,51,0.16);border-radius:6px;font-weight:700;">
         ${escapeHtml(buildStatusSummary(counts))}
@@ -260,12 +261,12 @@ export function buildMacroUpgradeDialogContent(report) {
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead>
           <tr>
-            <th style="padding:4px 8px;text-align:center;">Actualizar</th>
+            <th style="padding:4px 8px;text-align:center;">${localize("Update")}</th>
             <th style="padding:4px 8px;text-align:left;">Macro</th>
-            <th style="padding:4px 8px;text-align:left;">Compendio</th>
-            <th style="padding:4px 8px;text-align:left;">Estado</th>
-            <th style="padding:4px 8px;text-align:left;">Diferencias</th>
-            <th style="padding:4px 8px;text-align:left;">Copia</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Compendium")}</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Status")}</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Differences")}</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Copy")}</th>
           </tr>
         </thead>
         <tbody>${buildDialogRows(entries)}</tbody>
@@ -286,19 +287,19 @@ export function buildMacroUpgradeChatCard(report) {
     .map(entry => `${entry.source.name} (${entry.changedFields.join(", ")})`);
 
   return buildCosmereChatCard({
-    eyebrow: "Mantenimiento",
-    title: "Macros Cosmere instaladas",
+    eyebrow: localize("Maintenance"),
+    title: localize("InstalledCosmereMacros"),
     subtitle: buildStatusSummary(counts),
     sections: [
       {
-        label: "Resultado",
+        label: localize("Result"),
         value: counts.outdated
-          ? `Revisa antes de sesion: ${outdatedNames.join(" | ")}`
-          : "No hay copias importadas obsoletas.",
+          ? `${localize("ReviewBeforeTheSession")}${outdatedNames.join(" | ")}`
+          : localize("NoOutdatedImportedCopies"),
       },
       {
-        label: "Seguridad",
-        value: "El chequeo no cambia macros por si solo. Solo reemplaza copias del mundo cuando el GM las selecciona.",
+        label: localize("Safety"),
+        value: localize("TheCheckDoesNotChangeMacrosByItselfItOnlyReplacesWorldCopiesSelectedByTheGM"),
       },
     ],
     accent: "#80531b",
@@ -337,7 +338,7 @@ export async function collectCompendiumMacros({
   for (const packDefinition of packDefinitions) {
     const pack = getPack(game, packDefinition.id);
     if (!pack) {
-      warnings.push(`No se encontro el compendio ${packDefinition.label}.`);
+      warnings.push(`${localize("CouldNotFindTheCompendium")}${packDefinition.label}.`);
       continue;
     }
 
@@ -388,42 +389,42 @@ export async function openMacroUpgradeChecker({
   ChatMessage = globalThis.ChatMessage,
 } = {}) {
   if (!game?.user?.isGM) {
-    ui?.notifications?.warn?.("Solo el GM puede revisar y actualizar macros del mundo.");
+    ui?.notifications?.warn?.(localize("OnlyTheGMCanReviewAndUpdateWorldMacros"));
     return null;
   }
 
   if (!hasCosmereDialogSupport({ Dialog, DialogV2, foundry })) {
-    throw new Error("Foundry no esta disponible para abrir el chequeo de macros instaladas.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenTheInstalledMacroCheck"));
   }
 
   const report = await scanInstalledCosmereMacros({ game });
   return openCosmereDialog({
-    title: "Chequeo de Macros Instaladas",
+    title: localize("InstalledMacroCheck"),
     content: buildMacroUpgradeDialogContent(report),
     buttons: {
       publish: {
         icon: '<i class="fas fa-message"></i>',
-        label: "Publicar informe",
+        label: localize("PostReport"),
         callback: async () => publishReport(report, { ChatMessage }),
       },
       update: {
         icon: '<i class="fas fa-arrow-up-from-bracket"></i>',
-        label: "Actualizar seleccionadas",
+        label: localize("UpdateSelected"),
         callback: async html => {
           const selectedEntryKeys = selectedKeysFromDialog(html);
           if (!selectedEntryKeys.length) {
-            ui?.notifications?.warn?.("No hay macros obsoletas seleccionadas.");
+            ui?.notifications?.warn?.(localize("NoOutdatedMacrosSelected"));
             return false;
           }
           const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys });
-          ui?.notifications?.info?.(`Macros actualizadas: ${result.updated.length}.`);
+          ui?.notifications?.info?.(`${localize("MacrosUpdated")}${result.updated.length}.`);
           await publishReport(await scanInstalledCosmereMacros({ game }), { ChatMessage });
           return true;
         },
       },
       close: {
         icon: '<i class="fas fa-times"></i>',
-        label: "Cerrar",
+        label: localize("Close"),
       },
     },
     default: "close",

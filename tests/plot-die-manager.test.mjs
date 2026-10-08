@@ -1,3 +1,6 @@
+// These existing behavior checks exercise the Spanish interface.
+globalThis.game = { i18n: { lang: "es" } };
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -151,7 +154,7 @@ test("ships a GM macro that opens the plot die manager", async () => {
 
   assert.equal(macro._id, "PlotDieManager01");
   assert.equal(macro._key, "!macros!PlotDieManager01");
-  assert.equal(macro.name, "Gestor de Plot Die");
+  assert.equal(macro.name, "Plot Die Manager / Gestor de Plot Die");
   assert.equal(macro.type, "script");
   assert.match(macro.command, /plot-die-manager\.js/);
   assert.match(macro.command, /openPlotDieManager/);

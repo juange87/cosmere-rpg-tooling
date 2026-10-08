@@ -4,7 +4,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/dice-target.svg",
   "scope": "global",
-  "command": "// Macro para hacer una tirada de habilidad en Foundry VTT\n// Cambia \"ste\" por la abreviatura de la habilidad que quieras (sigilo = \"ste\", acrobacias = \"acr\", etc.)\n\n// Primero, obtiene el token seleccionado\nlet token = canvas.tokens.controlled[0];\nif (!token) {\n  return ui.notifications.warn(\"Por favor, selecciona un token antes de usar este macro.\");\n}\n\n// Haz la tirada de la habilidad deseada (ejemplo con sigilo)\ntoken.actor.rollSkill(\"prc\");",
+  "command": "const { localize } = await import(\"/modules/cosmere-rpg-tooling/scripts/localization.js\");\n// Macro para hacer una tirada de habilidad en Foundry VTT\n// Cambia \"ste\" por la abreviatura de la habilidad que quieras (sigilo = \"ste\", acrobacias = \"acr\", etc.)\n\n// Primero, obtiene el token seleccionado\nlet token = canvas.tokens.controlled[0];\nif (!token) {\n  return ui.notifications.warn(localize(\"PleaseSelectATokenBeforeUsingThisMacro\"));\n}\n\n// Haz la tirada de la habilidad deseada (ejemplo con sigilo)\ntoken.actor.rollSkill(\"prc\");",
   "folder": null,
   "sort": 0,
   "ownership": {

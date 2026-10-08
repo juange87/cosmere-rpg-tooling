@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   buildCosmereChatCard,
   normalizeText,
@@ -6,23 +7,23 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const QUICK_SCENE_TYPES = [
-  { key: "chase", label: "Persecucion" },
-  { key: "infiltration", label: "Infiltracion" },
-  { key: "socialDuel", label: "Duelo social" },
-  { key: "discovery", label: "Descubrimiento" },
-  { key: "dangerousTravel", label: "Viaje peligroso" },
-  { key: "negotiation", label: "Negociacion" },
-  { key: "stormPrep", label: "Preparacion antes de tormenta" },
+  { key: "chase", get label() { return localize("Chase"); } },
+  { key: "infiltration", get label() { return localize("Infiltration"); } },
+  { key: "socialDuel", get label() { return localize("SocialDuel"); } },
+  { key: "discovery", get label() { return localize("Discovery"); } },
+  { key: "dangerousTravel", get label() { return localize("DangerousTravel"); } },
+  { key: "negotiation", get label() { return localize("Negotiation"); } },
+  { key: "stormPrep", get label() { return localize("StormPreparation"); } },
 ];
 
 const BEATS = {
-  chase: ["Establece la distancia inicial.", "Introduce un obstaculo de terreno.", "Ofrece un atajo con coste.", "Cierra con captura, escape o giro."],
-  infiltration: ["Marca el punto de entrada.", "Define una patrulla o cerradura.", "Revela una sala con informacion util.", "Haz sonar una alarma parcial."],
-  socialDuel: ["Presenta la postura publica.", "Introduce una prueba social.", "Permite una concesion con coste.", "Cierra con favor, deuda o humillacion."],
-  discovery: ["Muestra un detalle imposible.", "Conecta la pista con una faccion.", "Anade un riesgo por tocar o leer.", "Entrega una pregunta nueva."],
-  dangerousTravel: ["Define clima y urgencia.", "Consume recurso o tiempo.", "Introduce un encuentro lateral.", "Llega con una consecuencia visible."],
-  negotiation: ["Declara lo que cada parte quiere.", "Presenta una linea roja.", "Ofrece una moneda de cambio.", "Cierra con acuerdo, amenaza o deuda."],
-  stormPrep: ["Cuenta atras hasta el impacto.", "Escoge refugio y prioridades.", "Introduce una complicacion de ultima hora.", "Resuelve que queda expuesto tras la tormenta."],
+  get chase() { return [localize("EstablishTheStartingDistance"), localize("IntroduceATerrainObstacle"), localize("OfferAShortcutAtACost"), localize("EndWithCaptureEscapeOrATwist")]; },
+  get infiltration() { return [localize("MarkTheEntryPoint"), localize("DefineAPatrolOrLock"), localize("RevealARoomWithUsefulInformation"), localize("TriggerAPartialAlarm")]; },
+  get socialDuel() { return [localize("PresentThePublicStance"), localize("IntroduceASocialTest"), localize("AllowAConcessionAtACost"), localize("EndWithAFavorDebtOrHumiliation")]; },
+  get discovery() { return [localize("ShowAnImpossibleDetail"), localize("ConnectTheClueToAFaction"), localize("AddARiskForTouchingOrReading"), localize("IntroduceANewQuestion")]; },
+  get dangerousTravel() { return [localize("DefineTheWeatherAndUrgency"), localize("ConsumeResourcesOrTime"), localize("IntroduceASideEncounter"), localize("ArriveWithAVisibleConsequence")]; },
+  get negotiation() { return [localize("DeclareWhatEachSideWants"), localize("PresentARedLine"), localize("OfferABargainingChip"), localize("EndWithAnAgreementThreatOrDebt")]; },
+  get stormPrep() { return [localize("CountDownToImpact"), localize("ChooseShelterAndPriorities"), localize("IntroduceALastMinuteComplication"), localize("DetermineWhatRemainsExposedAfterTheStorm")]; },
 };
 
 function resolveSceneType(typeKey) {
@@ -41,10 +42,10 @@ export function buildQuickSceneSeed({ typeKey = "chase", seed = Date.now(), titl
     title: normalizeText(title, type.label),
     beats: BEATS[type.key],
     twist: [
-      "Un aliado llega con informacion incompleta.",
-      "El coste real aparece despues de aceptar.",
-      "Una faccion secundaria observa la escena.",
-      "La solucion obvia empeora el siguiente problema.",
+      localize("AnAllyArrivesWithIncompleteInformation"),
+      localize("TheRealCostAppearsAfterAccepting"),
+      localize("ASecondaryFactionObservesTheScene"),
+      localize("TheObviousSolutionMakesTheNextProblemWorse"),
     ][twistIndex],
   };
 }
@@ -54,12 +55,12 @@ export function buildQuickSceneChatCard(sceneInput) {
     ? sceneInput
     : buildQuickSceneSeed(sceneInput);
   return buildCosmereChatCard({
-    eyebrow: "Compendio de Escenas Rapidas",
+    eyebrow: localize("QuickSceneCompendium"),
     title: scene.title,
     subtitle: scene.type.label,
     sections: [
       ...scene.beats.map((beat, index) => ({ label: `Beat ${index + 1}`, value: beat })),
-      { label: "Giro", value: scene.twist },
+      { label: localize("Twist"), value: scene.twist },
     ],
     accent: "#1e3a5f",
   });
@@ -84,21 +85,21 @@ export function openQuickSceneCompendium({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir escenas rapidas.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenQuickScenes"));
   }
   openCosmereDialog({
-    title: "Compendio de Escenas Rapidas",
+    title: localize("QuickSceneCompendium"),
     content: `
       <form>
-        <div class="form-group"><label>Escena</label><select name="typeKey">${sceneOptions()}</select></div>
-        <div class="form-group"><label>Titulo opcional</label><input name="title" type="text" /></div>
-        <div class="form-group"><label>Semilla</label><input name="seed" type="text" /></div>
+        <div class="form-group"><label>${localize("Scene")}</label><select name="typeKey">${sceneOptions()}</select></div>
+        <div class="form-group"><label>${localize("OptionalTitle")}</label><input name="title" type="text" /></div>
+        <div class="form-group"><label>${localize("Seed")}</label><input name="seed" type="text" /></div>
       </form>
     `,
     buttons: {
       publish: {
         icon: '<i class="fas fa-theater-masks"></i>',
-        label: "Publicar",
+        label: localize("Post"),
         callback: async html => {
           try {
             await postQuickScene({
@@ -114,7 +115,7 @@ export function openQuickSceneCompendium({
           }
         },
       },
-      cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
+      cancel: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") },
     },
     default: "publish",
   }, { Dialog });

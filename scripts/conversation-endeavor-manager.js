@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   buildCosmereChatCard,
   clamp,
@@ -8,7 +9,7 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const TRACK_TYPES = [
-  { key: "conversation", label: "Conversacion" },
+  { key: "conversation", get label() { return localize("Conversation"); } },
   { key: "endeavor", label: "Endeavor" },
 ];
 
@@ -34,8 +35,8 @@ export function buildNonCombatTrack({
   return {
     type: resolvedType.key,
     typeLabel: resolvedType.label,
-    title: normalizeText(title, resolvedType.key === "conversation" ? "Conversacion sin titulo" : "Endeavor sin titulo"),
-    target: normalizeText(target, "Sin objetivo"),
+    title: normalizeText(title, resolvedType.key === "conversation" ? localize("UntitledConversation") : localize("UntitledEndeavor")),
+    target: normalizeText(target, localize("NoTarget")),
     resistance: requiredProgress,
     focus: normalizeText(focus),
     progress: currentProgress,
@@ -82,19 +83,19 @@ export function buildNonCombatChatCard(track) {
   const resolved = buildNonCombatTrack(track);
   const lastBeat = resolved.beats.at(-1);
   const sections = [
-    { label: "Objetivo", value: resolved.target },
-    { label: "Progreso", value: `${resolved.progress} / ${resolved.resistance}` },
-    { label: "Fallos", value: String(resolved.failures) },
+    { label: localize("Target"), value: resolved.target },
+    { label: localize("Progress"), value: `${resolved.progress} / ${resolved.resistance}` },
+    { label: localize("Failures"), value: String(resolved.failures) },
   ];
 
-  if (resolved.focus) sections.push({ label: "Foco o resistencia", value: resolved.focus });
+  if (resolved.focus) sections.push({ label: localize("FocusOrResistance"), value: resolved.focus });
   if (lastBeat?.opportunity) sections.push({ label: "Opportunity", value: lastBeat.opportunity });
   if (lastBeat?.complication) sections.push({ label: "Complication", value: lastBeat.complication });
-  if (lastBeat?.note) sections.push({ label: "Nota", value: lastBeat.note });
-  if (resolved.summary) sections.push({ label: "Resumen final", value: resolved.summary });
+  if (lastBeat?.note) sections.push({ label: localize("Note"), value: lastBeat.note });
+  if (resolved.summary) sections.push({ label: localize("FinalSummary"), value: resolved.summary });
 
   return buildCosmereChatCard({
-    eyebrow: "Gestor de Conversaciones y Endeavors",
+    eyebrow: localize("ConversationAndEndeavorManager"),
     title: resolved.title,
     subtitle: resolved.typeLabel,
     sections,
@@ -121,23 +122,23 @@ function buildTrackDialogContent() {
   return `
     <form>
       <div class="form-group">
-        <label>Tipo</label>
+        <label>${localize("Type")}</label>
         <select name="type">${typeOptions}</select>
       </div>
       <div class="form-group">
-        <label>Titulo</label>
+        <label>${localize("Title")}</label>
         <input name="title" type="text" />
       </div>
       <div class="form-group">
-        <label>PNJ objetivo, resistencia o foco</label>
+        <label>${localize("TargetNPCResistanceOrFocus")}</label>
         <input name="target" type="text" />
       </div>
       <div class="form-group">
-        <label>Progreso requerido</label>
+        <label>${localize("RequiredProgress")}</label>
         <input name="resistance" type="number" value="4" min="1" />
       </div>
       <div class="form-group">
-        <label>Avance</label>
+        <label>${localize("Advance")}</label>
         <input name="progress" type="number" value="1" />
       </div>
       <div class="form-group">
@@ -149,15 +150,15 @@ function buildTrackDialogContent() {
         <textarea name="complication" rows="2"></textarea>
       </div>
       <div class="form-group">
-        <label>Nota del avance</label>
+        <label>${localize("ProgressNote")}</label>
         <textarea name="note" rows="2"></textarea>
       </div>
       <div class="form-group">
-        <label>Resumen final</label>
+        <label>${localize("FinalSummary")}</label>
         <textarea name="summary" rows="2"></textarea>
       </div>
-      <label><input name="failure" type="checkbox" /> Registrar fallo</label>
-      <label><input name="whisper" type="checkbox" /> Enviar solo al GM</label>
+      <label><input name="failure" type="checkbox" /> ${localize("RecordFailure")}</label>
+      <label><input name="whisper" type="checkbox" /> ${localize("SendOnlyToGM")}</label>
     </form>
   `;
 }
@@ -168,7 +169,7 @@ export function openConversationEndeavorManager({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir el gestor no-combate.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenTheNonCombatManager"));
   }
 
   const publishTrack = async (html, { finish = false } = {}) => {
@@ -195,12 +196,12 @@ export function openConversationEndeavorManager({
   };
 
   openCosmereDialog({
-    title: "Gestor de Conversaciones y Endeavors",
+    title: localize("ConversationAndEndeavorManager"),
     content: buildTrackDialogContent(),
     buttons: {
       publish: {
         icon: '<i class="fas fa-comments"></i>',
-        label: "Registrar avance",
+        label: localize("RecordProgress"),
         callback: async html => {
           try {
             await publishTrack(html);
@@ -211,7 +212,7 @@ export function openConversationEndeavorManager({
       },
       finish: {
         icon: '<i class="fas fa-flag-checkered"></i>',
-        label: "Finalizar con resumen",
+        label: localize("FinishWithSummary"),
         callback: async html => {
           try {
             await publishTrack(html, { finish: true });
@@ -220,7 +221,7 @@ export function openConversationEndeavorManager({
           }
         },
       },
-      cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
+      cancel: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") },
     },
     default: "publish",
   }, { Dialog });

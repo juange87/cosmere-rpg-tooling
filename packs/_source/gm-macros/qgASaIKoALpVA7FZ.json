@@ -1,5 +1,5 @@
 {
-  "name": "Palabras Aceptadas Deluxe",
+  "name": "Words Accepted Deluxe / Palabras Aceptadas Deluxe",
   "type": "script",
   "author": "qUfD5KYQYHHgdqCR",
   "img": "icons/logo-scifi-blank.png",
@@ -10,7 +10,13 @@
   "ownership": {
     "default": 0
   },
-  "flags": {},
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyNames": [
+        "Palabras Aceptadas Deluxe"
+      ]
+    }
+  },
   "_id": "qgASaIKoALpVA7FZ",
   "_key": "!macros!qgASaIKoALpVA7FZ"
 }

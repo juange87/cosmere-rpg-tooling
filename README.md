@@ -5,6 +5,20 @@
 
 A Foundry VTT module that provides essential tools for Cosmere RPG, including random tables for character creation (based on Brotherwise's quick character creation documents) and useful macros for players and GMs.
 
+## English and Spanish
+
+Dialogs, settings, notifications, skill labels, and generated text support English and Spanish. By default, the module follows Foundry's language, with English as the fallback for other languages.
+
+To override it, open **Configure Settings → CosmereRPG GM Tools → Module language / Idioma del módulo**, choose **English**, **Español**, or **Follow Foundry language**, then save and reload. The override applies to the world. A previously saved Spanish preference is respected; choose English or the automatic option to change it.
+
+Compendium macros that previously had Spanish-only names now have bilingual names, such as **Cosmere GM Panel / Panel GM Cosmere**. For macros already imported into a world, run **Installed Macro Check / Chequeo de Macros Instaladas** from the GM compendium and select the copies to update. The checker recognizes their old names and preserves their world names, IDs, and hotbar references. Review custom macro code before replacing it.
+
+Existing chat messages and journals retain the language used when they were created. Table names and entries keep their existing English text. Bundled audio recordings retain their original language.
+
+**Español:** Los dialogos, ajustes, notificaciones y textos generados admiten ingles y español. El modulo usa el idioma de Foundry por defecto. Puedes elegir **Español** en **Module language / Idioma del módulo** y recargar. Para actualizar macros importadas, ejecuta **Installed Macro Check / Chequeo de Macros Instaladas** desde el compendio; reconoce los nombres antiguos y conserva las referencias de la barra de macros.
+
+Translations live in `lang/en.json` and `lang/es.json`, registered through [Foundry's localization system](https://foundryvtt.com/article/localization/). Add matching keys to both catalogs and call `localize` from `scripts/localization.js` for module-owned text. Resolve labels at use time (including getters for module-level definitions), and keep document IDs, skill keys, and user-provided text out of translation calls. Both catalogs ship in the release archive. Run `npm test` and `npm run validate` after changes; modifying macro sources also requires `npm run compile`.
+
 ## 📚 Module Contents
 
 This module includes:

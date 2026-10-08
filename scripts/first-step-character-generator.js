@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const FIRST_STEP_TABLES = {
@@ -29,7 +30,7 @@ function escapeHtml(value) {
 async function drawTableText(game, tableName) {
   const table = game?.tables?.getName?.(tableName);
   if (!table) {
-    throw new Error(`No se encontro la tabla "${tableName}".`);
+    throw new Error(`${localize("CouldNotFindTheTable")}${tableName}".`);
   }
 
   const draw = await table.draw({ displayChat: false });
@@ -37,7 +38,7 @@ async function drawTableText(game, tableName) {
   const text = result?.name ?? result?.description ?? result?.text ?? "";
 
   if (!text) {
-    throw new Error(`La tabla "${tableName}" no devolvio ningun resultado.`);
+    throw new Error(`${localize("TheTable")}${tableName}${localize("DidNotReturnAResult")}`);
   }
 
   return String(text);
@@ -62,7 +63,7 @@ export function buildFirstStepChatCard(character) {
   const nameBlock = character.name
     ? `
       <div style="margin-bottom:8px;">
-        <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.04em;">Nombre</div>
+        <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.04em;">${localize("Name")}</div>
         <div style="font-size:20px;font-family:Modesto Condensed,serif;color:#1e3a5f;">${escapeHtml(character.name)}</div>
         <div style="font-size:11px;color:#6f7f95;">${escapeHtml(character.cultureTable)}</div>
       </div>`
@@ -94,20 +95,20 @@ export function buildFirstStepChatCard(character) {
 
 function buildDialogContent() {
   const cultureOptions = [
-    '<option value="">Sin nombre</option>',
+    `<option value="">${localize("NoName")}</option>`,
     ...NAME_GENERATOR_TABLES.map(tableName => `<option value="${escapeHtml(tableName)}">${escapeHtml(tableName)}</option>`),
   ].join("");
 
   return `
     <form>
       <div class="form-group">
-        <label for="cr-first-step-culture">Cultura / nombre</label>
+        <label for="cr-first-step-culture">${localize("CultureName")}</label>
         <select id="cr-first-step-culture" name="cultureTable">${cultureOptions}</select>
       </div>
       <div class="form-group">
         <label>
           <input type="checkbox" id="cr-first-step-whisper" name="whisper">
-          Enviar solo al GM
+          ${localize("SendOnlyToGM")}
         </label>
       </div>
     </form>
@@ -121,7 +122,7 @@ export function openFirstStepCharacterGenerator({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir el generador.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenTheGenerator"));
   }
 
   openCosmereDialog({
@@ -130,7 +131,7 @@ export function openFirstStepCharacterGenerator({
     buttons: {
       generate: {
         icon: '<i class="fas fa-dice-d20"></i>',
-        label: "Generar",
+        label: localize("Generate"),
         callback: async html => {
           try {
             const cultureTable = html.find("#cr-first-step-culture").val();
@@ -146,7 +147,7 @@ export function openFirstStepCharacterGenerator({
               whisper,
             });
 
-            ui?.notifications?.info?.("Personaje First Step generado.");
+            ui?.notifications?.info?.(localize("FirstStepCharacterGenerated"));
           } catch (error) {
             ui?.notifications?.error?.(error.message);
           }
@@ -154,7 +155,7 @@ export function openFirstStepCharacterGenerator({
       },
       cancel: {
         icon: '<i class="fas fa-times"></i>',
-        label: "Cancelar",
+        label: localize("Cancel"),
       },
     },
     default: "generate",

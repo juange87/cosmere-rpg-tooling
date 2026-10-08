@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 function getDialogV2Class({ DialogV2, foundry = globalThis.foundry } = {}) {
   return DialogV2 ?? foundry?.applications?.api?.DialogV2;
 }
@@ -86,7 +87,7 @@ export function openCosmereDialog({
 } = {}) {
   const dialogButtons = Object.keys(buttons).length
     ? buttons
-    : { close: { icon: '<i class="fas fa-times"></i>', label: "Cerrar" } };
+    : { close: { icon: '<i class="fas fa-times"></i>', label: localize("Close") } };
   const DialogV2Class = getDialogV2Class({ DialogV2, foundry });
   if (DialogV2Class) {
     const dialogOptions = {
@@ -104,7 +105,7 @@ export function openCosmereDialog({
     return dialog.render({ force: true });
   }
 
-  if (!Dialog) throw new Error("Foundry no esta disponible para abrir dialogos.");
+  if (!Dialog) throw new Error(localize("FoundryIsNotAvailableToOpenDialogs"));
   return new Dialog({
     title,
     content,
