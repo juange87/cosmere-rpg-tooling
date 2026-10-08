@@ -1,8 +1,10 @@
+import { getActiveJb2aModuleId, JB2A_MODULE_IDS } from "./jb2a-assets.js";
+
 export const COSMERE_DEPENDENCY_CHECKS = [
   {
     key: "jb2a",
     label: "JB2A",
-    moduleId: "JB2A_DnD5e",
+    moduleIds: JB2A_MODULE_IDS,
     requiredFor: "Rutas y assets visuales de las macros de animacion.",
   },
   {
@@ -56,6 +58,18 @@ function hasSequencerCrosshair(globals) {
 }
 
 function evaluateDependency(check, { game, globals }) {
+  if (check.key === "jb2a") {
+    const moduleId = getActiveJb2aModuleId(game);
+    return {
+      ...check,
+      moduleId,
+      ok: Boolean(moduleId),
+      status: moduleId ? "Disponible" : "No disponible",
+      detail: moduleId
+        ? `El modulo ${moduleId} esta activo.`
+        : "JB2A no esta activo. Activa JB2A_DnD5e (gratuito) o jb2a_patreon (Patreon Complete Collection) para usar animaciones.",
+    };
+  }
   const moduleActive = isModuleActive(game, check.moduleId);
 
   if (check.key === "sequence") {
