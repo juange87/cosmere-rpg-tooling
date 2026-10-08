@@ -65,7 +65,7 @@ Macros for players that facilitate skill rolls in the Cosmere RPG system:
 
 #### CosmereRPG: GM Macros (45 macros)
 
-Macros for the GM that include resource management and visual animations. **⚠️ Requires the JB2A_DnD5e module** for animations.
+Macros for the GM that include resource management and visual animations. **Animations require either JB2A_DnD5e (free) or JB2A Patreon Complete Collection**, plus Sequencer.
 
 **Resource Management:**
 - **Increase Focus** 🎨 *[Uses JB2A]* - Adds 1 focus point with aura visual effect
@@ -122,9 +122,12 @@ Macros for the GM that include resource management and visual animations. **⚠�
 This module requires:
 - **Foundry VTT v12 or v13**
 - **Cosmere RPG system** (for macros to work correctly)
-- **JB2A_DnD5e** (required module for GM macro animations)
 
-The JB2A_DnD5e module will be installed automatically as a dependency when you activate this module.
+For GM macro animations, install and enable **Sequencer** and **one** JB2A edition:
+- **JB2A_DnD5e** (free), or
+- **JB2A Patreon Complete Collection** (`jb2a_patreon`).
+
+JB2A is optional for activating CosmereRPG GM Tools. Tables and non-animation tools can be used without it. Neither edition is installed automatically, and Patreon users do not need the free edition. Direct animation paths select the active edition, preferring Patreon if both are active. Run **Chequeo de Dependencias** to check your setup. Existing world macro copies need to be updated with **Chequeo de Macros Instaladas** or re-imported to use the corrected paths.
 
 ## Store Availability
 
@@ -356,7 +359,7 @@ if (formData?.culture) await game.tables.getName(formData.culture)?.draw();
 
 - **Foundry VTT**: v12 - v13 (minimum v12, verified up to v13)
 - **System**: Cosmere RPG (macros are specifically designed for this system)
-- **Required Modules**: JB2A_DnD5e (installed automatically as a dependency)
+- **Animation Modules**: Sequencer and either JB2A_DnD5e (free) or JB2A Patreon Complete Collection (`jb2a_patreon`); optional for module activation
 - **Dialogs**: module scripts and bundled macro dialogs use `DialogV2` on Foundry v13 through `scripts/foundry-dialogs.js`, with automatic fallback to Dialog V1 for Foundry v12.
 - **Imported macro copies**: Foundry keeps macros dragged from a compendium as world documents. Module updates do not overwrite those copies automatically; use **Chequeo de Macros Instaladas** to review and selectively update old copies.
 - **Random Tables**: Work with any game system

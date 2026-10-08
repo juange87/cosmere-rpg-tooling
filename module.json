@@ -10,16 +10,6 @@
     "verified": 13,
     "maximum": 13
   },
-  "relationships": {
-    "requires": [
-      {
-        "id": "JB2A_DnD5e",
-        "type": "module",
-        "manifest": "https://github.com/Jules-Bens-Aa/JB2A_DnD5e/releases/latest/download/module.json",
-        "compatibility": {}
-      }
-    ]
-  },
   "authors": [
     {
       "name": "JuanGeKal",

@@ -546,6 +546,7 @@
     "DistributeSpheres": "Distribute Spheres",
     "FollowFoundryLanguage": "Follow Foundry language",
     "ModuleLanguageHint": "Language for module dialogs, settings, notifications, and generated text. Reload after changing. Existing chat messages and journals keep their original text.",
-    "AvailableFundsRemoved": ". Available funds were removed."
+    "AvailableFundsRemoved": ". Available funds were removed.",
+    "Jb2aUnavailable": "JB2A is not active. Enable JB2A_DnD5e (free) or jb2a_patreon (Patreon Complete Collection) to use animations."
   }
 }

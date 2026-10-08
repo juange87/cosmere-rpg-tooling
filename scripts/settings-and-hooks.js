@@ -3,6 +3,7 @@ import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
 } from "./cosmere-helpers.js";
+import { resolveJb2aAssetPath } from "./jb2a-assets.js";
 
 export const COSMERE_SETTINGS = [
   { key: "automaticRollHooks", type: Boolean, default: true, get name() { return localize("EnableAutomaticHooks"); } },
@@ -109,12 +110,13 @@ export function inspectD20Rolls(message) {
   };
 }
 
-function playHookAnimation({ type, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
+function playHookAnimation({ type, game = globalThis.game, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
   if (typeof Sequence !== "function" || !canvas?.scene) return false;
   const center = { x: canvas.scene.width / 2, y: canvas.scene.height / 2 };
-  const file = type === "natural20"
-    ? "modules/JB2A_DnD5e/Library/1st_Level/Thunderwave/Thunderwave_01_Bright_Blue_Center_600x600.webm"
-    : "modules/JB2A_DnD5e/Library/Generic/UI/CriticalMiss_03_Red_200x200.webm";
+  const file = resolveJb2aAssetPath(type === "natural20"
+    ? "Library/1st_Level/Thunderwave/Thunderwave_01_Bright_Blue_Center_600x600.webm"
+    : "Library/Generic/UI/CriticalMiss_03_Red_200x200.webm", game);
+  if (!file) return false;
   new Sequence().effect().file(file).atLocation(center).scale(5).play();
   return true;
 }
@@ -167,7 +169,7 @@ async function handleDiceHook(messageId, context) {
       }, true);
     }
     if (settingValue(game, "rollHookAnimation") && settingValue(game, "useAnimations")) {
-      playHookAnimation({ type: key, canvas, Sequence });
+      playHookAnimation({ type: key, game, canvas, Sequence });
     }
   }
 }

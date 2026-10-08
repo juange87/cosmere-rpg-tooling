@@ -1,9 +1,11 @@
 import { localize } from "./localization.js";
+import { getActiveJb2aModuleId, JB2A_MODULE_IDS } from "./jb2a-assets.js";
+
 export const COSMERE_DEPENDENCY_CHECKS = [
   {
     key: "jb2a",
     label: "JB2A",
-    moduleId: "JB2A_DnD5e",
+    moduleIds: JB2A_MODULE_IDS,
     get requiredFor() { return localize("VisualAssetsAndPathsUsedByAnimationMacros"); },
   },
   {
@@ -57,6 +59,18 @@ function hasSequencerCrosshair(globals) {
 }
 
 function evaluateDependency(check, { game, globals }) {
+  if (check.key === "jb2a") {
+    const moduleId = getActiveJb2aModuleId(game);
+    return {
+      ...check,
+      moduleId,
+      ok: Boolean(moduleId),
+      status: moduleId ? localize("Available") : localize("Unavailable"),
+      detail: moduleId
+        ? `${localize("TheModule")}${moduleId}${localize("IsActive")}`
+        : localize("Jb2aUnavailable"),
+    };
+  }
   const moduleActive = isModuleActive(game, check.moduleId);
 
   if (check.key === "sequence") {

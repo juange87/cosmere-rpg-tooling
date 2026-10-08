@@ -546,6 +546,7 @@
     "DistributeSpheres": "Distribuir Esferas",
     "FollowFoundryLanguage": "Usar idioma de Foundry",
     "ModuleLanguageHint": "Idioma de dialogos, ajustes, notificaciones y texto generado del modulo. Recarga tras cambiarlo. Los mensajes y diarios existentes conservan su texto original.",
-    "AvailableFundsRemoved": ". Se quitó lo disponible."
+    "AvailableFundsRemoved": ". Se quitó lo disponible.",
+    "Jb2aUnavailable": "JB2A no esta activo. Activa JB2A_DnD5e (gratuito) o jb2a_patreon (Patreon Complete Collection) para usar animaciones."
   }
 }
