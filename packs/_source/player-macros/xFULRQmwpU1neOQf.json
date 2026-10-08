@@ -4,7 +4,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/angel.svg",
   "scope": "global",
-  "command": "// Hook: escucha clicks en botones de solicitud de tirada\nHooks.on(\"renderChatMessage\", (message, html) => {\n  html.find(\"button.roll-solicitud\").click(ev => {\n    const actorId = ev.currentTarget.dataset.actorId;\n    const skill = ev.currentTarget.dataset.skill;\n\n    const actor = game.actors.get(actorId);\n    if (!actor) {\n      ui.notifications.error(\"No se encontró el actor para la tirada\");\n      return;\n    }\n\n    // Lanza la tirada desde la sesión del jugador\n    actor.rollSkill(skill, { chatMessage: true });\n  });\n});",
+  "command": "const { localize } = await import(\"/modules/cosmere-rpg-tooling/scripts/localization.js\");\n// Hook: escucha clicks en botones de solicitud de tirada\nHooks.on(\"renderChatMessage\", (message, html) => {\n  html.find(\"button.roll-solicitud\").click(ev => {\n    const actorId = ev.currentTarget.dataset.actorId;\n    const skill = ev.currentTarget.dataset.skill;\n\n    const actor = game.actors.get(actorId);\n    if (!actor) {\n      ui.notifications.error(localize(\"CouldNotFindTheActorForTheRoll2\"));\n      return;\n    }\n\n    // Lanza la tirada desde la sesión del jugador\n    actor.rollSkill(skill, { chatMessage: true });\n  });\n});",
   "folder": null,
   "sort": 0,
   "ownership": {

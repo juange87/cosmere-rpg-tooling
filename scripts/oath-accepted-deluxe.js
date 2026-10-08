@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
@@ -45,9 +46,9 @@ export function buildOathAcceptedMoment({
 } = {}) {
   const order = resolveOrder(orderKey);
   return {
-    actorName: normalizeText(actorName, "Radiant sin nombre"),
+    actorName: normalizeText(actorName, localize("UnnamedRadiant")),
     order,
-    idealText: normalizeText(idealText, "Las palabras han sido aceptadas."),
+    idealText: normalizeText(idealText, localize("TheseWordsAreAccepted")),
     whisperTarget: normalizeText(whisperTarget),
     whisperUserId: normalizeText(whisperUserId),
     whisperMessage: normalizeText(whisperMessage),
@@ -59,15 +60,15 @@ export function buildOathAcceptedChatCard(momentInput) {
   const moment = buildOathAcceptedMoment(momentInput);
   const sections = [
     { label: "Actor", value: moment.actorName },
-    { label: "Orden Radiant", value: moment.order.label },
+    { label: localize("RadiantOrder"), value: moment.order.label },
     { label: "Ideal", value: moment.idealText },
   ];
-  if (moment.whisperTarget) sections.push({ label: "Whisper previo", value: moment.whisperTarget });
-  if (moment.gmNote) sections.push({ label: "Nota del GM", value: moment.gmNote });
+  if (moment.whisperTarget) sections.push({ label: localize("PreludeWhisper"), value: moment.whisperTarget });
+  if (moment.gmNote) sections.push({ label: localize("GMNote"), value: moment.gmNote });
 
   return buildCosmereChatCard({
-    eyebrow: "Palabras Aceptadas Deluxe",
-    title: "Palabras Aceptadas",
+    eyebrow: localize("WordsAcceptedDeluxe"),
+    title: localize("WordsAccepted"),
     sections,
     accent: moment.order.color,
     background: "#fffaf2",
@@ -77,12 +78,12 @@ export function buildOathAcceptedChatCard(momentInput) {
 export function buildOathPreludeWhisperCard(momentInput) {
   const moment = buildOathAcceptedMoment(momentInput);
   return buildCosmereChatCard({
-    eyebrow: "Palabras Aceptadas Deluxe",
-    title: "Antes de las palabras",
+    eyebrow: localize("WordsAcceptedDeluxe"),
+    title: localize("BeforeTheWords"),
     sections: [
       { label: "Actor", value: moment.actorName },
-      { label: "Orden Radiant", value: moment.order.label },
-      { label: "Whisper previo", value: moment.whisperMessage || "Preparate para el momento de jurar el Ideal." },
+      { label: localize("RadiantOrder"), value: moment.order.label },
+      { label: localize("PreludeWhisper"), value: moment.whisperMessage || localize("PrepareForTheMomentOfSwearingTheIdeal") },
     ],
     accent: moment.order.color,
     background: "#fffaf2",
@@ -118,7 +119,7 @@ export async function runOathAcceptedDeluxe({
   Sequence = globalThis.Sequence,
 } = {}) {
   if (!ChatMessage) {
-    throw new Error("Foundry no esta disponible para publicar Palabras Aceptadas.");
+    throw new Error(localize("FoundryIsNotAvailableToPostWordsAccepted"));
   }
 
   const moment = buildOathAcceptedMoment(input);
@@ -159,35 +160,35 @@ export function openOathAcceptedDeluxe({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir Palabras Aceptadas Deluxe.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenWordsAcceptedDeluxe"));
   }
 
   const userOptions = [
-    '<option value="">Sin whisper previo real</option>',
+    `<option value="">${localize("NoPreludeWhisper")}</option>`,
     ...Array.from(game?.users?.players ?? [])
       .map(user => `<option value="${escapeHtml(user.id)}">${escapeHtml(user.name)}</option>`),
   ].join("");
 
   openCosmereDialog({
-    title: "Palabras Aceptadas Deluxe",
+    title: localize("WordsAcceptedDeluxe"),
     content: `
       <form>
-        <div class="form-group"><label>Actor o token</label><input name="actorName" type="text" /></div>
-        <div class="form-group"><label>Orden Radiant</label><select name="orderKey">${orderOptions()}</select></div>
+        <div class="form-group"><label>${localize("ActorOrToken")}</label><input name="actorName" type="text" /></div>
+        <div class="form-group"><label>${localize("RadiantOrder")}</label><select name="orderKey">${orderOptions()}</select></div>
         <div class="form-group"><label>Ideal</label><textarea name="idealText" rows="3"></textarea></div>
-        <div class="form-group"><label>Etiqueta del whisper previo</label><input name="whisperTarget" type="text" /></div>
-        <div class="form-group"><label>Jugador para whisper previo</label><select name="whisperUserId">${userOptions}</select></div>
-        <div class="form-group"><label>Mensaje whisper previo</label><textarea name="whisperMessage" rows="2"></textarea></div>
-        <div class="form-group"><label>Nota del GM</label><textarea name="gmNote" rows="2"></textarea></div>
-        <label><input name="playSound" type="checkbox" checked /> Reproducir audio en dos fases</label>
-        <label><input name="playAnimation" type="checkbox" checked /> Mostrar aura JB2A si esta disponible</label>
-        <label><input name="whisperOnly" type="checkbox" /> Enviar tarjeta solo al GM</label>
+        <div class="form-group"><label>${localize("PreludeWhisperLabel")}</label><input name="whisperTarget" type="text" /></div>
+        <div class="form-group"><label>${localize("PreludeWhisperPlayer")}</label><select name="whisperUserId">${userOptions}</select></div>
+        <div class="form-group"><label>${localize("PreludeWhisperMessage")}</label><textarea name="whisperMessage" rows="2"></textarea></div>
+        <div class="form-group"><label>${localize("GMNote")}</label><textarea name="gmNote" rows="2"></textarea></div>
+        <label><input name="playSound" type="checkbox" checked /> ${localize("PlayAudioInTwoPhases")}</label>
+        <label><input name="playAnimation" type="checkbox" checked /> ${localize("ShowJB2AAuraIfAvailable")}</label>
+        <label><input name="whisperOnly" type="checkbox" /> ${localize("SendCardOnlyToGM")}</label>
       </form>
     `,
     buttons: {
       publish: {
         icon: '<i class="fas fa-volume-up"></i>',
-        label: "Aceptar palabras",
+        label: localize("AcceptWords"),
         callback: async html => {
           try {
             await runOathAcceptedDeluxe({
@@ -211,7 +212,7 @@ export function openOathAcceptedDeluxe({
           }
         },
       },
-      cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
+      cancel: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") },
     },
     default: "publish",
   }, { Dialog });

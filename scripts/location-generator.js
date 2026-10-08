@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   buildCosmereChatCard,
   normalizeText,
@@ -6,14 +7,14 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const LOCATION_TYPES = [
-  { key: "warcamp", label: "Campamentos de guerra" },
-  { key: "village", label: "Pueblos rosharianos" },
-  { key: "caravan", label: "Caravanas" },
-  { key: "lighteyesManor", label: "Mansiones lighteyes" },
-  { key: "market", label: "Mercados" },
-  { key: "ancientRuin", label: "Ruinas antiguas" },
-  { key: "outpost", label: "Puestos de avanzada" },
-  { key: "stormscar", label: "Zonas afectadas por highstorm" },
+  { key: "warcamp", get label() { return localize("Warcamps"); } },
+  { key: "village", get label() { return localize("RosharanVillages"); } },
+  { key: "caravan", get label() { return localize("Caravans"); } },
+  { key: "lighteyesManor", get label() { return localize("LighteyesManors"); } },
+  { key: "market", get label() { return localize("Markets"); } },
+  { key: "ancientRuin", get label() { return localize("AncientRuins"); } },
+  { key: "outpost", get label() { return localize("Outposts"); } },
+  { key: "stormscar", get label() { return localize("HighstormStruckAreas"); } },
 ];
 
 const LOCATION_PARTS = {
@@ -79,7 +80,7 @@ export function buildLocationSeed({ typeKey = "village", seed = Date.now(), name
     conflict: pick(LOCATION_PARTS.conflict, seedText, "conflict"),
     detail: pick(LOCATION_PARTS.detail, seedText, "detail"),
     opportunity: pick(LOCATION_PARTS.opportunity, seedText, "opportunity"),
-    journalTitle: `Localizacion: ${title}`,
+    journalTitle: `${localize("Location")}${title}`,
   };
 }
 
@@ -88,14 +89,14 @@ export function buildLocationChatCard(locationInput) {
     ? locationInput
     : buildLocationSeed(locationInput);
   return buildCosmereChatCard({
-    eyebrow: "Generador de Localizaciones",
+    eyebrow: localize("LocationGenerator"),
     title: location.title,
     subtitle: location.type.label,
     sections: [
-      { label: "Aspecto", value: location.look },
+      { label: localize("Appearance"), value: location.look },
       { label: "Tension", value: location.conflict },
-      { label: "Detalle", value: location.detail },
-      { label: "Oportunidad", value: location.opportunity },
+      { label: localize("Detail"), value: location.detail },
+      { label: localize("Opportunity"), value: location.opportunity },
     ],
     accent: "#7f6d5f",
     background: "#fbfaf7",
@@ -106,12 +107,12 @@ export async function createLocationJournal({
   location,
   JournalEntry = globalThis.JournalEntry,
 } = {}) {
-  if (!JournalEntry) throw new Error("Foundry no esta disponible para crear Journal Entry.");
+  if (!JournalEntry) throw new Error(localize("FoundryIsNotAvailableToCreateAJournalEntry"));
   const resolved = location ?? buildLocationSeed();
   return JournalEntry.create({
     name: resolved.journalTitle,
     pages: [{
-      name: "Localizacion",
+      name: localize("Location2"),
       type: "text",
       text: {
         format: 1,
@@ -149,23 +150,23 @@ export function openLocationGenerator({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir el generador de localizaciones.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenTheLocationGenerator"));
   }
   openCosmereDialog({
-    title: "Generador de Localizaciones",
+    title: localize("LocationGenerator"),
     content: `
       <form>
-        <div class="form-group"><label>Tipo</label><select name="typeKey">${locationOptions()}</select></div>
-        <div class="form-group"><label>Nombre opcional</label><input name="name" type="text" /></div>
-        <div class="form-group"><label>Semilla</label><input name="seed" type="text" placeholder="opcional" /></div>
-        <label><input name="publishChat" type="checkbox" checked /> Publicar en chat</label>
-        <label><input name="createJournal" type="checkbox" /> Crear Journal Entry</label>
+        <div class="form-group"><label>${localize("Type")}</label><select name="typeKey">${locationOptions()}</select></div>
+        <div class="form-group"><label>${localize("OptionalName")}</label><input name="name" type="text" /></div>
+        <div class="form-group"><label>${localize("Seed")}</label><input name="seed" type="text" placeholder="${localize("Optional")}" /></div>
+        <label><input name="publishChat" type="checkbox" checked /> ${localize("PostToChat")}</label>
+        <label><input name="createJournal" type="checkbox" /> ${localize("CreateJournalEntry")}</label>
       </form>
     `,
     buttons: {
       generate: {
         icon: '<i class="fas fa-map"></i>',
-        label: "Generar",
+        label: localize("Generate"),
         callback: async html => {
           try {
             await postLocationSeed({
@@ -184,7 +185,7 @@ export function openLocationGenerator({
           }
         },
       },
-      cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
+      cancel: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") },
     },
     default: "generate",
   }, { Dialog });

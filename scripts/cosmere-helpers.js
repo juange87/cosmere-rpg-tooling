@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 export const COSMERE_MODULE_ID = "cosmere-rpg-tooling";
 
 export const COSMERE_HELPER_KEYS = [
@@ -114,7 +115,7 @@ export async function postCosmereChatCard({
   ChatMessage = globalThis.ChatMessage,
 } = {}) {
   if (!ChatMessage) {
-    throw new Error("Foundry no esta disponible para publicar en chat.");
+    throw new Error(localize("FoundryIsNotAvailableToPostToChat"));
   }
 
   return ChatMessage.create({

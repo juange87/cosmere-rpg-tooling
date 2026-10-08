@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   buildCosmereChatCard,
   normalizeText,
@@ -6,16 +7,16 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const SURGES = [
-  { key: "adhesion", label: "Adhesion", file: "jb2a.impact.ground_crack.blue", cue: "Une superficies, juramentos o atencion en un instante clave." },
-  { key: "gravitation", label: "Gravitation", file: "jb2a.energy_beam.normal.blue", cue: "Cambia la direccion de la caida o marca un lash visual." },
-  { key: "division", label: "Division", file: "jb2a.explosion.03.orange", cue: "Muestra desintegracion, calor o fractura peligrosa." },
-  { key: "abrasion", label: "Abrasion", file: "jb2a.wind_stream.white", cue: "Marca movimiento fluido, resbaladizo o imposible de agarrar." },
-  { key: "progression", label: "Progression", file: "jb2a.healing_generic.02.green", cue: "Representa crecimiento, curacion o vida acelerada." },
-  { key: "illumination", label: "Illumination", file: "jb2a.template_circle.symbol.normal.illusion.purple", cue: "Crea luz, imagen o distraccion sensorial." },
-  { key: "transformation", label: "Transformation", file: "jb2a.particles.outward.greenyellow.01.03", cue: "Senala soulcasting o cambio de materia." },
-  { key: "transportation", label: "Transportation", file: "jb2a.misty_step.02.blue", cue: "Marca transicion, salto o roce con Shadesmar." },
-  { key: "cohesion", label: "Cohesion", file: "jb2a.impact.ground_crack.orange", cue: "Moldea piedra, barro o superficies solidas." },
-  { key: "tension", label: "Tension", file: "jb2a.shield.01.outro.yellow", cue: "Endurece o rigidiza materiales bajo Investiture." },
+  { key: "adhesion", label: "Adhesion", file: "jb2a.impact.ground_crack.blue", get cue() { return localize("BindSurfacesOathsOrAttentionAtAKeyMoment"); } },
+  { key: "gravitation", label: "Gravitation", file: "jb2a.energy_beam.normal.blue", get cue() { return localize("ChangeTheDirectionOfFallingOrMarkAVisualLashing"); } },
+  { key: "division", label: "Division", file: "jb2a.explosion.03.orange", get cue() { return localize("ShowDisintegrationHeatOrADangerousFracture"); } },
+  { key: "abrasion", label: "Abrasion", file: "jb2a.wind_stream.white", get cue() { return localize("MarkMovementThatIsFluidSlipperyOrImpossibleToCatch"); } },
+  { key: "progression", label: "Progression", file: "jb2a.healing_generic.02.green", get cue() { return localize("RepresentGrowthHealingOrAcceleratedLife"); } },
+  { key: "illumination", label: "Illumination", file: "jb2a.template_circle.symbol.normal.illusion.purple", get cue() { return localize("CreateLightImagesOrSensoryDistractions"); } },
+  { key: "transformation", label: "Transformation", file: "jb2a.particles.outward.greenyellow.01.03", get cue() { return localize("SignalSoulcastingOrAChangeOfMatter"); } },
+  { key: "transportation", label: "Transportation", file: "jb2a.misty_step.02.blue", get cue() { return localize("MarkATransitionJumpOrBrushWithShadesmar"); } },
+  { key: "cohesion", label: "Cohesion", file: "jb2a.impact.ground_crack.orange", get cue() { return localize("ShapeStoneMudOrSolidSurfaces"); } },
+  { key: "tension", label: "Tension", file: "jb2a.shield.01.outro.yellow", get cue() { return localize("HardenOrStiffenMaterialsWithInvestiture"); } },
 ];
 
 function resolveSurge(surgeKey) {
@@ -32,7 +33,7 @@ export function buildSurgebindingFx({
   return {
     surge,
     actorName: normalizeText(actorName, "Surgebinder"),
-    targetName: normalizeText(targetName, "Escena"),
+    targetName: normalizeText(targetName, localize("Scene")),
     note: normalizeText(note, surge.cue),
   };
 }
@@ -43,9 +44,9 @@ export function buildSurgebindingChatCard(input) {
     eyebrow: "Surgebinding FX",
     title: fx.surge.label,
     sections: [
-      { label: "Origen", value: fx.actorName },
-      { label: "Objetivo", value: fx.targetName },
-      { label: "Descripcion", value: fx.note },
+      { label: localize("Source"), value: fx.actorName },
+      { label: localize("Target"), value: fx.targetName },
+      { label: localize("Description"), value: fx.note },
     ],
     accent: "#2f80ed",
     background: "#f5fbff",
@@ -72,7 +73,7 @@ export async function playSurgebindingFx({
       .stretchTo?.(target)
       .play();
   } else {
-    ui?.notifications?.warn?.("Sequencer no esta disponible; se publicara solo la tarjeta narrativa.");
+    ui?.notifications?.warn?.(localize("SequencerIsUnavailableOnlyTheNarrativeCardWillBePosted"));
   }
 
   if (publishChat) {
@@ -95,7 +96,7 @@ export function openSurgebindingFxDialog({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir Surgebinding FX Pack.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenSurgebindingFXPack"));
   }
 
   openCosmereDialog({
@@ -104,15 +105,15 @@ export function openSurgebindingFxDialog({
       <form>
         <div class="form-group"><label>Surge</label><select name="surgeKey">${surgeOptions()}</select></div>
         <div class="form-group"><label>Actor</label><input name="actorName" type="text" /></div>
-        <div class="form-group"><label>Objetivo</label><input name="targetName" type="text" /></div>
-        <div class="form-group"><label>Descripcion</label><textarea name="note" rows="2"></textarea></div>
-        <label><input name="publishChat" type="checkbox" checked /> Publicar tarjeta</label>
+        <div class="form-group"><label>${localize("Target")}</label><input name="targetName" type="text" /></div>
+        <div class="form-group"><label>${localize("Description")}</label><textarea name="note" rows="2"></textarea></div>
+        <label><input name="publishChat" type="checkbox" checked /> ${localize("PostCard")}</label>
       </form>
     `,
     buttons: {
       play: {
         icon: '<i class="fas fa-bolt"></i>',
-        label: "Lanzar efecto",
+        label: localize("PlayEffect"),
         callback: async html => {
           try {
             await playSurgebindingFx({
@@ -131,7 +132,7 @@ export function openSurgebindingFxDialog({
           }
         },
       },
-      cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancelar" },
+      cancel: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") },
     },
     default: "play",
   }, { Dialog });

@@ -1,3 +1,6 @@
+// These existing behavior checks exercise the Spanish interface.
+globalThis.game = { i18n: { lang: "es" } };
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -129,7 +132,7 @@ test("ships a GM macro that opens the Roshar NPC generator", async () => {
 
   assert.equal(macro._id, "RosharNPCGen0001");
   assert.equal(macro._key, "!macros!RosharNPCGen0001");
-  assert.equal(macro.name, "Generador de PNJ Roshar");
+  assert.equal(macro.name, "Roshar NPC Generator / Generador de PNJ Roshar");
   assert.equal(macro.type, "script");
   assert.match(macro.command, /roshar-npc-generator\.js/);
   assert.match(macro.command, /openRosharNpcGenerator/);

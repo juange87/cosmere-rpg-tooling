@@ -1,20 +1,21 @@
+import { localize } from "./localization.js";
 import { buildCosmereChatCard } from "./cosmere-helpers.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const GM_PANEL_ACTIONS = [
-  { key: "resources", label: "Salud y foco", description: "Modificar recursos de tokens seleccionados." },
-  { key: "spheres", label: "Esferas", description: "Balance, gasto, conversion y resumen de tesoreria." },
-  { key: "requestRolls", label: "Solicitar tiradas", description: "Abrir la macro Request Roll existente." },
-  { key: "privateMessage", label: "Mensajes privados", description: "Abrir la macro de mensajes del GM." },
-  { key: "sounds", label: "Sonidos", description: "Lanzar Palabras Aceptadas Deluxe." },
-  { key: "surgebinding", label: "Efectos visuales", description: "Abrir el selector de Surgebinding FX." },
-  { key: "toggleTokens", label: "Mostrar u ocultar tokens", description: "Alternar visibilidad de tokens seleccionados." },
+  { key: "resources", get label() { return localize("HealthAndFocus"); }, get description() { return localize("ModifyResourcesForSelectedTokens"); } },
+  { key: "spheres", get label() { return localize("Spheres"); }, get description() { return localize("BalanceSpendingConversionAndTreasurySummary"); } },
+  { key: "requestRolls", get label() { return localize("RequestRolls"); }, get description() { return localize("OpenTheExistingRequestRollMacro"); } },
+  { key: "privateMessage", get label() { return localize("PrivateMessages"); }, get description() { return localize("OpenTheGMMessagingMacro"); } },
+  { key: "sounds", get label() { return localize("Sounds"); }, get description() { return localize("RunWordsAcceptedDeluxe"); } },
+  { key: "surgebinding", get label() { return localize("VisualEffects"); }, get description() { return localize("OpenTheSurgebindingFXSelector"); } },
+  { key: "toggleTokens", get label() { return localize("ShowOrHideTokens"); }, get description() { return localize("ToggleVisibilityOfSelectedTokens"); } },
 ];
 
 export function buildGmPanelChatCard() {
   return buildCosmereChatCard({
-    eyebrow: "Herramientas de mesa",
-    title: "Panel GM Cosmere",
+    eyebrow: localize("TableTools"),
+    title: localize("CosmereGMPanel"),
     sections: GM_PANEL_ACTIONS.map(action => ({
       label: action.label,
       value: action.description,
@@ -27,7 +28,7 @@ export function buildGmPanelChatCard() {
 async function executeMacroByName(name, { game = globalThis.game, ui = globalThis.ui } = {}) {
   const macro = game?.macros?.getName?.(name) ?? game?.macros?.find?.(item => item.name === name);
   if (!macro?.execute) {
-    ui?.notifications?.warn?.(`No se encontro la macro ${name}.`);
+    ui?.notifications?.warn?.(`${localize("CouldNotFindTheMacro")}${name}.`);
     return false;
   }
   await macro.execute();
@@ -37,13 +38,13 @@ async function executeMacroByName(name, { game = globalThis.game, ui = globalThi
 async function toggleSelectedTokens({ canvas = globalThis.canvas, ui = globalThis.ui } = {}) {
   const tokens = canvas?.tokens?.controlled ?? [];
   if (!tokens.length) {
-    ui?.notifications?.warn?.("Selecciona uno o mas tokens para mostrar u ocultar.");
+    ui?.notifications?.warn?.(localize("SelectOneOrMoreTokensToShowOrHide"));
     return 0;
   }
   for (const token of tokens) {
     await token.document?.update?.({ hidden: !token.document.hidden });
   }
-  ui?.notifications?.info?.(`Visibilidad actualizada en ${tokens.length} token(s).`);
+  ui?.notifications?.info?.(`${localize("VisibilityUpdatedFor")}${tokens.length} token(s).`);
   return tokens.length;
 }
 
@@ -89,16 +90,16 @@ export function openGmPanel({
   ...dependencies
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog })) {
-    throw new Error("Foundry no esta disponible para abrir el Panel GM Cosmere.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenTheCosmereGMPanel"));
   }
 
   openCosmereDialog({
-    title: "Panel GM Cosmere",
+    title: localize("CosmereGMPanel"),
     content: buildPanelContent(),
     buttons: {
       close: {
         icon: '<i class="fas fa-times"></i>',
-        label: "Cerrar",
+        label: localize("Close"),
       },
     },
     render: html => {

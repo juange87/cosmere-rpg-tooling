@@ -1,7 +1,7 @@
 {
   "_id": "PlotDieManager01",
   "_key": "!macros!PlotDieManager01",
-  "name": "Gestor de Plot Die",
+  "name": "Plot Die Manager / Gestor de Plot Die",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/dice-target.svg",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyNames": [
+        "Gestor de Plot Die"
+      ]
+    }
+  }
 }

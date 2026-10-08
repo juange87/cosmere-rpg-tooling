@@ -1,27 +1,28 @@
+import { localize } from "./localization.js";
 export const COSMERE_DEPENDENCY_CHECKS = [
   {
     key: "jb2a",
     label: "JB2A",
     moduleId: "JB2A_DnD5e",
-    requiredFor: "Rutas y assets visuales de las macros de animacion.",
+    get requiredFor() { return localize("VisualAssetsAndPathsUsedByAnimationMacros"); },
   },
   {
     key: "sequence",
     label: "Sequence",
     moduleId: "sequencer",
-    requiredFor: "Macros que ejecutan efectos con new Sequence().",
+    get requiredFor() { return localize("MacrosThatRunEffectsWithNewSequence"); },
   },
   {
     key: "sequencerCrosshair",
     label: "Sequencer.Crosshair",
     moduleId: "sequencer",
-    requiredFor: "Macros que piden una posicion en el canvas, como Teleport.",
+    get requiredFor() { return localize("MacrosThatRequestACanvasPositionSuchAsTeleport"); },
   },
   {
     key: "diceSoNice",
     label: "Dice So Nice",
     moduleId: "dice-so-nice",
-    requiredFor: "Hooks de natural 20 y fallo critico basados en diceSoNiceRollComplete.",
+    get requiredFor() { return localize("Natural20AndCriticalFailureHooksBasedOnDiceSoNiceRollComplete"); },
   },
 ];
 
@@ -63,10 +64,10 @@ function evaluateDependency(check, { game, globals }) {
     return {
       ...check,
       ok: moduleActive && sequenceAvailable,
-      status: moduleActive && sequenceAvailable ? "Disponible" : "No disponible",
+      status: moduleActive && sequenceAvailable ? localize("Available") : localize("Unavailable"),
       detail: moduleActive && sequenceAvailable
-        ? "Sequencer esta activo y Sequence esta disponible."
-        : "Sequence no esta disponible. Activa el modulo Sequencer antes de usar macros de animacion.",
+        ? localize("SequencerIsActiveAndSequenceIsAvailable")
+        : localize("SequenceIsUnavailableEnableTheSequencerModuleBeforeUsingAnimationMacros"),
     };
   }
 
@@ -75,10 +76,10 @@ function evaluateDependency(check, { game, globals }) {
     return {
       ...check,
       ok: moduleActive && crosshairAvailable,
-      status: moduleActive && crosshairAvailable ? "Disponible" : "No disponible",
+      status: moduleActive && crosshairAvailable ? localize("Available") : localize("Unavailable"),
       detail: moduleActive && crosshairAvailable
-        ? "Sequencer.Crosshair esta disponible."
-        : "Sequencer.Crosshair no esta disponible. Algunas macros no podran pedir una posicion en escena.",
+        ? localize("SequencerCrosshairIsAvailable")
+        : localize("SequencerCrosshairIsUnavailableSomeMacrosCannotRequestAScenePosition"),
     };
   }
 
@@ -86,10 +87,10 @@ function evaluateDependency(check, { game, globals }) {
   return {
     ...check,
     ok,
-    status: ok ? "Disponible" : "No disponible",
+    status: ok ? localize("Available") : localize("Unavailable"),
     detail: ok
-      ? `El modulo ${check.moduleId} esta activo.`
-      : `${check.label} no esta activo. Revisa Manage Modules antes de usar macros relacionadas.`,
+      ? `${localize("TheModule")}${check.moduleId}${localize("IsActive")}`
+      : `${check.label}${localize("IsNotActiveCheckManageModulesBeforeUsingRelatedMacros")}`,
   };
 }
 
@@ -128,21 +129,21 @@ function buildRows(results) {
 }
 
 export function buildDependencyCheckChatCard(report) {
-  const title = report?.ok ? "Dependencias listas" : "Faltan dependencias";
+  const title = report?.ok ? localize("DependenciesReady") : localize("MissingDependencies");
   const results = Array.isArray(report?.results) ? report.results : [];
 
   return `
     <div style="border:1px solid #5b6f82;border-radius:6px;background:#f7fafc;padding:12px;color:#1f2933;">
-      <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.06em;">Chequeo de Dependencias</div>
+      <div style="font-size:11px;text-transform:uppercase;color:#6f7f95;letter-spacing:0.06em;">${localize("DependencyCheck")}</div>
       <h2 style="margin:2px 0 8px;font-family:Modesto Condensed,serif;color:#1e3a5f;font-size:24px;">
         ${escapeHtml(title)}
       </h2>
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead>
           <tr>
-            <th style="padding:4px 8px;text-align:left;">Dependencia</th>
-            <th style="padding:4px 8px;text-align:left;">Estado</th>
-            <th style="padding:4px 8px;text-align:left;">Uso</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Dependency")}</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Status")}</th>
+            <th style="padding:4px 8px;text-align:left;">${localize("Usage")}</th>
           </tr>
         </thead>
         <tbody>${buildRows(results)}</tbody>
@@ -158,7 +159,7 @@ export async function runDependencyCheck({
   ui = globalThis.ui,
 } = {}) {
   if (!ChatMessage) {
-    throw new Error("Foundry no esta disponible para publicar el chequeo de dependencias.");
+    throw new Error(localize("FoundryIsNotAvailableToPostTheDependencyCheck"));
   }
 
   const report = checkCosmereDependencies({ game, globals });
@@ -168,9 +169,9 @@ export async function runDependencyCheck({
   });
 
   if (report.ok) {
-    ui?.notifications?.info?.("Dependencias Cosmere disponibles.");
+    ui?.notifications?.info?.(localize("CosmereDependenciesAreAvailable"));
   } else {
-    ui?.notifications?.warn?.("Faltan dependencias opcionales para algunas macros Cosmere.");
+    ui?.notifications?.warn?.(localize("SomeCosmereMacrosAreMissingOptionalDependencies"));
   }
 
   return report;

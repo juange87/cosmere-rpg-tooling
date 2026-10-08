@@ -1,3 +1,4 @@
+import { localize } from "./localization.js";
 import {
   buildCosmereChatCard,
   escapeHtml,
@@ -70,7 +71,7 @@ export function summarizeSphereBalance(actor) {
 
   return {
     actorId: actor?.id,
-    actorName: actor?.name ?? "Sin actor",
+    actorName: actor?.name ?? localize("NoActor"),
     rows,
     totalQuantity: rows.reduce((sum, row) => sum + row.quantity, 0),
     totalValue: rows.reduce((sum, row) => sum + row.valueTotal, 0),
@@ -99,7 +100,7 @@ export function planSphereTransaction({
 
     return {
       actorId: actor?.id,
-      actorName: actor?.name ?? "Sin actor",
+      actorName: actor?.name ?? localize("NoActor"),
       current,
       next,
       deficit,
@@ -134,7 +135,7 @@ export function planSphereConversion({
   return {
     ...transaction,
     actorId: actor?.id,
-    actorName: actor?.name ?? "Sin actor",
+    actorName: actor?.name ?? localize("NoActor"),
     fromKey,
     toKey,
     quantity: amount,
@@ -157,7 +158,7 @@ export function planGroupSphereSpend({
     if (spent > 0) {
       allocations.push({
         actorId: actor?.id,
-        actorName: actor?.name ?? "Sin actor",
+        actorName: actor?.name ?? localize("NoActor"),
         key,
         quantity: spent,
       });
@@ -193,7 +194,7 @@ export function planInvestitureDrain({
     }
     const result = planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {
       actorId: actor?.id,
-      actorName: actor?.name ?? "Sin actor",
+      actorName: actor?.name ?? localize("NoActor"),
       current: {},
       next: {},
       deficit: {},
@@ -224,7 +225,7 @@ export function buildGroupSphereSpendTransaction({
     const changes = allocation ? { [key]: -allocation.quantity } : {};
     return planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {
       actorId: actor?.id,
-      actorName: actor?.name ?? "Sin actor",
+      actorName: actor?.name ?? localize("NoActor"),
       current: {},
       next: {},
       deficit: {},
@@ -243,7 +244,7 @@ export function buildGroupSphereSpendTransaction({
 }
 
 export function buildSphereTransactionChatCard({
-  title = "Operacion de esferas",
+  title = localize("SphereTransaction"),
   plan,
 } = {}) {
   const sections = (plan?.results ?? []).map(result => {
@@ -253,17 +254,17 @@ export function buildSphereTransactionChatCard({
       .join(", ");
     const deficits = Object.entries(result.deficit ?? {})
       .filter(([, value]) => value > 0)
-      .map(([key, value]) => `${key}: faltan ${value}`)
+      .map(([key, value]) => `${key}${localize("Missing")}${value}`)
       .join(", ");
 
     return {
       label: result.actorName,
-      value: [changes || "Sin cambios", deficits ? `Deficit: ${deficits}` : ""].filter(Boolean).join(" | "),
+      value: [changes || localize("NoChanges"), deficits ? `Deficit: ${deficits}` : ""].filter(Boolean).join(" | "),
     };
   });
 
   return buildCosmereChatCard({
-    eyebrow: "Gestor de Esferas Avanzado",
+    eyebrow: localize("AdvancedSphereManager"),
     title,
     sections,
     accent: plan?.ok === false ? "#9f3a38" : "#1a6fa8",
@@ -279,11 +280,11 @@ export async function applySphereTransactionPlan({
   actors = [],
   plan,
   publishChat = true,
-  title = "Operacion de esferas",
+  title = localize("SphereTransaction"),
   ChatMessage = globalThis.ChatMessage,
 } = {}) {
-  if (!plan?.results) throw new Error("No hay plan de esferas para aplicar.");
-  if (!plan.ok) throw new Error("Fondos insuficientes: revisa el deficit antes de aplicar.");
+  if (!plan?.results) throw new Error(localize("ThereIsNoSphereTransactionToApply"));
+  if (!plan.ok) throw new Error(localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
 
   for (const result of plan.results) {
     const actor = findActorById(actors, result.actorId);
@@ -316,13 +317,13 @@ export function buildSphereSummaryChatCard({ actors = [] } = {}) {
     const summary = summarizeSphereBalance(actor);
     const value = summary.rows.length
       ? summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ")
-      : "Sin esferas registradas";
-    return { label: summary.actorName, value: `${value} (${summary.totalValue} valor abstracto)` };
+      : localize("NoSpheresRecorded");
+    return { label: summary.actorName, value: `${value} (${summary.totalValue}${localize("AbstractValue")}` };
   });
 
   return buildCosmereChatCard({
-    eyebrow: "Gestor de Esferas Avanzado",
-    title: "Resumen de tesoreria",
+    eyebrow: localize("AdvancedSphereManager"),
+    title: localize("TreasurySummary"),
     sections,
     accent: "#1a6fa8",
     background: "#f5fbff",
@@ -351,27 +352,27 @@ function actorOptions(actors) {
 export function buildSphereManagerDialogContent(actors) {
   const rows = actors.map(actor => {
     const summary = summarizeSphereBalance(actor);
-    const balance = summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ") || "sin esferas";
+    const balance = summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ") || localize("NoSpheres");
     return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}</li>`;
   }).join("");
   return `
     <div>
-      <p>Balance actual por actor:</p>
+      <p>${localize("CurrentBalanceByActor")}</p>
       <ul>${rows}</ul>
       <hr>
-      <h3>Convertir esferas</h3>
+      <h3>${localize("ConvertSpheres")}</h3>
       <div class="form-group"><label>Actor</label><select name="convertActorId">${actorOptions(actors)}</select></div>
-      <div class="form-group"><label>Desde</label><select name="convertFromKey">${denominationOptions()}</select></div>
-      <div class="form-group"><label>Hacia</label><select name="convertToKey">${denominationOptions()}</select></div>
-      <div class="form-group"><label>Cantidad</label><input name="convertQuantity" type="number" value="1" min="0" step="1" /></div>
+      <div class="form-group"><label>${localize("From")}</label><select name="convertFromKey">${denominationOptions()}</select></div>
+      <div class="form-group"><label>${localize("To")}</label><select name="convertToKey">${denominationOptions()}</select></div>
+      <div class="form-group"><label>${localize("Amount")}</label><input name="convertQuantity" type="number" value="1" min="0" step="1" /></div>
       <hr>
-      <h3>Gasto de grupo</h3>
-      <div class="form-group"><label>Denominacion</label><select name="spendKey">${denominationOptions()}</select></div>
-      <div class="form-group"><label>Cantidad total</label><input name="spendQuantity" type="number" value="1" min="0" step="1" /></div>
+      <h3>${localize("GroupSpending")}</h3>
+      <div class="form-group"><label>${localize("Denomination")}</label><select name="spendKey">${denominationOptions()}</select></div>
+      <div class="form-group"><label>${localize("TotalAmount")}</label><input name="spendQuantity" type="number" value="1" min="0" step="1" /></div>
       <hr>
-      <h3>Drenar tras Investiture</h3>
-      <div class="form-group"><label>Cantidad por actor</label><input name="drainAmount" type="number" value="1" min="0" step="1" /></div>
-      <label><input name="publishChat" type="checkbox" checked /> Publicar resultado en chat</label>
+      <h3>${localize("DrainAfterInvestiture2")}</h3>
+      <div class="form-group"><label>${localize("AmountPerActor")}</label><input name="drainAmount" type="number" value="1" min="0" step="1" /></div>
+      <label><input name="publishChat" type="checkbox" checked /> ${localize("PostResultToChat")}</label>
     </div>
   `;
 }
@@ -383,16 +384,16 @@ export function openSphereManager({
   ui = globalThis.ui,
 } = {}) {
   if (!hasCosmereDialogSupport({ Dialog }) || !ChatMessage) {
-    throw new Error("Foundry no esta disponible para abrir el gestor de esferas.");
+    throw new Error(localize("FoundryIsNotAvailableToOpenTheSphereManager"));
   }
   const actors = getPlayerActors({ game });
   openCosmereDialog({
-    title: "Gestor de Esferas Avanzado",
+    title: localize("AdvancedSphereManager"),
     content: buildSphereManagerDialogContent(actors),
     buttons: {
       publish: {
         icon: '<i class="fas fa-coins"></i>',
-        label: "Publicar resumen",
+        label: localize("PostSummary"),
         callback: async () => {
           try {
             await postSphereSummary({ actors, ChatMessage });
@@ -403,7 +404,7 @@ export function openSphereManager({
       },
       convert: {
         icon: '<i class="fas fa-exchange-alt"></i>',
-        label: "Convertir",
+        label: localize("Convert"),
         callback: async html => {
           try {
             const actor = findActorById(actors, html.find("[name=convertActorId]").val());
@@ -416,7 +417,7 @@ export function openSphereManager({
             await applySphereTransactionPlan({
               actors,
               plan,
-              title: "Conversion de esferas",
+              title: localize("SphereConversion"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
               ChatMessage,
             });
@@ -427,7 +428,7 @@ export function openSphereManager({
       },
       spend: {
         icon: '<i class="fas fa-hand-holding-usd"></i>',
-        label: "Gastar grupo",
+        label: localize("GroupSpend"),
         callback: async html => {
           try {
             const plan = buildGroupSphereSpendTransaction({
@@ -438,7 +439,7 @@ export function openSphereManager({
             await applySphereTransactionPlan({
               actors,
               plan,
-              title: "Gasto de grupo",
+              title: localize("GroupSpending"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
               ChatMessage,
             });
@@ -449,7 +450,7 @@ export function openSphereManager({
       },
       drain: {
         icon: '<i class="fas fa-bolt"></i>',
-        label: "Drenar",
+        label: localize("Drain"),
         callback: async html => {
           try {
             const plan = planInvestitureDrain({
@@ -459,7 +460,7 @@ export function openSphereManager({
             await applySphereTransactionPlan({
               actors,
               plan,
-              title: "Drenaje tras Investiture",
+              title: localize("DrainAfterInvestiture"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
               ChatMessage,
             });
@@ -468,7 +469,7 @@ export function openSphereManager({
           }
         },
       },
-      close: { icon: '<i class="fas fa-times"></i>', label: "Cerrar" },
+      close: { icon: '<i class="fas fa-times"></i>', label: localize("Close") },
     },
     default: "publish",
     width: 560,

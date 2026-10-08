@@ -1,3 +1,6 @@
+// These existing behavior checks exercise the Spanish interface.
+globalThis.game = { i18n: { lang: "es" } };
+
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -571,13 +574,13 @@ test("ships official GM macros for all roadmap tools", async () => {
     const macro = await readMacro(`packs/_source/gm-macros/${fileName}`);
     assert.equal(macro._id, id);
     assert.equal(macro._key, `!macros!${id}`);
-    assert.equal(macro.name, name);
+    assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
     assert.equal(macro.type, "script");
     assert.match(macro.command, new RegExp(script.replace(".", "\\.")));
   }
 
   const oathMacro = await readMacro("packs/_source/gm-macros/qgASaIKoALpVA7FZ.json");
-  assert.equal(oathMacro.name, "Palabras Aceptadas Deluxe");
+  assert.ok(oathMacro.name.includes("Words Accepted Deluxe"));
   assert.match(oathMacro.command, /oath-accepted-deluxe\.js/);
 });
 
@@ -599,7 +602,7 @@ test("ships individual Surgebinding macros for every Surge", async () => {
     const macro = await readMacro(`packs/_source/gm-macros/${fileName}`);
     assert.equal(macro._id, id);
     assert.equal(macro._key, `!macros!${id}`);
-    assert.equal(macro.name, name);
+    assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
     assert.match(macro.command, /surgebinding-fx-pack\.js/);
     assert.match(macro.command, new RegExp(`surgeKey: "${surgeKey}"`));
   }
