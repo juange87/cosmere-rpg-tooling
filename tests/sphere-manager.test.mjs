@@ -88,6 +88,22 @@ test("integer overflow is rejected even for non-strict sphere transactions", () 
   assert.equal(planSphereTransaction({ actors: [actor], changes: { "dun|mark": 1 }, strict: false }).ok, false);
 });
 
+test("overflow retains the transaction result contract and a useful actor label", async () => {
+  const { buildSphereTransactionChatCard } = await import("../scripts/sphere-manager.js");
+  const overflowing = { id: "overflow", name: "Overflow Actor", items: [{ type: "loot", system: { isMoney: true, quantity: Number.MAX_SAFE_INTEGER, price: { currency: "dun", denomination: { primary: "mark" } } } }] };
+  const plan = planSphereTransaction({ actors: [overflowing], changes: { "dun|mark": 1 } });
+  assert.equal(plan.results[0].actorName, "Overflow Actor");
+  assert.deepEqual(plan.results[0].deficit, {});
+  assert.equal(typeof plan.results[0].error, "string");
+  const card = buildSphereTransactionChatCard({ plan });
+  assert.match(card, /Overflow Actor/);
+  assert.doesNotMatch(card, /undefined|overflow.*Missing/);
+  const conversion = planSphereConversion({ actor: overflowing, fromKey: "dun|mark", toKey: "spheres|chip", quantity: Number.MAX_SAFE_INTEGER });
+  assert.equal(conversion.ok, false);
+  assert.deepEqual(conversion.changes, {});
+  for (const key of ["actorId", "actorName", "fromKey", "toKey", "quantity", "converted", "remainder", "results", "error"]) assert.ok(key in conversion, key);
+});
+
 test("malformed legacy money is readable but cannot be modified, and healthy actors remain usable", async () => {
   for (const quantity of [-1, 1.5, "oops"]) {
     const malformed = { id: "broken", name: "Broken", items: [{ type: "loot", system: { isMoney: true, quantity, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: () => assert.fail("Malformed item changed") }] };

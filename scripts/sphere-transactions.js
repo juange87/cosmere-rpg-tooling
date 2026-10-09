@@ -97,7 +97,11 @@ export function planSphereTransaction({
       if (!change) continue;
       const available = getSphereQuantity(actor, denomination.key);
       const planned = available + change;
-      if (!Number.isSafeInteger(planned)) return { actorId: actor?.id, ok: false, invalid: true, current: {}, next: {}, deficit: { overflow: 1 } };
+      if (!Number.isSafeInteger(planned)) return {
+        actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"),
+        ok: false, invalid: true, error: localize("InvalidSphereQuantity"),
+        current: { ...current, [denomination.key]: available }, next: {}, deficit: {},
+      };
       current[denomination.key] = available;
       next[denomination.key] = Math.max(0, planned);
       if (planned < 0) deficit[denomination.key] = Math.abs(planned);
@@ -117,6 +121,7 @@ export function planSphereTransaction({
     ok: results.every(result => !result.invalid) && (!strict || results.every(result => result.ok)),
     strict,
     results,
+    error: results.find(result => result.invalid)?.error,
   };
 }
 
@@ -130,14 +135,19 @@ export function planSphereConversion({
   const amount = Number(quantity);
   const from = SPHERE_DENOMINATIONS.find(item => item.key === fromKey);
   const to = SPHERE_DENOMINATIONS.find(item => item.key === toKey);
+  const invalidConversion = error => ({
+    ok: false, results: [], changes: {}, error,
+    actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"),
+    fromKey, toKey, quantity: amount, converted: 0, remainder: 0,
+  });
   if (!actor || !from || !to || fromKey === toKey || !Number.isSafeInteger(amount) || amount < 0) {
-    return { ok: false, results: [], changes: {}, error: localize("InvalidSphereConversion") };
+    return invalidConversion(localize("InvalidSphereConversion"));
   }
   if (getSphereQuantity(actor, fromKey) < amount) {
-    return { ok: false, results: [], changes: {}, error: localize("InsufficientFundsReviewTheDeficitBeforeApplying") };
+    return invalidConversion(localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
   }
   const value = amount * from.value;
-  if (!Number.isSafeInteger(value)) return { ok: false, results: [], error: localize("InvalidSphereQuantity") };
+  if (!Number.isSafeInteger(value)) return invalidConversion(localize("InvalidSphereQuantity"));
   const converted = Math.floor(value / to.value);
   const remainder = value % to.value;
   const changes = { [fromKey]: -amount };
