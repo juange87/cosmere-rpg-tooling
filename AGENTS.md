@@ -67,8 +67,10 @@ manifest's declared range. Foundry v14 support is separate work.
   Reuse one existing match without moving it. For identical duplicates, prefer
   the intended folder then a stable ID; preserve the other copies and never
   create a third. Table tools prefer the ownership flag over names.
-- Thematic folders created by the module have `tableFolderKey`. Reuse them after
-  GM renames/moves and create folders lazily only for missing tables.
+- All module folders have `tableFolderKey`; adopt the flag on matching legacy
+  folders before any rename. Reuse them after GM renames/moves and create each
+  folder chain lazily only for missing tables. Base definitions pass folder
+  resolvers to the seeder; document creation receives the resolved folder ID.
 - Default results have weight 1 and sequential ranges `[1,1]` to `[20,20]`.
   Keep stable table names/keys because other tools use them for lookup.
 
@@ -93,16 +95,21 @@ manifest's declared range. Foundry v14 support is separate work.
 ## Safety and settings
 
 - Escape actor/user names, image attributes, notes and validation errors before
-  interpolating them into HTML. Use the shared `escapeHtml`.
+  interpolating them into HTML. Use the shared `escapeHtml`. For plain-text
+  notifications use `notifyCosmere`: v13 receives raw text with `clean: true`,
+  v12 receives escaped text, avoiding double escaping.
 - Sphere counts must be safe integers ≥ 0. Convert by value with change; reject
   identical source/destination. Investiture drain transfers spheres to the same
   denomination in `dun`. Inventory identity comes from system metadata, not
   translated names. Reject stale transaction plans before writing.
   Inventory previews tolerate and mark invalid old quantities; strict writes
   reject affected denominations during planning without blocking other actors'
-  dialogs. Group spending and drain exclude actors whose affected
-  denominations are invalid, report them, and can use healthy balances. A drain
-  with no eligible actors fails; insufficient funds includes exclusion reasons. Aggregate plans propagate each actor's invalid/error state. Summary
+  dialogs. Group spending skips invalid chosen denominations. Drain skips
+  invalid source/destination denominations and can drain healthy ones instead;
+  exclude an actor only if the healthy remainder cannot cover its request. Warn
+  about exclusions and skipped denominations even with chat publication off.
+  With no actors drain is a no-op; a nonempty group with no eligible actors fails.
+  Insufficient funds includes exclusion reasons. Aggregate plans propagate each actor's invalid/error state. Summary
   arithmetic must remain within safe integers; unrepresentable totals are null.
 - Guard missing tokens, actors, resource paths and optional animation modules.
   Await document updates; resource updates must work without animation modules.
@@ -113,8 +120,11 @@ manifest's declared range. Foundry v14 support is separate work.
   Use DSN completion first; creation provides a delayed backup for skipped
   animations. Check `_dice3danimating` after 100 ms without calling DSN's
   uncancellable waiter. Poll active animations for at most 30 checks, cancel on
-  deletion, and allow late completions. Skip disabled/irrelevant/hidden rolls
-  before scheduling. All paths share deduplication.
+  deletion, and log then publish one fallback at timeout. Interactive throws
+  still pending are not revealed. Animations longer than this limit can receive
+  the fallback before finishing. Cache inspection, share one bounded processed
+  history, and use weak references for deleted messages. Skip disabled,
+  irrelevant and hidden rolls before scheduling. All paths share deduplication.
 - `rollHookSound`, `rollHookAnimation`, `soundVolume`, `useAnimations` have client
   scope, retaining former world values as initial defaults. Other behavior and
   table settings have world scope.

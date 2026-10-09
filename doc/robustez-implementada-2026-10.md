@@ -122,9 +122,36 @@ La nueva implementación evita ese waiter y deja terminar los listeners de
 creación antes de consultar la marca. Esto no sustituye una prueba en la versión
 instalada de Foundry/DSN.
 
+## Cuarta revisión: avisos, recuperación y carpetas base
+
+1. Las operaciones aplicadas muestran una notificación con actores excluidos o
+   denominaciones omitidas, independientemente de publicar en el chat.
+2. Al agotar el sondeo de DSN se registra el ID del mensaje y se recupera el efecto
+   una sola vez. Se conserva el filtro de ajustes y visibilidad. Las tiradas
+   interactivas pendientes no se revelan. Una animación normal de más de unos
+   30 segundos puede recibir este respaldo antes de terminar; ese es el límite
+   elegido para evitar perder efectos por un renderizador atascado.
+3. Notificaciones v13 con texto sin preescapar y `clean: true`, según su
+   [API oficial](https://foundryvtt.com/api/v13/interfaces/foundry.NotificationOptions.html).
+   v12 mantiene escape manual. Pruebas de contrato con apóstrofos y HTML;
+   la representación visual en Foundry sigue pendiente.
+4. Carpetas base y temáticas con un resolver compartido. Solo se crea la cadena
+   necesaria para una tabla faltante; resembrar después de mover todas las
+   tablas y borrar sus carpetas por defecto no reconstruye carpetas vacías.
+5. Un broam corrupto se omite sin excluir a un actor que puede drenar marcas
+   válidas; también se omiten destinos dun inválidos. Si los saldos sanos no
+   cubren la petición, se conserva el inventario completo de ese actor y se avisa.
+6. Drenaje sin actores como operación vacía correcta, sin tarjeta ni avisos.
+7. Las carpetas antiguas encontradas por nombre reciben `tableFolderKey` al
+   resolverlas, conservando su organización tras renombrarlas o moverlas.
+
+También se comparte el historial de tiradas procesadas, se guarda su inspección
+para no recorrer los dados en cada sondeo, se evita llenar el historial con IDs
+borrados y se reutiliza directamente el resultado de exclusión del gasto.
+
 ## Validación
 
-165 pruebas automatizadas aprobadas.
+173 pruebas automatizadas aprobadas.
 
 Regresiones con Node para propiedad de tablas, IDs y procedencia de macros,
 seguridad HTML, conservación de dinero, drenaje, cantidades inválidas, fallos de
