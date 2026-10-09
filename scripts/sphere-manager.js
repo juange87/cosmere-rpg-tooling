@@ -122,24 +122,26 @@ export function planSphereConversion({
   quantity = 0,
   strict = true,
 } = {}) {
-  const amount = Math.max(0, normalizeNumber(quantity, 0));
-  const changes = {
-    [fromKey]: -amount,
-    [toKey]: amount,
-  };
-  const transaction = planSphereTransaction({
-    actors: actor ? [actor] : [],
-    changes,
-    strict,
-  });
+  const amount = Number(quantity);
+  const from = SPHERE_DENOMINATIONS.find(item => item.key === fromKey);
+  const to = SPHERE_DENOMINATIONS.find(item => item.key === toKey);
+  if (!actor || !from || !to || fromKey === toKey || !Number.isSafeInteger(amount) || amount < 0) {
+    return { ok: false, results: [], changes: {}, error: localize("InvalidSphereConversion") };
+  }
+  const value = amount * from.value;
+  const converted = Math.floor(value / to.value);
+  const remainder = value % to.value;
+  const changes = { [fromKey]: -amount };
+  changes[toKey] = (changes[toKey] ?? 0) + converted;
+  // Return change as chips in the original currency; never discard value.
+  const changeKey = `${from.currency}|chip`;
+  changes[changeKey] = (changes[changeKey] ?? 0) + remainder;
+  const transaction = planSphereTransaction({ actors: [actor], changes, strict: true });
   return {
     ...transaction,
-    actorId: actor?.id,
-    actorName: actor?.name ?? localize("NoActor"),
-    fromKey,
-    toKey,
-    quantity: amount,
-    changes,
+    actorId: actor.id,
+    actorName: actor.name ?? localize("NoActor"),
+    fromKey, toKey, quantity: amount, converted, remainder, changes,
   };
 }
 
@@ -284,7 +286,7 @@ export async function applySphereTransactionPlan({
   ChatMessage = globalThis.ChatMessage,
 } = {}) {
   if (!plan?.results) throw new Error(localize("ThereIsNoSphereTransactionToApply"));
-  if (!plan.ok) throw new Error(localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
+  if (!plan.ok) throw new Error(plan.error ?? localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
 
   for (const result of plan.results) {
     const actor = findActorById(actors, result.actorId);
