@@ -129,6 +129,19 @@ export function inspectD20Rolls(message) {
   };
 }
 
+function eligibleDiceInspection(message, game, inspection) {
+  if (!message?.isRoll || !settingValue(game, "automaticRollHooks")
+    || message.isContentVisible === false || (message.blind && !game?.user?.isGM && !isActiveGM(game))) return null;
+  const result = inspection ?? inspectD20Rolls(message);
+  return ((result.hasNatural20 && settingValue(game, "natural20Effects"))
+    || (result.hasNatural1 && settingValue(game, "natural1Effects"))) ? result : null;
+}
+
+function rememberProcessedRoll(processedIds, messageId) {
+  processedIds?.add(messageId);
+  if (processedIds?.size > 1000) processedIds.delete(processedIds.values().next().value);
+}
+
 function playHookAnimation({ type, game = globalThis.game, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
   if (typeof Sequence !== "function" || !canvas?.scene) return false;
   const center = { x: canvas.scene.width / 2, y: canvas.scene.height / 2 };
@@ -161,17 +174,13 @@ async function publishHookCard({ type, message, ChatMessage = globalThis.ChatMes
   });
 }
 
-export async function handleDiceHook(messageId, context) {
+export async function handleDiceHook(messageId, context, inspection) {
   const { game, ui, ChatMessage, AudioHelper, canvas, Sequence } = context;
-  if (!settingValue(game, "automaticRollHooks")) return;
   if (context.processedIds?.has(messageId)) return;
   const message = game?.messages?.get?.(messageId);
-  if (message?.isContentVisible === false || (message?.blind && !game?.user?.isGM && !isActiveGM(game))) return;
-  const rollInspection = inspectD20Rolls(message);
-  if (!rollInspection.hasNatural20 && !rollInspection.hasNatural1) return;
-  context.processedIds?.add(messageId);
-  // Keep deduplication bounded during long sessions.
-  if (context.processedIds?.size > 1000) context.processedIds.delete(context.processedIds.values().next().value);
+  const rollInspection = eligibleDiceInspection(message, game, inspection);
+  if (!rollInspection) return;
+  rememberProcessedRoll(context.processedIds, messageId);
 
   for (const [key, enabledSetting, label] of [
     ["natural20", "natural20Effects", localize("Natural20Detected")],
@@ -229,48 +238,51 @@ export function getChatRenderHookName({ game = globalThis.game } = {}) {
 
 // DSN sets _dice3danimating synchronously in createChatMessage. Defer one
 // check until all creation listeners have run, without its uncancellable waiter.
-export function createDiceHookScheduler({ game, handle, setTimer = setTimeout, clearTimer = clearTimeout }) {
+export function createDiceHookScheduler({ game, handle, processedIds = new Set(), logger = console, setTimer = setTimeout, clearTimer = clearTimeout }) {
   const pending = new Map();
-  const finished = new Set();
-  const remember = id => {
-    finished.add(id);
-    if (finished.size > 1000) finished.delete(finished.values().next().value);
-  };
-  const eligible = message => {
-    if (!message?.isRoll || !settingValue(game, "automaticRollHooks")
-      || message.isContentVisible === false || (message.blind && !game?.user?.isGM && !isActiveGM(game))) return false;
-    const { hasNatural20, hasNatural1 } = inspectD20Rolls(message);
-    return (hasNatural20 && settingValue(game, "natural20Effects"))
-      || (hasNatural1 && settingValue(game, "natural1Effects"));
-  };
+  // Weak references prevent deleted documents from filling the roll history.
+  const deletedMessages = new WeakSet();
   const cancel = messageId => {
     const entry = pending.get(messageId);
     if (entry) clearTimer(entry.timer);
     pending.delete(messageId);
   };
-  const complete = messageId => {
+  const finish = (messageId, timedOut = false) => {
     const message = game?.messages?.get?.(messageId);
-    if (finished.has(messageId)) return;
-    if (!eligible(message)) { cancel(messageId); return; }
-    // Multiple animations of one message can emit intermediate completions.
-    if (message._dice3danimating) return;
+    if (processedIds.has(messageId) || !message || deletedMessages.has(message)) { cancel(messageId); return; }
+    const inspection = eligibleDiceInspection(message, game, pending.get(messageId)?.inspection);
+    if (!inspection) { cancel(messageId); return; }
+    // Intermediate DSN completions wait; a timed-out renderer gets one fallback.
+    if (message._dice3danimating && !timedOut) return;
     cancel(messageId);
-    remember(messageId);
-    return handle(messageId);
+    const result = handle(messageId, inspection);
+    rememberProcessedRoll(processedIds, messageId);
+    return result;
   };
-  const deleted = message => { cancel(message.id); remember(message.id); };
+  const complete = messageId => finish(messageId);
+  const deleted = message => {
+    cancel(message.id);
+    processedIds.delete(message.id);
+    deletedMessages.add(message);
+  };
   const created = message => {
-    if (!eligible(message) || finished.has(message.id) || pending.has(message.id)) return;
+    if (!message || deletedMessages.has(message) || processedIds.has(message.id) || pending.has(message.id)) return;
+    const inspection = eligibleDiceInspection(message, game);
+    if (!inspection) return;
     if (!game?.modules?.get?.("dice-so-nice")?.active || game?.dice3d?.isEnabled?.() === false) return complete(message.id);
-    const entry = { checks: 0 };
+    const entry = { checks: 0, inspection };
     pending.set(message.id, entry);
     const probe = () => {
       if (pending.get(message.id) !== entry) return;
-      if (!eligible(game?.messages?.get?.(message.id))) { cancel(message.id); return; }
-      if (!message._dice3danimating) return complete(message.id);
-      // Stop polling after about 30 seconds. A late completion still works,
-      // but a stuck/deleted message cannot retain timers or reveal early.
-      if (++entry.checks >= 30) { cancel(message.id); return; }
+      const current = game?.messages?.get?.(message.id);
+      if (!eligibleDiceInspection(current, game, entry.inspection)) { cancel(message.id); return; }
+      if (!current._dice3danimating) return complete(message.id);
+      if (++entry.checks >= 30) {
+        logger?.warn?.("Cosmere RPG Tooling | Dice So Nice animation wait timed out", { messageId: message.id });
+        // Interactive throws can intentionally remain pending; never reveal them.
+        if (game?.dice3d?.pendingThrows?.isPending?.(message.id)) { cancel(message.id); return; }
+        return finish(message.id, true);
+      }
       entry.timer = setTimer(probe, 1000);
     };
     entry.timer = setTimer(probe, 100);
@@ -293,10 +305,10 @@ export function activateCosmereGlobalHooks({
   hooksActivated = true;
 
   const context = { game, ui, ChatMessage, AudioHelper, canvas, Sequence, processedIds: new Set() };
-  const handle = messageId => handleDiceHook(messageId, context).catch(error => {
+  const handle = (messageId, inspection) => handleDiceHook(messageId, context, inspection).catch(error => {
     console.error("Cosmere RPG Tooling | Roll hook failed", error);
   });
-  const scheduler = createDiceHookScheduler({ game, handle, setTimer, clearTimer });
+  const scheduler = createDiceHookScheduler({ game, handle, processedIds: context.processedIds, setTimer, clearTimer });
   Hooks.on?.("diceSoNiceRollComplete", scheduler.complete);
   Hooks.on?.("createChatMessage", scheduler.created);
   Hooks.on?.("deleteChatMessage", scheduler.deleted);

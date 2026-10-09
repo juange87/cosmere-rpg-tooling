@@ -61,11 +61,12 @@ async function scheduledClient(dice3d) {
   client.game.modules = new Map([["dice-so-nice", { active: true }]]);
   client.game.dice3d = dice3d;
   client.game.messages.set(roll.id, roll);
-  const scheduler = createDiceHookScheduler({ game: client.game, handle: id => handleDiceHook(id, client), ...timers });
-  return { ...client, timers, scheduler, roll };
+  const warnings = [];
+  const scheduler = createDiceHookScheduler({ game: client.game, processedIds: client.processedIds, logger: { warn: (...args) => warnings.push(args) }, handle: (id, inspection) => handleDiceHook(id, client, inspection), ...timers });
+  return { ...client, timers, scheduler, roll, warnings };
 }
 
-test("DSN results stay hidden throughout animation even if its waiter resolves early", async () => {
+test("DSN results stay hidden during normal animations", async () => {
   const client = await scheduledClient({ isEnabled: () => true, waitFor3DAnimationByMessageID: async () => true });
   client.roll._dice3danimating = true;
   client.scheduler.created(client.roll);
@@ -73,7 +74,7 @@ test("DSN results stay hidden throughout animation even if its waiter resolves e
   await client.timers.advance(100);
   assert.equal(client.cards.length, 0);
   assert.equal(client.sounds.length, 0);
-  await client.timers.advance(30000);
+  await client.timers.advance(10000);
   assert.equal(client.cards.length, 0);
   client.roll._dice3danimating = false;
   await client.scheduler.complete(client.roll.id);
@@ -105,14 +106,16 @@ test("skipped animations do not call the DSN waiter or wait thirty seconds", asy
   assert.equal(client.timers.count, 0);
 });
 
-test("stuck animation polling is bounded and a late completion still works", async () => {
+test("a stuck animation logs and publishes once at the polling limit", async () => {
   const client = await scheduledClient({ isEnabled: () => true });
   client.scheduler.created(client.roll);
   // Simulate DSN's listener running after ours in the same creation hook.
   client.roll._dice3danimating = true;
   await client.timers.advance(60000);
   assert.equal(client.timers.count, 0);
-  assert.equal(client.cards.length, 0);
+  assert.equal(client.cards.length, 1);
+  assert.equal(client.warnings.length, 1);
+  assert.equal(client.warnings[0][1].messageId, client.roll.id);
   client.roll._dice3danimating = false;
   await client.scheduler.complete(client.roll.id);
   assert.equal(client.cards.length, 1);
@@ -227,4 +230,33 @@ test("hook animations are local and honor disabled animation preferences", async
   client.game.settings.get = (_, key) => key === "useAnimations" ? false : undefined;
   await handleDiceHook(message.id, client);
   assert.equal(plays.length, 1);
+});
+
+test("interactive pending throws time out with a diagnostic but never reveal", async () => {
+  const client = await scheduledClient({ isEnabled: () => true, pendingThrows: { isPending: () => true } });
+  client.roll._dice3danimating = true;
+  client.scheduler.created(client.roll);
+  await client.timers.advance(60000);
+  assert.equal(client.cards.length, 0);
+  assert.equal(client.warnings.length, 1);
+  assert.equal(client.timers.count, 0);
+  client.roll._dice3danimating = false;
+  await client.scheduler.complete(client.roll.id);
+  assert.equal(client.cards.length, 1);
+});
+
+test("polling inspects a roll only once and irrelevant deletions retain important history", async () => {
+  const client = await scheduledClient({ isEnabled: () => true });
+  let inspections = 0;
+  const rolls = client.roll.rolls;
+  Object.defineProperty(client.roll, "rolls", { get() { inspections++; return rolls; } });
+  client.roll._dice3danimating = true;
+  client.scheduler.created(client.roll);
+  await client.timers.advance(60000);
+  assert.equal(inspections, 1);
+  for (let id = 0; id < 1500; id++) client.scheduler.deleted({ id: `unrelated-${id}` });
+  assert.equal(client.processedIds.size, 1);
+  client.roll._dice3danimating = false;
+  await client.scheduler.complete(client.roll.id);
+  assert.equal(client.cards.length, 1);
 });
