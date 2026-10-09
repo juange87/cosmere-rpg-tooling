@@ -44,3 +44,14 @@ test("successful builds replace all packs and remove staging/backups", async t =
   for (const name of ["a", "b"]) assert.deepEqual(await readdir(join(root, "packs", name)), ["new"]);
   assert.deepEqual((await readdir(join(root, "packs"))).sort(), ["_source", "a", "b"]);
 });
+
+test("promotion failure restores packs that had already been replaced", async t => {
+  const root = await fixture(t);
+  let count = 0;
+  await assert.rejects(compilePacks({ root, packNames: ["a", "b"], compiler: async (_, output) => {
+    if (++count === 2) return; // Simulate missing compiled output at promotion.
+    await mkdir(output);
+    await writeFile(join(output, "new"), "compiled");
+  } }), /ENOENT/);
+  for (const name of ["a", "b"]) assert.equal(await readFile(join(root, "packs", name, "sentinel"), "utf8"), "previous pack");
+});

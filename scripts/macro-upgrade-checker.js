@@ -169,12 +169,12 @@ export function buildMacroUpdateData(entry, { now = new Date() } = {}) {
     },
   };
 
+  flags.core = { ...flags.core, sourceId: source.uuid || `Compendium.${source.packId}.Macro.${source.id}` };
   return {
     command: source.command,
     type: source.type,
     img: source.img,
     scope: source.scope,
-    "flags.core.sourceId": source.uuid || `Compendium.${source.packId}.Macro.${source.id}`,
     flags,
   };
 }

@@ -81,3 +81,8 @@ test("a stale sphere plan is rejected before overwriting changed balances", asyn
   await assert.rejects(applySphereInventoryPlan({ actors: [actor], plan }), /changed|cambiado/);
   assert.equal(item.system.quantity, 3);
 });
+
+test("integer overflow is rejected even for non-strict sphere transactions", () => {
+  const actor = { id: "overflow", items: [{ type: "loot", system: { isMoney: true, quantity: Number.MAX_SAFE_INTEGER, price: { currency: "dun", denomination: { primary: "mark" } } } }] };
+  assert.equal(planSphereTransaction({ actors: [actor], changes: { "dun|mark": 1 }, strict: false }).ok, false);
+});

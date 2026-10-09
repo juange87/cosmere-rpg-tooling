@@ -83,7 +83,7 @@ export function planSphereTransaction({
       if (!change) continue;
       const available = getSphereQuantity(actor, denomination.key);
       const planned = available + change;
-      if (!Number.isSafeInteger(planned)) return { actorId: actor?.id, ok: false, current: {}, next: {}, deficit: { overflow: 1 } };
+      if (!Number.isSafeInteger(planned)) return { actorId: actor?.id, ok: false, invalid: true, current: {}, next: {}, deficit: { overflow: 1 } };
       current[denomination.key] = available;
       next[denomination.key] = Math.max(0, planned);
       if (planned < 0) deficit[denomination.key] = Math.abs(planned);
@@ -100,7 +100,7 @@ export function planSphereTransaction({
   });
 
   return {
-    ok: !strict || results.every(result => result.ok),
+    ok: results.every(result => !result.invalid) && (!strict || results.every(result => result.ok)),
     strict,
     results,
   };

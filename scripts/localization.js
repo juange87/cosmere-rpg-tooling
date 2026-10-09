@@ -15,7 +15,7 @@ async function loadCatalog(language) {
 
 export async function loadCosmereCatalogs(loader = loadCatalog, logger = console) {
   const languages = ["en", "es"];
-  const results = await Promise.allSettled(languages.map(language => loader(language)));
+  const results = await Promise.allSettled(languages.map(language => Promise.resolve().then(() => loader(language))));
   return Object.fromEntries(results.map((result, index) => {
     if (result.status === "rejected" || !result.value || typeof result.value !== "object") {
       logger?.warn?.(`Cosmere RPG Tooling | Could not load ${languages[index]} translations; using fallback.`);

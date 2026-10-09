@@ -225,3 +225,13 @@ test("one rejected macro update does not prevent the remaining selection", async
   assert.equal(result.failed.length, 1);
   assert.equal(result.updated.length, 1);
 });
+
+test("upgrading a migrated macro replaces its old source flag without dropping other flags", async () => {
+  const source = { id: "new", packId: "module.pack", command: "new", flags: { "cosmere-rpg-tooling": { legacyIds: ["old"] } } };
+  const world = { id: "copy", command: "old", flags: { core: { sourceId: "Compendium.module.pack.Macro.old", favorite: true }, custom: { keep: true } }, update: async data => Object.assign(world, data) };
+  const report = buildMacroUpgradeReport({ sourceMacros: [source], worldMacros: [world] });
+  await applyMacroUpgradeSelection({ report, selectedEntryKeys: [report.entries[0].key] });
+  assert.equal(world.flags.core.sourceId, "Compendium.module.pack.Macro.new");
+  assert.equal(world.flags.core.favorite, true);
+  assert.equal(world.flags.custom.keep, true);
+});
