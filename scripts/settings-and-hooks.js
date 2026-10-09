@@ -240,8 +240,19 @@ export function getChatRenderHookName({ game = globalThis.game } = {}) {
 // check until all creation listeners have run, without its uncancellable waiter.
 export function createDiceHookScheduler({ game, handle, processedIds = new Set(), logger = console, setTimer = setTimeout, clearTimer = clearTimeout }) {
   const pending = new Map();
-  // Weak references prevent deleted documents from filling the roll history.
-  const deletedMessages = new WeakSet();
+  // Public DSN lifecycle hooks can precede our creation listener. Weak
+  // references track only live interactive documents, without an internal API.
+  const interactiveMessages = new WeakSet();
+  const pendingOpened = messageId => {
+    const message = game?.messages?.get?.(messageId);
+    if (message) interactiveMessages.add(message);
+  };
+  const pendingClosed = messageId => {
+    const message = game?.messages?.get?.(messageId);
+    if (message) interactiveMessages.delete(message);
+  };
+  const interactivePending = message => interactiveMessages.has(message)
+    || message?.flags?.["dice-so-nice"]?.interactiveThrow?.state === "pending";
   const cancel = messageId => {
     const entry = pending.get(messageId);
     if (entry) clearTimer(entry.timer);
@@ -249,24 +260,23 @@ export function createDiceHookScheduler({ game, handle, processedIds = new Set()
   };
   const finish = (messageId, timedOut = false) => {
     const message = game?.messages?.get?.(messageId);
-    if (processedIds.has(messageId) || !message || deletedMessages.has(message)) { cancel(messageId); return; }
+    if (processedIds.has(messageId) || !message) { cancel(messageId); return; }
     const inspection = eligibleDiceInspection(message, game, pending.get(messageId)?.inspection);
     if (!inspection) { cancel(messageId); return; }
     // Intermediate DSN completions wait; a timed-out renderer gets one fallback.
     if (message._dice3danimating && !timedOut) return;
     cancel(messageId);
-    const result = handle(messageId, inspection);
-    rememberProcessedRoll(processedIds, messageId);
-    return result;
+    // The handler owns the shared history and claims the ID before awaiting.
+    return handle(messageId, inspection);
   };
   const complete = messageId => finish(messageId);
   const deleted = message => {
     cancel(message.id);
     processedIds.delete(message.id);
-    deletedMessages.add(message);
+    interactiveMessages.delete(message);
   };
   const created = message => {
-    if (!message || deletedMessages.has(message) || processedIds.has(message.id) || pending.has(message.id)) return;
+    if (!message || processedIds.has(message.id) || pending.has(message.id)) return;
     const inspection = eligibleDiceInspection(message, game);
     if (!inspection) return;
     if (!game?.modules?.get?.("dice-so-nice")?.active || game?.dice3d?.isEnabled?.() === false) return complete(message.id);
@@ -276,18 +286,19 @@ export function createDiceHookScheduler({ game, handle, processedIds = new Set()
       if (pending.get(message.id) !== entry) return;
       const current = game?.messages?.get?.(message.id);
       if (!eligibleDiceInspection(current, game, entry.inspection)) { cancel(message.id); return; }
-      if (!current._dice3danimating) return complete(message.id);
+      const interactive = interactivePending(current);
+      if (!current._dice3danimating && !interactive) return complete(message.id);
       if (++entry.checks >= 30) {
         logger?.warn?.("Cosmere RPG Tooling | Dice So Nice animation wait timed out", { messageId: message.id });
         // Interactive throws can intentionally remain pending; never reveal them.
-        if (game?.dice3d?.pendingThrows?.isPending?.(message.id)) { cancel(message.id); return; }
+        if (interactive) { cancel(message.id); return; }
         return finish(message.id, true);
       }
       entry.timer = setTimer(probe, 1000);
     };
     entry.timer = setTimer(probe, 100);
   };
-  return { created, complete, deleted };
+  return { created, complete, deleted, pendingOpened, pendingClosed };
 }
 
 export function activateCosmereGlobalHooks({
@@ -312,6 +323,8 @@ export function activateCosmereGlobalHooks({
   Hooks.on?.("diceSoNiceRollComplete", scheduler.complete);
   Hooks.on?.("createChatMessage", scheduler.created);
   Hooks.on?.("deleteChatMessage", scheduler.deleted);
+  Hooks.on?.("diceSoNicePendingThrowOpened", scheduler.pendingOpened);
+  Hooks.on?.("diceSoNicePendingThrowClosed", scheduler.pendingClosed);
   Hooks.on?.(getChatRenderHookName({ game }), (message, html) => {
     handleRollRequestButtons(message, html, { game, ui });
   });

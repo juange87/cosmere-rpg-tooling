@@ -126,6 +126,7 @@ test("deletion cancels pending checks and late completions", async () => {
   client.roll._dice3danimating = true;
   client.scheduler.created(client.roll);
   assert.equal(client.timers.count, 1);
+  client.game.messages.delete(client.roll.id);
   client.scheduler.deleted(client.roll);
   assert.equal(client.timers.count, 0);
   client.roll._dice3danimating = false;
@@ -232,17 +233,25 @@ test("hook animations are local and honor disabled animation preferences", async
   assert.equal(plays.length, 1);
 });
 
-test("interactive pending throws time out with a diagnostic but never reveal", async () => {
-  const client = await scheduledClient({ isEnabled: () => true, pendingThrows: { isPending: () => true } });
-  client.roll._dice3danimating = true;
-  client.scheduler.created(client.roll);
-  await client.timers.advance(60000);
-  assert.equal(client.cards.length, 0);
-  assert.equal(client.warnings.length, 1);
-  assert.equal(client.timers.count, 0);
-  client.roll._dice3danimating = false;
-  await client.scheduler.complete(client.roll.id);
-  assert.equal(client.cards.length, 1);
+test("interactive throws wait with no internal DSN API, using flags or public lifecycle hooks", async () => {
+  for (const source of ["flags", "hooks"]) {
+    const client = await scheduledClient({ isEnabled: () => true });
+    if (source === "flags") client.roll.flags = { "dice-so-nice": { interactiveThrow: { state: "pending" } } };
+    else client.scheduler.pendingOpened(client.roll.id);
+    // Pending interactive dice stay protected even if the renderer's marker
+    // is missing; the public lifecycle/flag is enough to prevent a fallback.
+    client.scheduler.created(client.roll);
+    await client.timers.advance(60000);
+    assert.equal(client.cards.length, 0, source);
+    assert.equal(client.warnings.length, 1, source);
+    assert.equal(client.timers.count, 0, source);
+    if (source === "flags") client.roll.flags["dice-so-nice"].interactiveThrow.state = "completed";
+    else client.scheduler.pendingClosed(client.roll.id);
+    await client.scheduler.complete(client.roll.id);
+    assert.equal(client.cards.length, 1, source);
+    await client.scheduler.complete(client.roll.id);
+    assert.equal(client.cards.length, 1, source);
+  }
 });
 
 test("polling inspects a roll only once and irrelevant deletions retain important history", async () => {
@@ -258,5 +267,17 @@ test("polling inspects a roll only once and irrelevant deletions retain importan
   assert.equal(client.processedIds.size, 1);
   client.roll._dice3danimating = false;
   await client.scheduler.complete(client.roll.id);
+  assert.equal(client.cards.length, 1);
+});
+
+test("the roll handler claims an ID once, before asynchronous publication", async () => {
+  const client = await scheduledClient({ isEnabled: () => false });
+  let marks = 0;
+  const originalAdd = client.processedIds.add.bind(client.processedIds);
+  client.processedIds.add = id => { marks++; return originalAdd(id); };
+  const creation = client.scheduler.created(client.roll);
+  const duplicate = client.scheduler.complete(client.roll.id);
+  await Promise.all([creation, duplicate]);
+  assert.equal(marks, 1);
   assert.equal(client.cards.length, 1);
 });
