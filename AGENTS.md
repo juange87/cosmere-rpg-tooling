@@ -31,6 +31,8 @@ manifest's declared range. Foundry v14 support is separate work.
 - `scripts/legacy/`: implementations of classic macros, with injected Foundry
   dependencies. Three retired hook macros remain as compatibility notices and
   register no listeners.
+- `scripts/legacy-sphere-tools.js`: shared dialog, preview and transactions for
+  classic sphere distribution/removal; the two legacy files are thin wrappers.
 - `scripts/cosmere-helpers.js`: common HTML escaping, actor/token resolution,
   resource access, client preferences and private GM reports.
 - `scripts/sphere-currency.js`, `scripts/sphere-transactions.js`: shared currency
@@ -93,6 +95,8 @@ manifest's declared range. Foundry v14 support is separate work.
   identical source/destination. Investiture drain transfers spheres to the same
   denomination in `dun`. Inventory identity comes from system metadata, not
   translated names. Reject stale transaction plans before writing.
+  Inventory previews tolerate and mark invalid old quantities; strict writes
+  reject affected denominations without blocking other actors' dialogs.
 - Guard missing tokens, actors, resource paths and optional animation modules.
   Await document updates; resource updates must work without animation modules.
 - Only the active GM publishes automatic roll cards. Each client plays its roll

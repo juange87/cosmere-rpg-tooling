@@ -10,7 +10,8 @@ async function executeMacro(file, { game, canvas = {}, messages = [] } = {}) {
   const command = macro.command.replaceAll('/modules/cosmere-rpg-tooling/scripts/', new URL('../scripts/', import.meta.url).href);
   const dialogs = [];
   class Dialog { constructor(options) { dialogs.push(options); } render() { return this; } }
-  game.modules = new Map([["cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas, Dialog, ChatMessage: { create: async data => messages.push(data) }, ui: { notifications: { info() {}, warn() {}, error() {} } } }) }]]);
+  const ChatMessage = { create: async data => messages.push(data), getSpeaker: options => options };
+  game.modules = new Map([["cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas, Dialog, ChatMessage, ui: { notifications: { info() {}, warn() {}, error() {} } } }) }]]);
   const previousDialog = globalThis.Dialog;
   globalThis.Dialog = Dialog;
   try { await new AsyncFunction("game", "canvas", "ui", "ChatMessage", "Dialog", command)(
@@ -103,4 +104,34 @@ test("two sphere dialogs keep previews and select-all actions scoped to their ow
     assert.equal(one.check.checked, false);
     assert.equal(two.check.checked, true);
   }
+});
+
+test("shared classic tools preserve even splitting, chat output and partial-removal deficits", async () => {
+  const actors = [2, 1].map((quantity, index) => {
+    const actor = { id: String(index), name: `Actor ${index}`, type: "character", hasPlayerOwner: true, items: [] };
+    const item = { type: "loot", system: { isMoney: true, quantity, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: async change => { item.system.quantity = change["system.quantity"]; }, delete: async () => actor.items.splice(0, 1) };
+    actor.items.push(item); return actor;
+  });
+  const html = (quantity, split) => ({ find: selector => selector === ".actor-check:checked" ? actors.map(actor => ({ dataset: { id: actor.id } })) : {
+    val: () => selector === "#inp-spheres-mark" ? quantity : 0,
+    is: () => selector === "#opt-chat" || (selector === "#opt-dividir" && split),
+  } });
+  const grant = await executeMacro("gm-macros/z8dLwcyv2CkyTvLS", { game: { actors } });
+  await grant.dialogs[0].buttons.ok.callback(html(5, true));
+  assert.deepEqual(actors.map(actor => actor.items[0].system.quantity), [4, 3]);
+  assert.match(grant.messages[0].content, /Actor 0/);
+  assert.match(grant.messages[0].content, /2 Mark/);
+  const removal = await executeMacro("gm-macros/PFVU35wn6SQ4hYxg", { game: { actors } });
+  assert.doesNotMatch(removal.dialogs[0].content, /id="opt-dividir"/);
+  await removal.dialogs[0].buttons.ok.callback(html(10, false));
+  assert.deepEqual(actors.map(actor => actor.items.length), [0, 0]);
+  assert.match(removal.messages[0].content, /6 Mark.*7 Mark/);
+});
+
+test("shared classic tools validate every selected inventory before writing", async () => {
+  const actors = [3, "invalid"].map((quantity, index) => ({ id: String(index), name: `Actor ${index}`, type: "character", hasPlayerOwner: true, items: [{ type: "loot", system: { isMoney: true, quantity, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: () => assert.fail("Partial write before invalid inventory rejected") }] }));
+  const grant = await executeMacro("gm-macros/z8dLwcyv2CkyTvLS", { game: { actors } });
+  const html = { find: selector => selector === ".actor-check:checked" ? actors.map(actor => ({ dataset: { id: actor.id } })) : { val: () => selector === "#inp-spheres-mark" ? 1 : 0, is: () => false } };
+  await assert.rejects(grant.dialogs[0].buttons.ok.callback(html), /invalid|inválid/);
+  assert.equal(actors[0].items[0].system.quantity, 3);
 });
