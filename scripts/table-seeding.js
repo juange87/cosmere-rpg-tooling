@@ -56,12 +56,11 @@ export function getModuleRollTable(name, game = globalThis.game) {
 }
 
 export async function seedRollTableDocuments(documents, context = {}) {
-  const report = { created: 0, reorganized: 0, failed: [], total: documents.length };
+  const report = { created: 0, failed: [], total: documents.length };
   for (const data of documents) {
     try {
       const status = await ensureOwnedRollTable(data, context);
       if (status === "created") report.created++;
-      if (status === "moved") report.reorganized++;
     } catch (error) {
       report.failed.push({ name: data.name, error });
     }

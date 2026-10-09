@@ -390,11 +390,7 @@ Hooks.once('ready', async () => {
     return;
   }
 
-  if (baseTables.reorganized > 0) {
-    ui.notifications.info(`Cosmere RPG Tooling: ${baseTables.reorganized}${localize("TableSMovedToTheCorrectFolders")}`);
-  } else {
-    ui.notifications.info(localize("CosmereRPGToolingAllTablesAreReady"));
-  }
-  
+  ui.notifications.info(localize("CosmereRPGToolingAllTablesAreReady"));
+
   console.log(`Cosmere RPG Tooling | Módulo cargado correctamente - tablas base listas y ${roadmapTables.total} tablas tematicas disponibles`);
 });

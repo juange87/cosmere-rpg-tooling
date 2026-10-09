@@ -1,6 +1,6 @@
 import { isActiveGM } from "./cosmere-helpers.js";
 import { seedRollTableDocuments } from "./table-seeding.js";
-import { localize } from "./localization.js";
+import { format } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
   {
     folderName: "Roshar GM Tables",
@@ -287,7 +287,7 @@ export async function ensureRoadmapRollTables({
   ui = globalThis.ui,
 } = {}) {
   const group = ROADMAP_ROLL_TABLE_GROUPS[0];
-  if (!isActiveGM(game)) return { created: 0, reorganized: 0, total: group.tables.length, skipped: true };
+  if (!isActiveGM(game)) return { created: 0, total: group.tables.length, skipped: true };
   const folderKey = "roshar-gm-tables";
   let folder = game?.folders?.find?.(item => item.type === "RollTable"
     && item.flags?.["cosmere-rpg-tooling"]?.tableFolderKey === folderKey)
@@ -312,10 +312,10 @@ export async function ensureRoadmapRollTables({
   // Existing tables keep their folders. Only create a folder if a missing
   // table actually needs it, and recognize owned folders after GM changes.
   const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: folder?.id }), { game, RollTable, resolveFolder });
-  const { created, reorganized } = report;
+  const { created } = report;
 
-  if (created || reorganized) {
-    ui?.notifications?.info?.(`Cosmere RPG Tooling: ${created}${localize("ThemedTableSCreated")}${reorganized}${localize("Reorganized")}`);
+  if (created) {
+    ui?.notifications?.info?.(format("ThemedTablesCreated", { count: created }));
   }
 
   return { folder, ...report };
