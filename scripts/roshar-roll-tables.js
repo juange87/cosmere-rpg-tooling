@@ -1,5 +1,5 @@
 import { isActiveGM } from "./cosmere-helpers.js";
-import { ensureOwnedRollTable } from "./table-seeding.js";
+import { seedRollTableDocuments } from "./table-seeding.js";
 import { localize } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
   {
@@ -304,17 +304,12 @@ export async function ensureRoadmapRollTables({
     });
   }
 
-  let created = 0;
-  let reorganized = 0;
-  for (const tableData of buildRoadmapRollTableDocuments({ folderId: folder.id })) {
-    const status = await ensureOwnedRollTable(tableData, { game, RollTable });
-    if (status === "moved") reorganized++;
-    if (status === "created") created++;
-  }
+  const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: folder.id }), { game, RollTable });
+  const { created, reorganized } = report;
 
   if (created || reorganized) {
     ui?.notifications?.info?.(`Cosmere RPG Tooling: ${created}${localize("ThemedTableSCreated")}${reorganized}${localize("Reorganized")}`);
   }
 
-  return { folder, created, reorganized, total: group.tables.length };
+  return { folder, ...report };
 }

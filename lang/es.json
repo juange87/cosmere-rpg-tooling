@@ -624,6 +624,7 @@
     "SurgebindingFXPack": "Efectos de Potenciación",
     "SurgebindingFX": "Efectos de Potenciación",
     "SphereBalanceChanged": "El saldo de esferas ha cambiado desde que se abrió este diálogo. Revisa la transacción de nuevo.",
-    "InvalidSphereInventory": "Hay objetos de esferas con cantidades inválidas. Corrígelos antes de cambiar esa denominación."
+    "InvalidSphereInventory": "Hay objetos de esferas con cantidades inválidas. Corrígelos antes de cambiar esa denominación.",
+    "TableSeedingIncomplete": "No se pudieron preparar algunas tablas. Se han procesado las demás; se reintentará al recargar. Consulta la consola para ver los errores."
   }
 }

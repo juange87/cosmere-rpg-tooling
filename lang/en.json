@@ -624,6 +624,7 @@
     "SurgebindingFXPack": "Surgebinding FX Pack",
     "SurgebindingFX": "Surgebinding FX",
     "SphereBalanceChanged": "Sphere balances changed since this dialog was opened. Review the transaction again.",
-    "InvalidSphereInventory": "Some sphere items have invalid quantities. Repair them before changing that denomination."
+    "InvalidSphereInventory": "Some sphere items have invalid quantities. Repair them before changing that denomination.",
+    "TableSeedingIncomplete": "Some tables could not be seeded. The remaining tables were processed; failed tables will be retried on the next load. See the console for details."
   }
 }

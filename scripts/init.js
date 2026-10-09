@@ -1,6 +1,6 @@
 import { registerCosmereApi } from "./module-api.js";
 import { COSMERE_MODULE_ID, isActiveGM } from "./cosmere-helpers.js";
-import { ensureOwnedRollTable, shouldSeedTables, TABLE_SEED_VERSION } from "./table-seeding.js";
+import { seedRollTableDocuments, shouldSeedTables, TABLE_SEED_VERSION } from "./table-seeding.js";
 import { localize } from "./localization.js";
 import { registerCosmereSettings, activateCosmereGlobalHooks } from "./settings-and-hooks.js";
 import { ensureRoadmapRollTables } from "./roshar-roll-tables.js";
@@ -373,18 +373,25 @@ Hooks.once('ready', async () => {
     }
   ];
 
-  let tablasReorganizadas = 0;
-  for (const tableData of tables) {
-    const status = await ensureOwnedRollTable({ ...tableData, replacement: true, displayRoll: true });
-    if (status === "moved") tablasReorganizadas++;
+  const baseTables = await seedRollTableDocuments(tables.map(tableData => ({ ...tableData, replacement: true, displayRoll: true })));
+  let roadmapTables;
+  try {
+    roadmapTables = await ensureRoadmapRollTables({ parentFolder });
+  } catch (error) {
+    roadmapTables = { total: 0, failed: [{ name: "Roshar GM Tables", error }] };
+  }
+  const failures = [...baseTables.failed, ...(roadmapTables.failed ?? [])];
+  if (!failures.length) {
+    await game.settings.set(COSMERE_MODULE_ID, "tableSeedVersion", TABLE_SEED_VERSION);
+  } else {
+    // Leave the version pending: successful tables are reused on the next retry.
+    console.error("Cosmere RPG Tooling | Table seeding incomplete", failures);
+    ui.notifications.warn(localize("TableSeedingIncomplete"));
+    return;
   }
 
-  const roadmapTables = await ensureRoadmapRollTables({ parentFolder });
-
-  await game.settings.set(COSMERE_MODULE_ID, "tableSeedVersion", TABLE_SEED_VERSION);
-
-  if (tablasReorganizadas > 0) {
-    ui.notifications.info(`Cosmere RPG Tooling: ${tablasReorganizadas}${localize("TableSMovedToTheCorrectFolders")}`);
+  if (baseTables.reorganized > 0) {
+    ui.notifications.info(`Cosmere RPG Tooling: ${baseTables.reorganized}${localize("TableSMovedToTheCorrectFolders")}`);
   } else {
     ui.notifications.info(localize("CosmereRPGToolingAllTablesAreReady"));
   }

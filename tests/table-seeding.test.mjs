@@ -45,3 +45,33 @@ test("only Foundry's active GM may seed thematic folders and tables", async () =
     assert.equal(result.skipped, true);
   }
 });
+
+test("a failed base table does not stop later or thematic tables, and only failures are retried", async () => {
+  const callbacks = [], tables = [], folders = [], warnings = [], versions = [];
+  const saved = Object.fromEntries(["Hooks", "game", "Folder", "RollTable", "ui"].map(key => [key, globalThis[key]]));
+  let failOnce = true;
+  const createdNames = [];
+  globalThis.Hooks = { once: (event, callback) => { if (event === "ready") callbacks.push(callback); } };
+  globalThis.game = { users: { activeGM: { isSelf: true } }, tables, folders, settings: { get: () => undefined, set: async (_, key, value) => versions.push([key, value]) } };
+  globalThis.Folder = { create: async data => {
+    const folder = { ...data, id: String(folders.length), folder: data.folder ? { id: data.folder } : null };
+    folders.push(folder); return folder;
+  } };
+  globalThis.RollTable = { create: async data => {
+    if (failOnce) { failOnce = false; throw new Error("First table rejected"); }
+    tables.push({ ...data }); createdNames.push(data.name);
+  } };
+  globalThis.ui = { notifications: { info() {}, warn: text => warnings.push(text) } };
+  try {
+    await import("../scripts/init.js?seed-failure-regression");
+    await callbacks[1]();
+    assert.equal(tables.length, 20);
+    assert.equal(createdNames.includes("Ruin Discoveries"), true);
+    assert.equal(versions.length, 0);
+    assert.equal(warnings.length, 1);
+    await callbacks[1]();
+    assert.equal(tables.length, 21);
+    assert.equal(createdNames.length, 21);
+    assert.deepEqual(versions, [["tableSeedVersion", TABLE_SEED_VERSION]]);
+  } finally { Object.assign(globalThis, saved); }
+});
