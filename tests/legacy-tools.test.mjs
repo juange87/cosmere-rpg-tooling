@@ -46,3 +46,19 @@ test("only actual health gains show healing and failed effects do not fail a com
     }
   }
 });
+
+test("resource updates finish while animation is pending and handle its later rejection", async () => {
+  let rejectAnimation;
+  const animation = new Promise((_, reject) => { rejectAnimation = reject; });
+  const chain = new Proxy({}, { get: (_, key) => key === "play" ? () => animation : () => chain });
+  const warnings = [];
+  const actor = { system: { resources: { hea: { value: 5, max: 10 } } }, update: async data => { actor.system.resources.hea.value = data["system.resources.hea.value"]; } };
+  const action = runLegacyResourceChange({ resourceKey: "hea", delta: 1, canvas: { tokens: { controlled: [{ actor }] } }, game: { modules: new Map([["sequencer", { active: true }], ["JB2A_DnD5e", { active: true }]]) }, Sequence: function () { return chain; }, ui: { notifications: { info() {}, warn: text => warnings.push(text) } } });
+  const result = await Promise.race([action, new Promise(resolve => setImmediate(() => resolve("blocked")))]);
+  assert.equal(result, 6);
+  assert.equal(actor.system.resources.hea.value, 6);
+  assert.equal(warnings.length, 0);
+  rejectAnimation(new Error("Later playback failure"));
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(warnings.length, 1);
+});

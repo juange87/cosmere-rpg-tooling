@@ -35,7 +35,10 @@ export async function runLegacyResourceChange({
     const file = resolveJb2aAssetPath("Library/Generic/Healing/HealingAbility_02_Regular_GreenOrange_Loop_600x600.webm", game);
     if (file) {
       try {
-        await new Sequence().effect().file(file).atLocation(token).scaleToObject(3).belowTokens().play();
+        const animation = new Sequence().effect().file(file).atLocation(token).scaleToObject(3).belowTokens().play();
+        Promise.resolve(animation).catch(() => {
+          ui?.notifications?.warn?.(localize("ResourceUpdatedAnimationFailed"));
+        });
       } catch {
         ui?.notifications?.warn?.(localize("ResourceUpdatedAnimationFailed"));
       }
