@@ -622,6 +622,7 @@
     "LocationFragment24": "descubrir una ruta oculta hacia la siguiente escena",
     "FirstStepCharacterGenerator": "Generador del Primer Paso del Personaje",
     "SurgebindingFXPack": "Efectos de Potenciación",
-    "SurgebindingFX": "Efectos de Potenciación"
+    "SurgebindingFX": "Efectos de Potenciación",
+    "SphereBalanceChanged": "El saldo de esferas ha cambiado desde que se abrió este diálogo. Revisa la transacción de nuevo."
   }
 }

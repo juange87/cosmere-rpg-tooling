@@ -54,3 +54,30 @@ test("invalid quantities cannot drain, spend, convert or change inventories", ()
   assert.equal(planSphereTransaction({ actors: [actor], changes: { "dun|mark": 1.5 } }).ok, false);
   assert.equal(planSphereTransaction({ actors: [actor], changes: { "unknown": 1 } }).ok, false);
 });
+
+const { getSphereQuantity, applySphereInventoryPlan } = await import("../scripts/sphere-transactions.js");
+
+test("shared sphere accounting spends across duplicate legacy money items", async () => {
+  const items = [];
+  for (const quantity of [2, 3]) {
+    const item = { type: "loot", system: { isMoney: true, quantity, price: { currency: "spheres", denomination: { primary: "mark" } } },
+      update: async changes => { item.system.quantity = changes["system.quantity"]; },
+      delete: async () => items.splice(items.indexOf(item), 1),
+    };
+    items.push(item);
+  }
+  const actor = { id: "duplicates", items };
+  assert.equal(getSphereQuantity(actor, "spheres|mark"), 5);
+  const plan = planSphereTransaction({ actors: [actor], changes: { "spheres|mark": -4 } });
+  await applySphereInventoryPlan({ actors: [actor], plan });
+  assert.equal(getSphereQuantity(actor, "spheres|mark"), 1);
+});
+
+test("a stale sphere plan is rejected before overwriting changed balances", async () => {
+  const item = { type: "loot", system: { isMoney: true, quantity: 5, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: () => assert.fail("Stale write") };
+  const actor = { id: "changed", items: [item] };
+  const plan = planSphereTransaction({ actors: [actor], changes: { "spheres|mark": -1 } });
+  item.system.quantity = 3;
+  await assert.rejects(applySphereInventoryPlan({ actors: [actor], plan }), /changed|cambiado/);
+  assert.equal(item.system.quantity, 3);
+});

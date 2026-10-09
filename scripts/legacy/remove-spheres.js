@@ -1,3 +1,6 @@
+import { getSphereQuantity, planSphereTransaction, applySphereInventoryPlan } from "../sphere-transactions.js";
+import { SPHERE_DENOMINATIONS } from "../sphere-currency.js";
+import { getPlayerActors as playerActors } from "../cosmere-helpers.js";
 // Remove Spheres / Eliminar Esferas: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -20,25 +23,11 @@ export async function run({
   // Foundry VTT · Sistema cosmere-rpg
   // ============================================================
 
-  const DENOMINACIONES = [
-    { currency: "spheres", denom: "mark", label: localize("MarkInfused"),  color: "#1a6fa8", valor: 5 },
-    { currency: "dun",     denom: "mark", label: localize("MarkDun"), color: "#666666", valor: 5 },
-  ];
+  const DENOMINACIONES = SPHERE_DENOMINATIONS.filter(denom => denom.denom === "mark")
+    .map(denom => ({ ...denom, color: denom.currency === "spheres" ? "#1a6fa8" : "#666666", valor: denom.value }));
 
-  function getPlayerActors() {
-    return game.actors.filter(a => a.hasPlayerOwner && a.type === "character");
-  }
-
-  // Devuelve cuánto tiene un actor de una denominación concreta
-  function getActorStock(actor, currency, denom) {
-    const item = actor.items.find(i =>
-      i.type === "loot" &&
-      i.system?.isMoney === true &&
-      i.system?.price?.currency === currency &&
-      i.system?.price?.denomination?.primary === denom
-    );
-    return item ? (item.system.quantity || 0) : 0;
-  }
+  function getPlayerActors() { return playerActors({ game }); }
+  function getActorStock(actor, currency, denom) { return getSphereQuantity(actor, `${currency}|${denom}`); }
 
   function formatStockLine(actor, currency) {
     const count = getActorStock(actor, currency, "mark");
@@ -306,43 +295,15 @@ export async function run({
 
   // Elimina monedas de un actor. Devuelve objeto con lo que realmente se quitó y si hubo déficit.
   async function removeCoinsFromActor(actor, coins) {
-    const resultado = { actor, quitado: {}, deficit: {} };
-
-    for (const [key, cantidad] of Object.entries(coins)) {
-      if (!cantidad) continue;
-      const [currency, denom] = key.split("|");
-
-      const item = actor.items.find(i =>
-        i.type === "loot" &&
-        i.system?.isMoney === true &&
-        i.system?.price?.currency === currency &&
-        i.system?.price?.denomination?.primary === denom
-      );
-
-      const disponible = item ? (item.system.quantity || 0) : 0;
-
-      if (!item || disponible === 0) {
-        // No tiene nada de esta denominación
-        resultado.deficit[key] = cantidad;
-        resultado.quitado[key] = 0;
-      } else if (disponible >= cantidad) {
-        // Tiene suficiente
-        const nuevaCantidad = disponible - cantidad;
-        if (nuevaCantidad === 0) {
-          await item.delete();
-        } else {
-          await item.update({ "system.quantity": nuevaCantidad });
-        }
-        resultado.quitado[key] = cantidad;
-      } else {
-        // Tiene algo pero no suficiente — quita lo que pueda
-        await item.delete();
-        resultado.quitado[key] = disponible;
-        resultado.deficit[key] = cantidad - disponible;
-      }
-    }
-
-    return resultado;
+    const changes = Object.fromEntries(Object.entries(coins).map(([key, quantity]) => [key, -quantity]));
+    const plan = planSphereTransaction({ actors: [actor], changes, strict: false });
+    await applySphereInventoryPlan({ actors: [actor], plan });
+    const result = plan.results[0];
+    return {
+      actor,
+      quitado: Object.fromEntries(Object.keys(result.next).map(key => [key, result.current[key] - result.next[key]])),
+      deficit: result.deficit,
+    };
   }
 
   function buildChatMsg(resultados) {

@@ -1,4 +1,6 @@
-import { sphereItemName as itemName } from "../sphere-currency.js";
+import { getSphereQuantity, planSphereTransaction, applySphereInventoryPlan } from "../sphere-transactions.js";
+import { SPHERE_DENOMINATIONS } from "../sphere-currency.js";
+import { getPlayerActors as playerActors } from "../cosmere-helpers.js";
 // Distribute Spheres / Distribuir Esferas: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -21,24 +23,11 @@ export async function run({
   // Foundry VTT · Sistema cosmere-rpg
   // ============================================================
 
-  const DENOMINACIONES = [
-    { currency: "spheres", denom: "mark", label: localize("MarkInfused"),  color: "#1a6fa8", valor: 5 },
-    { currency: "dun",     denom: "mark", label: localize("MarkDun"), color: "#666666", valor: 5 },
-  ];
+  const DENOMINACIONES = SPHERE_DENOMINATIONS.filter(denom => denom.denom === "mark")
+    .map(denom => ({ ...denom, color: denom.currency === "spheres" ? "#1a6fa8" : "#666666", valor: denom.value }));
 
-  function getPlayerActors() {
-    return game.actors.filter(a => a.hasPlayerOwner && a.type === "character");
-  }
-
-  function getActorStock(actor, currency, denom) {
-    const item = actor.items.find(i =>
-      i.type === "loot" &&
-      i.system?.isMoney === true &&
-      i.system?.price?.currency === currency &&
-      i.system?.price?.denomination?.primary === denom
-    );
-    return item ? (item.system.quantity || 0) : 0;
-  }
+  function getPlayerActors() { return playerActors({ game }); }
+  function getActorStock(actor, currency, denom) { return getSphereQuantity(actor, `${currency}|${denom}`); }
 
   function formatStockLine(actor, currency) {
     const count = getActorStock(actor, currency, "mark");
@@ -304,37 +293,8 @@ export async function run({
   }
 
   async function addCoinsToActor(actor, coins) {
-    for (const [key, cantidad] of Object.entries(coins)) {
-      if (!cantidad) continue;
-      const [currency, denom] = key.split("|");
-      const existing = actor.items.find(i =>
-        i.type === "loot" &&
-        i.system?.isMoney === true &&
-        i.system?.price?.currency === currency &&
-        i.system?.price?.denomination?.primary === denom
-      );
-      if (existing) {
-        await existing.update({ "system.quantity": (existing.system.quantity || 0) + cantidad });
-      } else {
-        await actor.createEmbeddedDocuments("Item", [{
-          name: itemName(currency, denom),
-          type: "loot",
-          system: {
-            isMoney: true,
-            quantity: cantidad,
-            weight: { value: 0, unit: "lb" },
-            price: {
-              value: 1,
-              currency: currency,
-              denomination: { primary: denom, secondary: "none" }
-            },
-            description: { value: "", chat: "", short: "" },
-            events: {},
-            relationships: {}
-          }
-        }]);
-      }
-    }
+    const plan = planSphereTransaction({ actors: [actor], changes: coins });
+    await applySphereInventoryPlan({ actors: [actor], plan });
   }
 
   function buildChatMsg(resultados, dividido) {

@@ -1,3 +1,4 @@
+import { escapeHtml } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 import { getActiveJb2aModuleId, JB2A_MODULE_IDS } from "./jb2a-assets.js";
 
@@ -28,14 +29,6 @@ export const COSMERE_DEPENDENCY_CHECKS = [
   },
 ];
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 function getModule(game, moduleId) {
   const modules = game?.modules;

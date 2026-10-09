@@ -622,6 +622,7 @@
     "LocationFragment24": "discover a hidden route into the next scene",
     "FirstStepCharacterGenerator": "First Step Character Generator",
     "SurgebindingFXPack": "Surgebinding FX Pack",
-    "SurgebindingFX": "Surgebinding FX"
+    "SurgebindingFX": "Surgebinding FX",
+    "SphereBalanceChanged": "Sphere balances changed since this dialog was opened. Review the transaction again."
   }
 }

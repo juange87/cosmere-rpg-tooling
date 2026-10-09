@@ -52,3 +52,21 @@ test("Request Roll attributes requests to the GM and whispers to every actor own
   assert.match(messages[0].content, /data-skill="agi"/);
   assert.doesNotMatch(messages[0].content, /<img src=x onerror=/);
 });
+
+test("classic distribution/removal use the shared inventory model and reject fractional grants", async () => {
+  const item = { type: "loot", system: { isMoney: true, quantity: 2, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: async change => { item.system.quantity = change["system.quantity"]; } };
+  const actor = { id: "actor", name: "Actor", type: "character", hasPlayerOwner: true, items: [item] };
+  const game = { actors: [actor] };
+  const html = quantity => ({ find: selector => selector === ".actor-check:checked" ? [{ dataset: { id: "actor" } }] : {
+    val: () => selector === "#inp-spheres-mark" ? quantity : 0,
+    is: () => false,
+  } });
+  const grant = await executeMacro("gm-macros/z8dLwcyv2CkyTvLS", { game });
+  await grant.dialogs[0].buttons.ok.callback(html(3));
+  assert.equal(item.system.quantity, 5);
+  await assert.rejects(grant.dialogs[0].buttons.ok.callback(html(1.5)));
+  assert.equal(item.system.quantity, 5);
+  const spend = await executeMacro("gm-macros/PFVU35wn6SQ4hYxg", { game });
+  await spend.dialogs[0].buttons.ok.callback(html(2));
+  assert.equal(item.system.quantity, 3);
+});
