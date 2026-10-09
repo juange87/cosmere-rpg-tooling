@@ -39,12 +39,12 @@ export async function run({
 
   // Buscar el primer token controlado o actor del jugador
   let actor = null;
-  if (canvas.tokens.controlled.length > 0)
-    actor = canvas.tokens.controlled[0].actor;
+  if ((canvas?.tokens?.controlled ?? []).length > 0)
+    actor = (canvas?.tokens?.controlled ?? [])[0].actor;
   else
     actor = game.user.character;
 
-  if (!actor) {
+  if (!actor || typeof actor.rollSkill !== "function" || actor.isOwner === false) {
     ui.notifications.error(localize("YouHaveNoActiveCharacterOrSelectedToken"));
     return;
   }
@@ -68,7 +68,7 @@ export async function run({
           if (!skill) return;
 
           // Lanza la tirada con el nombre correcto
-          actor.rollSkill(skill, { chatMessage: true });
+          await actor.rollSkill(skill, { chatMessage: true });
         }
       }
     }

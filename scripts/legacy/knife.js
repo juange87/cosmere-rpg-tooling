@@ -1,3 +1,6 @@
+import { requireToken, hasSequencer } from "../cosmere-helpers.js";
+import { getActiveJb2aModuleId } from "../jb2a-assets.js";
+import { localize as translate } from "../localization.js";
 // Knife: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -11,11 +14,21 @@ export async function run({
   AudioHelper = globalThis.foundry?.audio?.AudioHelper ?? globalThis.AudioHelper,
   token = canvas?.tokens?.controlled?.[0],
 } = {}) {
+  if (!canvas?.scene || !hasSequencer({ game, Sequence }) || !getActiveJb2aModuleId(game)) {
+    ui?.notifications?.warn?.(translate("AnimationDependenciesUnavailable"));
+    return false;
+  }
+  if (!requireToken({ canvas, ui, requireActor: false })) return false;
+  if (!game?.user?.targets?.size) {
+    ui?.notifications?.warn?.(translate("SelectAnimationTargets"));
+    return false;
+  }
+
   let selectedToken = canvas.tokens.controlled[0]; // First selected token
   let targets = Array.from(game.user.targets); // Array of targeted tokens
 
   for(let target of targets){
-  /*new Sequence()
+  /*await new Sequence()
       .effect()
           .atLocation(selectedToken)
           .stretchTo(target)
@@ -25,7 +38,7 @@ export async function run({
       .play();*/
 
 
-  new Sequence()
+  await new Sequence()
       .effect()
           .file("jb2a.dagger.melee.02.white") //Replace the text between quotation marks.
           .atLocation(selectedToken)

@@ -1,3 +1,6 @@
+import { requireToken, hasSequencer } from "../cosmere-helpers.js";
+import { getActiveJb2aModuleId } from "../jb2a-assets.js";
+import { localize as translate } from "../localization.js";
 // Bomb Throw: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -11,6 +14,17 @@ export async function run({
   AudioHelper = globalThis.foundry?.audio?.AudioHelper ?? globalThis.AudioHelper,
   token = canvas?.tokens?.controlled?.[0],
 } = {}) {
+  if (!canvas?.scene || !hasSequencer({ game, Sequence }) || !getActiveJb2aModuleId(game)) {
+    ui?.notifications?.warn?.(translate("AnimationDependenciesUnavailable"));
+    return false;
+  }
+  if (!requireToken({ canvas, ui, requireActor: false })) return false;
+  if (!game?.user?.targets?.size) {
+    ui?.notifications?.warn?.(translate("SelectAnimationTargets"));
+    return false;
+  }
+  if (!Sequencer?.Helpers?.wait || !Sequencer?.Helpers?.random_int_between) return false;
+
   /*
   ####################################################
      This macro needs the Sequencer module to work.
@@ -24,7 +38,7 @@ export async function run({
       let source = token; // this is the first selected token
       let targets = Array.from(game.user.targets); // This is an array that will contain all targeted tokens (we need at least one to know where to throw the potion or grenade)
           for(let target of targets){ // The for loop will iterate for each target, if more than one token is targeted. Otherwise it will run it only once
-          new Sequence()
+          await new Sequence()
           .effect()
               .file(dbThrow)
               .atLocation(source)

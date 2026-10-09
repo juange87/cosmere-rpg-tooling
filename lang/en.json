@@ -552,6 +552,10 @@
     "SeedRollTablesHint": "Create missing module tables on startup. User tables are preserved.",
     "InvalidSphereConversion": "Choose different valid denominations and a whole, non-negative quantity.",
     "InvalidSphereQuantity": "Sphere quantities must be whole, non-negative numbers.",
-    "MacroUpdatesFailed": "Macro updates failed: "
+    "MacroUpdatesFailed": "Macro updates failed: ",
+    "UnsupportedActorResource": "The selected actor does not support this resource.",
+    "RetiredHookMacro": "This macro has been retired. Configure automatic roll hooks in the module settings.",
+    "AnimationDependenciesUnavailable": "Enable animations, Sequencer and a JB2A collection on an active scene.",
+    "SelectAnimationTargets": "Target at least one token for this animation."
   }
 }

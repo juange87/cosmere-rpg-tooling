@@ -51,7 +51,7 @@ test("manifest permits activation without forcing either JB2A edition", async ()
     ["JB2A_DnD5e", "jb2a_patreon"].includes(entry.id)), false);
 });
 
-const directMacroIds = ["JftnYfOMuXevgcjV", "mSA2KpnWle0X6E6m", "9MDhU9WMv0QKYH3D", "Llo5ZpODs3yEeKhS", "aPHfJqQlm7EKoGyN"];
+const directMacroIds = [ "9MDhU9WMv0QKYH3D", "Llo5ZpODs3yEeKhS", "aPHfJqQlm7EKoGyN"];
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
@@ -69,7 +69,7 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
       game.users = { activeGM: { isSelf: true } };
     game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [new Die()] }] }) };
       const sequence = new Proxy({}, {
-        get: (_, key) => (...args) => {
+        get: (_, key) => key === "then" ? undefined : (...args) => {
           if (key === "file") files.push(args[0]);
           return sequence;
         },
@@ -113,7 +113,7 @@ test("global roll hooks choose the active edition and keep chat without JB2A", a
     const game = createGame(edition ? [edition] : []);
     game.users = { activeGM: { isSelf: true } };
     game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [{ faces: 20, results: [{ result: 20 }, { result: 1 }] }] }] }) };
-    const sequence = new Proxy({}, { get: (_, key) => (...args) => {
+    const sequence = new Proxy({}, { get: (_, key) => key === "then" ? undefined : (...args) => {
       if (key === "file") files.push(args[0]);
       return sequence;
     } });

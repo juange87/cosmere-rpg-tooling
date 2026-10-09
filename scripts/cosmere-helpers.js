@@ -124,3 +124,18 @@ export async function postCosmereChatCard({
     whisper: whisperOnly ? gmWhisper(ChatMessage) : undefined,
   });
 }
+
+export function requireToken({ canvas = globalThis.canvas, ui = globalThis.ui, requireActor = true } = {}) {
+  const token = canvas?.tokens?.controlled?.[0];
+  if (!token || (requireActor && !token.actor)) {
+    ui?.notifications?.warn?.(localize("YouMustSelectAToken"));
+    return null;
+  }
+  return token;
+}
+
+export function hasSequencer({ game = globalThis.game, Sequence = globalThis.Sequence } = {}) {
+  let enabled = true;
+  try { enabled = game?.settings?.get?.(COSMERE_MODULE_ID, "useAnimations") !== false; } catch { /* init */ }
+  return enabled && typeof Sequence === "function" && game?.modules?.get?.("sequencer")?.active !== false;
+}

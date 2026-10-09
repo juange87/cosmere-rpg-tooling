@@ -58,14 +58,14 @@ export async function run({
   };
 
   // Buscar actor
-  let actor = canvas.tokens.controlled[0]?.actor ?? game.user.character;
-  if (!actor) {
+  let actor = (canvas?.tokens?.controlled ?? [])[0]?.actor ?? game.user.character;
+  if (!actor || typeof actor.rollSkill !== "function" || actor.isOwner === false) {
     ui.notifications.error(localize("YouHaveNoActiveCharacterOrSelectedToken"));
     return;
   }
 
-  const actorSkills = actor.system.skills ?? {};
-  const actorAttrs = actor.system.attributes ?? {};
+  const actorSkills = actor.system?.skills ?? {};
+  const actorAttrs = actor.system?.attributes ?? {};
 
   // Convertir habilidades a arrays para poder iterar por filas
   const cols = Object.values(categorias).map(cat => {
@@ -159,10 +159,10 @@ export async function run({
     content: htmlContent,
     buttons: {},
     render: html => {
-      html.find(".skill-cell").on("click", event => {
+      html.find(".skill-cell").on("click", async event => {
         const skillKey = event.currentTarget.dataset.skill;
         dialog.close();
-        actor.rollSkill(skillKey, { chatMessage: true });
+        await actor.rollSkill(skillKey, { chatMessage: true });
       });
     },
     width: 650,

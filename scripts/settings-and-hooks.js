@@ -190,11 +190,11 @@ function handleRollRequestButtons(message, html, { game, ui }) {
     const actorId = event.currentTarget.dataset.actorId;
     const skill = event.currentTarget.dataset.skill;
     const actor = game?.actors?.get?.(actorId);
-    if (!actor?.rollSkill) {
+    if (!actor?.rollSkill || actor.isOwner === false) {
       ui?.notifications?.error?.(localize("CouldNotFindTheActorForTheRoll"));
       return;
     }
-    actor.rollSkill(skill, { chatMessage: true });
+    Promise.resolve(actor.rollSkill(skill, { chatMessage: true })).catch(error => ui?.notifications?.error?.(error.message));
   };
   if (typeof html?.querySelectorAll === "function") {
     html.querySelectorAll("button.roll-solicitud").forEach(button => {

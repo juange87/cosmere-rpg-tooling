@@ -1,3 +1,6 @@
+import { requireToken, hasSequencer } from "../cosmere-helpers.js";
+import { getActiveJb2aModuleId } from "../jb2a-assets.js";
+import { localize as translate } from "../localization.js";
 // Weapon Throw with Return: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -11,6 +14,16 @@ export async function run({
   AudioHelper = globalThis.foundry?.audio?.AudioHelper ?? globalThis.AudioHelper,
   token = canvas?.tokens?.controlled?.[0],
 } = {}) {
+  if (!canvas?.scene || !hasSequencer({ game, Sequence }) || !getActiveJb2aModuleId(game)) {
+    ui?.notifications?.warn?.(translate("AnimationDependenciesUnavailable"));
+    return false;
+  }
+  if (!requireToken({ canvas, ui, requireActor: false })) return false;
+  if (!game?.user?.targets?.size) {
+    ui?.notifications?.warn?.(translate("SelectAnimationTargets"));
+    return false;
+  }
+
   /*
   #########################################################################################
      This macro needs the Sequencer module to work.
@@ -22,7 +35,7 @@ export async function run({
   let targets = Array.from(game.user.targets);
 
   for(let target of targets){
-      new Sequence()
+      await new Sequence()
           .effect()
       //First it will play the throw sequence of the Dagger01 animation.
               .file("jb2a.dagger.throw.01.white")

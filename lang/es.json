@@ -552,6 +552,10 @@
     "SeedRollTablesHint": "Crear las tablas que falten al iniciar. Se conservan las tablas del usuario.",
     "InvalidSphereConversion": "Elige denominaciones válidas distintas y una cantidad entera no negativa.",
     "InvalidSphereQuantity": "Las cantidades de esferas deben ser números enteros no negativos.",
-    "MacroUpdatesFailed": "Actualizaciones de macros fallidas: "
+    "MacroUpdatesFailed": "Actualizaciones de macros fallidas: ",
+    "UnsupportedActorResource": "El actor seleccionado no admite este recurso.",
+    "RetiredHookMacro": "Esta macro está retirada. Configura los hooks automáticos en los ajustes del módulo.",
+    "AnimationDependenciesUnavailable": "Activa las animaciones, Sequencer y una colección JB2A en una escena activa.",
+    "SelectAnimationTargets": "Marca al menos un token como objetivo de la animación."
   }
 }

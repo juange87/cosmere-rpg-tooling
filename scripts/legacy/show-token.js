@@ -13,7 +13,7 @@ export async function run({
 } = {}) {
   const { localize } = await import("../localization.js");
   // Obtén los tokens seleccionados
-  let tokens = canvas.tokens.controlled;
+  let tokens = (canvas?.tokens?.controlled ?? []);
   // Verifica que haya tokens seleccionados
   if (tokens.length === 0) {
     ui.notifications.warn(localize("SelectOneOrMoreTokensToShowOrHide2"));
