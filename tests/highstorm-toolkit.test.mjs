@@ -77,7 +77,7 @@ test("runs a highstorm cue by posting chat and playing thunder", async () => {
   assert.equal(result.cue.title, "La tormenta alta golpea");
   assert.equal(played.length, 1);
   assert.deepEqual(played[0], {
-    sound: { src: HIGHSTORM_SOUND, volume: 1, loop: false },
+    sound: { src: HIGHSTORM_SOUND, volume: 0.8, loop: false },
     broadcast: true,
   });
   assert.equal(messages.length, 1);
@@ -106,7 +106,7 @@ test("can play highstorm ambient loop instead of thunder", async () => {
   });
 
   assert.deepEqual(played, [{
-    sound: { src: HIGHSTORM_SOUNDS.ambient.src, volume: 0.6, loop: true },
+    sound: { src: HIGHSTORM_SOUNDS.ambient.src, volume: 0.48, loop: true },
     broadcast: true,
   }]);
 });

@@ -37,3 +37,49 @@ test("without Dice So Nice createChatMessage handles rolls", async () => {
 test("discarded d20s do not trigger natural-roll effects", () => {
   assert.equal(inspectD20Rolls({ isRoll: true, rolls: [{ terms: [{ faces: 20, results: [{ result: 20, active: false }, { result: 1, discarded: true }, { result: 10 }] }] }] }).hasNatural20, false);
 });
+
+test("public roll effects play once locally with each client's sound preference", async () => {
+  const clients = [context(true), context(false), context(false), context(false), context(false)];
+  for (const [index, client] of clients.entries()) {
+    client.game.messages = new Map([[message.id, { ...message, blind: false, whisper: [] }]]);
+    client.game.settings.get = (_, key) => key === "rollHookSound" ? index !== 2 : key === "soundVolume" ? (index + 1) / 5 : undefined;
+    await handleDiceHook(message.id, client);
+    await handleDiceHook(message.id, client);
+    assert.equal(client.sounds.length, index === 2 ? 0 : 1);
+    if (client.sounds.length) {
+      assert.equal(client.sounds[0][0].volume, (index + 1) / 5);
+      assert.equal(client.sounds[0][1], false);
+    }
+  }
+  assert.equal(clients.flatMap(client => client.cards).length, 1);
+});
+
+test("client preferences retain old world defaults while shared behavior stays world-scoped", async () => {
+  const { registerCosmereSettings, createSettingsRegistrationPlan } = await import("../scripts/settings-and-hooks.js");
+  const plan = createSettingsRegistrationPlan();
+  for (const key of ["rollHookSound", "rollHookAnimation", "soundVolume", "useAnimations"]) assert.equal(plan.settings.find(setting => setting.key === key).scope, "client");
+  assert.equal(plan.settings.find(setting => setting.key === "automaticRollHooks").scope, "world");
+  const registered = new Map();
+  const world = new Map([["cosmere-rpg-tooling.soundVolume", { value: "0.3" }], ["cosmere-rpg-tooling.useAnimations", { value: "false" }]]);
+  registerCosmereSettings({ game: { settings: { storage: new Map([["world", world]]), register: (_, key, data) => registered.set(key, data) } } });
+  assert.equal(registered.get("soundVolume").default, 0.3);
+  assert.equal(registered.get("useAnimations").default, false);
+});
+
+test("hook animations are local and honor disabled animation preferences", async () => {
+  const plays = [];
+  const chain = new Proxy({}, { get: (_, key) => key === "then" ? undefined : (...args) => {
+    if (key === "play") plays.push(args[0]);
+    return chain;
+  } });
+  const client = context(true);
+  client.game.modules = new Map([["JB2A_DnD5e", { active: true }]]);
+  client.canvas = { scene: { width: 100, height: 100 } };
+  client.Sequence = function Sequence() { return chain; };
+  await handleDiceHook(message.id, client);
+  assert.deepEqual(plays, [{ local: true }]);
+  client.processedIds.clear();
+  client.game.settings.get = (_, key) => key === "useAnimations" ? false : undefined;
+  await handleDiceHook(message.id, client);
+  assert.equal(plays.length, 1);
+});

@@ -489,3 +489,8 @@ await game.modules.get("cosmere-rpg-tooling").api.openSphereManager();
 Las copias importadas antes de esta API necesitan una actualización inicial con
 el Chequeo de Macros Instaladas. Después reciben las correcciones de los scripts
 al actualizar el módulo sin tener que volver a importar cada macro.
+
+El volumen, los sonidos de hooks y las animaciones se configuran por cliente.
+Los valores anteriores del mundo se conservan como valores iniciales. En las
+reacciones automáticas a tiradas, cada cliente reproduce sus efectos localmente
+una sola vez; únicamente el GM activo publica la tarjeta de chat.

@@ -1,6 +1,8 @@
 import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
+  hasSequencer,
+  clientSoundVolume,
   buildCosmereChatCard,
   escapeHtml,
   gmWhisper,
@@ -90,8 +92,8 @@ export function buildOathPreludeWhisperCard(momentInput) {
   });
 }
 
-function playRadiantAura({ moment, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
-  if (typeof Sequence !== "function") return false;
+function playRadiantAura({ moment, game = globalThis.game, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
+  if (!hasSequencer({ game, Sequence })) return false;
   const token = canvas?.tokens?.controlled?.[0];
   const location = token ?? (canvas?.scene ? { x: canvas.scene.width / 2, y: canvas.scene.height / 2 } : null);
   if (!location) return false;
@@ -107,6 +109,7 @@ function playRadiantAura({ moment, canvas = globalThis.canvas, Sequence = global
 }
 
 export async function runOathAcceptedDeluxe({
+  game = globalThis.game,
   input = {},
   playSound = true,
   playAnimation = true,
@@ -131,12 +134,12 @@ export async function runOathAcceptedDeluxe({
     });
   }
   if (playSound) {
-    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.words, volume: 0.8, loop: false }, true);
+    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.words, volume: 0.8 * clientSoundVolume(game), loop: false }, true);
     await wait(delayMs);
-    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.thunder, volume: 1, loop: false }, true);
+    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.thunder, volume: clientSoundVolume(game), loop: false }, true);
   }
   if (playAnimation) {
-    playRadiantAura({ moment, canvas, Sequence });
+    playRadiantAura({ moment, game, canvas, Sequence });
   }
 
   await ChatMessage.create({
@@ -192,6 +195,7 @@ export function openOathAcceptedDeluxe({
         callback: async html => {
           try {
             await runOathAcceptedDeluxe({
+              game,
               input: {
                 actorName: html.find("[name=actorName]").val(),
                 orderKey: html.find("[name=orderKey]").val(),

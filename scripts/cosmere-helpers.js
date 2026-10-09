@@ -149,3 +149,11 @@ export function isActiveGM(game = globalThis.game) {
 export function postGmReport({ content, ChatMessage = globalThis.ChatMessage } = {}) {
   return postCosmereChatCard({ content, ChatMessage, whisperOnly: true });
 }
+
+export function clientSetting(key, fallback, game = globalThis.game) {
+  try { return game?.settings?.get?.(COSMERE_MODULE_ID, key) ?? fallback; } catch { return fallback; }
+}
+
+export function clientSoundVolume(game = globalThis.game) {
+  return clamp(normalizeNumber(clientSetting("soundVolume", 0.8, game), 0.8), 0, 1);
+}

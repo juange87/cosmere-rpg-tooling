@@ -2,6 +2,7 @@ import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
   isActiveGM,
+  clientSoundVolume,
   buildCosmereChatCard,
 } from "./cosmere-helpers.js";
 import { resolveJb2aAssetPath } from "./jb2a-assets.js";
@@ -32,6 +33,7 @@ export const COSMERE_SETTINGS = [
   { key: "experimentalTools", type: Boolean, default: false, get name() { return localize("EnableExperimentalTools"); } },
 ];
 
+export const CLIENT_SETTING_KEYS = new Set(["rollHookSound", "rollHookAnimation", "soundVolume", "useAnimations"]);
 let hooksActivated = false;
 
 function resolveAudioHelper() {
@@ -52,7 +54,7 @@ export function createSettingsRegistrationPlan() {
     moduleId: COSMERE_MODULE_ID,
     settings: COSMERE_SETTINGS.map(setting => ({
       key: setting.key,
-      scope: "world",
+      scope: CLIENT_SETTING_KEYS.has(setting.key) ? "client" : "world",
       config: setting.config ?? true,
       type: setting.type,
       default: setting.default,
@@ -60,21 +62,35 @@ export function createSettingsRegistrationPlan() {
       choices: setting.choices,
       hint: setting.hint,
       requiresReload: setting.requiresReload,
+      range: setting.key === "soundVolume" ? { min: 0, max: 1, step: 0.05 } : undefined,
     })),
   };
 }
 
 export function registerCosmereSettings({ game = globalThis.game } = {}) {
   const register = setting => {
+    // Preserve the former world value as the initial client default. An
+    // existing client value remains authoritative in Foundry's settings store.
+    let defaultValue = setting.default;
+    if (setting.scope === "client") {
+      const stored = game?.settings?.storage?.get?.("world")?.get?.(`${COSMERE_MODULE_ID}.${setting.key}`);
+      if (stored) {
+        try {
+          const value = typeof stored.value === "string" ? JSON.parse(stored.value) : stored.value;
+          if ((setting.type === Boolean && typeof value === "boolean") || (setting.type === Number && Number.isFinite(value))) defaultValue = value;
+        } catch { /* Ignore malformed old settings. */ }
+      }
+    }
     game?.settings?.register?.(COSMERE_MODULE_ID, setting.key, {
       name: setting.name,
       scope: setting.scope,
       config: setting.config,
       type: setting.type,
-      default: setting.default,
+      default: defaultValue,
       choices: setting.choices,
       hint: setting.hint,
       requiresReload: setting.requiresReload,
+      range: setting.range,
     });
   };
   // Register the preference first so settings.get can read a saved override
@@ -120,7 +136,7 @@ function playHookAnimation({ type, game = globalThis.game, canvas = globalThis.c
     ? "Library/1st_Level/Thunderwave/Thunderwave_01_Bright_Blue_Center_600x600.webm"
     : "Library/Generic/UI/CriticalMiss_03_Red_200x200.webm", game);
   if (!file) return false;
-  new Sequence().effect().file(file).atLocation(center).scale(5).play();
+  new Sequence().effect().file(file).atLocation(center).scale(5).play({ local: true });
   return true;
 }
 
@@ -148,9 +164,9 @@ async function publishHookCard({ type, message, ChatMessage = globalThis.ChatMes
 export async function handleDiceHook(messageId, context) {
   const { game, ui, ChatMessage, AudioHelper, canvas, Sequence } = context;
   if (!settingValue(game, "automaticRollHooks")) return;
-  if (!isActiveGM(game)) return;
   if (context.processedIds?.has(messageId)) return;
   const message = game?.messages?.get?.(messageId);
+  if (message?.isContentVisible === false || (message?.blind && !game?.user?.isGM && !isActiveGM(game))) return;
   const rollInspection = inspectD20Rolls(message);
   if (!rollInspection.hasNatural20 && !rollInspection.hasNatural1) return;
   context.processedIds?.add(messageId);
@@ -167,7 +183,7 @@ export async function handleDiceHook(messageId, context) {
     if (settingValue(game, "rollHookNotifications")) {
       ui?.notifications?.info?.(label);
     }
-    if (settingValue(game, "rollHookChatCards")) {
+    if (isActiveGM(game) && settingValue(game, "rollHookChatCards")) {
       await publishHookCard({ type: key, message, ChatMessage });
     }
     if (settingValue(game, "rollHookSound")) {
@@ -175,9 +191,9 @@ export async function handleDiceHook(messageId, context) {
         src: key === "natural20"
           ? `modules/${COSMERE_MODULE_ID}/sounds/oath-accepted-variant.wav`
           : `modules/${COSMERE_MODULE_ID}/sounds/thunder-variant-02.wav`,
-        volume: settingValue(game, "soundVolume"),
+        volume: clientSoundVolume(game),
         loop: false,
-      }, true);
+      }, false);
     }
     if (settingValue(game, "rollHookAnimation") && settingValue(game, "useAnimations")) {
       playHookAnimation({ type: key, game, canvas, Sequence });

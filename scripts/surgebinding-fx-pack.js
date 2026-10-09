@@ -1,6 +1,8 @@
 import { localize } from "./localization.js";
 import {
   buildCosmereChatCard,
+  hasSequencer,
+  clientSetting,
   normalizeText,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
@@ -54,6 +56,7 @@ export function buildSurgebindingChatCard(input) {
 }
 
 export async function playSurgebindingFx({
+  game = globalThis.game,
   input = {},
   publishChat = true,
   ChatMessage = globalThis.ChatMessage,
@@ -63,16 +66,16 @@ export async function playSurgebindingFx({
 } = {}) {
   const fx = buildSurgebindingFx(input);
   const source = canvas?.tokens?.controlled?.[0];
-  const target = Array.from(globalThis.game?.user?.targets ?? [])[0] ?? source;
+  const target = Array.from(game?.user?.targets ?? [])[0] ?? source;
 
-  if (typeof Sequence === "function" && source) {
+  if (hasSequencer({ game, Sequence }) && source) {
     new Sequence()
       .effect()
       .file(fx.surge.file)
       .atLocation(source)
       .stretchTo?.(target)
       .play();
-  } else {
+  } else if (clientSetting("useAnimations", true, game)) {
     ui?.notifications?.warn?.(localize("SequencerIsUnavailableOnlyTheNarrativeCardWillBePosted"));
   }
 
@@ -91,6 +94,7 @@ function surgeOptions() {
 }
 
 export function openSurgebindingFxDialog({
+  game = globalThis.game,
   Dialog = globalThis.Dialog,
   ChatMessage = globalThis.ChatMessage,
   ui = globalThis.ui,
@@ -117,6 +121,7 @@ export function openSurgebindingFxDialog({
         callback: async html => {
           try {
             await playSurgebindingFx({
+              game,
               input: {
                 surgeKey: html.find("[name=surgeKey]").val(),
                 actorName: html.find("[name=actorName]").val(),
