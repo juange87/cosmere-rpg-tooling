@@ -103,9 +103,21 @@ jobs:
           DOWNLOAD: ${{ env.release_module_url }}
 
 
+      - name: Set Up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
       # Install dependencies for pack compilation
       - name: Install Dependencies
         run: npm ci
+
+      - name: Run Tests
+        run: npm test
+
+      - name: Validate Macro Sources and Compilation
+        run: npm run validate
 
       # Compile compendium packs from source JSON to LevelDB format
       - name: Compile Compendium Packs
