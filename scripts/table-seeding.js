@@ -9,6 +9,29 @@ export function shouldSeedTables(game = globalThis.game) {
     && game?.settings?.get(COSMERE_MODULE_ID, "tableSeedVersion") !== TABLE_SEED_VERSION;
 }
 
+export async function createRollTableFolderResolver({ key, name, color, parent,
+  game = globalThis.game, Folder = globalThis.Folder } = {}) {
+  let folder = game?.folders?.find?.(item => item.type === "RollTable"
+    && item.flags?.[COSMERE_MODULE_ID]?.tableFolderKey === key);
+  if (!folder) {
+    const parentId = parent?.id ?? parent?.folder?.id;
+    folder = game?.folders?.find?.(item => item.type === "RollTable" && item.name === name
+      && (!parent || (parentId && (item.folder?.id ?? item.folder) === parentId)));
+    if (folder) await folder.update({ [`flags.${COSMERE_MODULE_ID}.tableFolderKey`]: key });
+  }
+  return {
+    get folder() { return folder; },
+    async resolve() {
+      if (!folder) {
+        const parentId = typeof parent?.resolve === "function" ? await parent.resolve() : parent?.id;
+        folder = await Folder.create({ name, color, type: "RollTable", sorting: "a", folder: parentId,
+          flags: { [COSMERE_MODULE_ID]: { tableFolderKey: key } } });
+      }
+      return folder.id;
+    },
+  };
+}
+
 function isUnmodifiedLegacyTable(table, data) {
   const results = Array.from(table.results?.contents ?? table.results ?? []);
   return !table.flags?.[COSMERE_MODULE_ID]?.tableKey
@@ -31,7 +54,8 @@ export async function ensureOwnedRollTable(data, {
   // or delete the GM's existing duplicates.
   if (!existing) {
     const candidates = game.tables.filter(table => isUnmodifiedLegacyTable(table, data));
-    existing = candidates.find(table => (table.folder?.id ?? table.folder) === data.folder)
+    const preferredFolder = data.folder?.folder?.id ?? data.folder?.id ?? data.folder;
+    existing = candidates.find(table => (table.folder?.id ?? table.folder) === preferredFolder)
       ?? candidates.sort((a, b) => String(a.id ?? a._id ?? "").localeCompare(String(b.id ?? b._id ?? "")))[0];
     if (existing) await existing.update({ [`flags.${COSMERE_MODULE_ID}.tableKey`]: key });
   }
@@ -41,7 +65,8 @@ export async function ensureOwnedRollTable(data, {
   }
   await RollTable.create({
     ...data,
-    folder: resolveFolder ? await resolveFolder() : data.folder,
+    folder: resolveFolder ? await resolveFolder(data)
+      : typeof data.folder?.resolve === "function" ? await data.folder.resolve() : data.folder,
     flags: { ...data.flags, [COSMERE_MODULE_ID]: { ...data.flags?.[COSMERE_MODULE_ID], tableKey: key } },
   });
   return "created";

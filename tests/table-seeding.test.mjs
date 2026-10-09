@@ -96,6 +96,15 @@ test("a failed base table does not stop later or thematic tables, and only failu
     assert.equal(tables.length, 21);
     assert.equal(createdNames.length, 21);
     assert.deepEqual(versions, [["tableSeedVersion", TABLE_SEED_VERSION]]);
+    // A later reseed must not rebuild the default hierarchy after every table
+    // has been moved and those default folders removed by the GM.
+    folders.length = 0;
+    tables.forEach(table => { table.folder = "gm-organized"; });
+    globalThis.Folder.create = () => assert.fail("Empty base or themed folder created");
+    await callbacks[1]();
+    assert.equal(folders.length, 0);
+    assert.equal(tables.length, 21);
+
   } finally { Object.assign(globalThis, saved); }
 });
 
@@ -133,4 +142,36 @@ test("missing themed tables reuse flagged renamed folders and create default fol
     assert.equal(createdTables[0].folder, hasFolder ? "moved" : "new-folder");
     if (!hasFolder) assert.equal(createdFolders[0].flags[moduleId].tableFolderKey, "roshar-gm-tables");
   }
+});
+
+test("named legacy folders get a stable flag before rename and move", async () => {
+  const { createRollTableFolderResolver } = await import("../scripts/table-seeding.js");
+  const updates = [];
+  const old = { id: "legacy", name: "Roshar GM Tables", type: "RollTable", folder: { id: "parent" },
+    async update(changes) { updates.push(changes); this.flags = { [moduleId]: { tableFolderKey: "roshar-gm-tables" } }; } };
+  const context = { game: { folders: [old] }, Folder: { create: () => assert.fail("Renamed folder duplicated") },
+    key: "roshar-gm-tables", name: "Roshar GM Tables", parent: { id: "parent", folder: { id: "grandparent" } } };
+  const resolver = await createRollTableFolderResolver(context);
+  assert.equal(resolver.folder, old);
+  assert.deepEqual(updates, [{ [`flags.${moduleId}.tableFolderKey`]: "roshar-gm-tables" }]);
+  old.name = "GM renamed"; old.folder = { id: "other-parent" };
+  const renamed = await createRollTableFolderResolver(context);
+  assert.equal(await renamed.resolve(), "legacy");
+  assert.equal(updates.length, 1);
+});
+
+test("missing base tables create only their required folder chain", async () => {
+  const { createRollTableFolderResolver } = await import("../scripts/table-seeding.js");
+  const folders = [], created = [];
+  const context = { game: { folders, tables: [] }, Folder: { create: async data => {
+    const document = { ...data, id: `folder-${folders.length}` }; folders.push(document); return document;
+  } } };
+  const parent = await createRollTableFolderResolver({ ...context, key: "root", name: "Root" });
+  const character = await createRollTableFolderResolver({ ...context, key: "character", name: "Characters", parent });
+  await createRollTableFolderResolver({ ...context, key: "names", name: "Names", parent });
+  assert.equal(folders.length, 0);
+  await ensureOwnedRollTable({ ...data, folder: character }, { ...context, RollTable: { create: async doc => created.push(doc) } });
+  assert.deepEqual(folders.map(folder => folder.name), ["Root", "Characters"]);
+  assert.equal(folders[1].folder, folders[0].id);
+  assert.equal(created[0].folder, folders[1].id);
 });

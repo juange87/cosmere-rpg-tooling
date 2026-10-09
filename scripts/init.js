@@ -1,6 +1,6 @@
 import { registerCosmereApi } from "./module-api.js";
 import { COSMERE_MODULE_ID, isActiveGM } from "./cosmere-helpers.js";
-import { seedRollTableDocuments, shouldSeedTables, TABLE_SEED_VERSION } from "./table-seeding.js";
+import { seedRollTableDocuments, shouldSeedTables, TABLE_SEED_VERSION, createRollTableFolderResolver } from "./table-seeding.js";
 import { localize } from "./localization.js";
 import { registerCosmereSettings, activateCosmereGlobalHooks } from "./settings-and-hooks.js";
 import { ensureRoadmapRollTables } from "./roshar-roll-tables.js";
@@ -26,58 +26,21 @@ Hooks.once('ready', async () => {
 
   console.log("Cosmere RPG Tooling | Verificando carpetas y tablas...");
 
-  
-  let parentFolder = game.folders.find(f => 
-    f.name === "CosmereRPG: Character Creation" && f.type === "RollTable"
-  );
-  
-  if (!parentFolder) {
-    console.log("Cosmere RPG Tooling | Creando carpeta padre CosmereRPG: Character Creation...");
-    parentFolder = await Folder.create({
-      name: "CosmereRPG: Character Creation",
-      type: "RollTable",
-      color: "#9b59b6",
-      sorting: "a"
-    });
-  }
+  const parentFolder = await createRollTableFolderResolver({
+    key: "character-creation-root", name: "CosmereRPG: Character Creation", color: "#9b59b6",
+  });
+  const characterCreationFolder = await createRollTableFolderResolver({
+    key: "character-creation", name: "Character Creation", color: "#4a90e2", parent: parentFolder,
+  });
+  const nameGeneratorsFolder = await createRollTableFolderResolver({
+    key: "name-generators", name: "Name Generators", color: "#e67e22", parent: parentFolder,
+  });
 
- 
-  let characterCreationFolder = game.folders.find(f => 
-    f.name === "Character Creation" && f.type === "RollTable" && f.folder?.id === parentFolder.id
-  );
-  
-  if (!characterCreationFolder) {
-    console.log("Cosmere RPG Tooling | Creando carpeta Character Creation...");
-    characterCreationFolder = await Folder.create({
-      name: "Character Creation",
-      type: "RollTable",
-      color: "#4a90e2",
-      folder: parentFolder.id,
-      sorting: "a"
-    });
-  }
-
-  let nameGeneratorsFolder = game.folders.find(f => 
-    f.name === "Name Generators" && f.type === "RollTable" && f.folder?.id === parentFolder.id
-  );
-  
-  if (!nameGeneratorsFolder) {
-    console.log("Cosmere RPG Tooling | Creando carpeta Name Generators...");
-    nameGeneratorsFolder = await Folder.create({
-      name: "Name Generators",
-      type: "RollTable",
-      color: "#e67e22",
-      folder: parentFolder.id,
-      sorting: "a"
-    });
-  }
-
-  
   const tables = [
     {
       name: "Character Goals Table",
       formula: "1d20",
-      folder: characterCreationFolder.id,
+      folder: characterCreationFolder,
       results: [
         { text: "Become a noble", weight: 1, range: [1, 1] },
         { text: "Find a missing person", weight: 1, range: [2, 2] },
@@ -104,7 +67,7 @@ Hooks.once('ready', async () => {
     {
       name: "Character Obstacles Table",
       formula: "1d20",
-      folder: characterCreationFolder.id,
+      folder: characterCreationFolder,
       results: [
         { text: "I thirst for revenge against those who wrong me.", weight: 1, range: [1, 1] },
         { text: "I blame myself for a tragedy in my past.", weight: 1, range: [2, 2] },
@@ -131,7 +94,7 @@ Hooks.once('ready', async () => {
     {
       name: "Radiant Purpose Table",
       formula: "1d20",
-      folder: characterCreationFolder.id,
+      folder: characterCreationFolder,
       results: [
         { text: "Acknowledge my self-worth [Elsecaller]", weight: 1, range: [1, 1] },
         { text: "Face my fears [Lightweaver]", weight: 1, range: [2, 2] },
@@ -158,7 +121,7 @@ Hooks.once('ready', async () => {
     {
       name: "Alethi Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Alarik", weight: 1, range: [1, 1] },
         { text: "Ashlani", weight: 1, range: [2, 2] },
@@ -185,7 +148,7 @@ Hooks.once('ready', async () => {
     {
       name: "Azish Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Adana", weight: 1, range: [1, 1] },
         { text: "Adebazik", weight: 1, range: [2, 2] },
@@ -212,7 +175,7 @@ Hooks.once('ready', async () => {
     {
       name: "Herdazian Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Alvoro", weight: 1, range: [1, 1] },
         { text: "Anelma", weight: 1, range: [2, 2] },
@@ -239,7 +202,7 @@ Hooks.once('ready', async () => {
     {
       name: "Reshi Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Alin", weight: 1, range: [1, 1] },
         { text: "Avi-ra", weight: 1, range: [2, 2] },
@@ -266,7 +229,7 @@ Hooks.once('ready', async () => {
     {
       name: "Shin Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Bratha", weight: 1, range: [1, 1] },
         { text: "Dolven", weight: 1, range: [2, 2] },
@@ -293,7 +256,7 @@ Hooks.once('ready', async () => {
     {
       name: "Thaylen Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Alstrym", weight: 1, range: [1, 1] },
         { text: "Ardben", weight: 1, range: [2, 2] },
@@ -320,7 +283,7 @@ Hooks.once('ready', async () => {
     {
       name: "Unkalaki Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Ahinaku", weight: 1, range: [1, 1] },
         { text: "Aluni", weight: 1, range: [2, 2] },
@@ -347,7 +310,7 @@ Hooks.once('ready', async () => {
     {
       name: "Veden Names",
       formula: "1d20",
-      folder: nameGeneratorsFolder.id,
+      folder: nameGeneratorsFolder,
       results: [
         { text: "Amelith", weight: 1, range: [1, 1] },
         { text: "Batin", weight: 1, range: [2, 2] },

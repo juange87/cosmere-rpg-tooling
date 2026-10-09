@@ -1,5 +1,5 @@
 import { isActiveGM } from "./cosmere-helpers.js";
-import { seedRollTableDocuments } from "./table-seeding.js";
+import { seedRollTableDocuments, createRollTableFolderResolver } from "./table-seeding.js";
 import { format } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
   {
@@ -288,35 +288,19 @@ export async function ensureRoadmapRollTables({
 } = {}) {
   const group = ROADMAP_ROLL_TABLE_GROUPS[0];
   if (!isActiveGM(game)) return { created: 0, total: group.tables.length, skipped: true };
-  const folderKey = "roshar-gm-tables";
-  let folder = game?.folders?.find?.(item => item.type === "RollTable"
-    && item.flags?.["cosmere-rpg-tooling"]?.tableFolderKey === folderKey)
-    ?? game?.folders?.find?.(item => item.name === group.folderName
-      && item.type === "RollTable"
-      && (!parentFolder || (item.folder?.id ?? item.folder) === parentFolder.id));
-
-  const resolveFolder = async () => {
-    if (!folder) {
-      folder = await Folder.create({
-        name: group.folderName,
-        type: "RollTable",
-        color: group.color,
-        folder: parentFolder?.id,
-        sorting: "a",
-        flags: { "cosmere-rpg-tooling": { tableFolderKey: folderKey } },
-      });
-    }
-    return folder.id;
-  };
-
-  // Existing tables keep their folders. Only create a folder if a missing
-  // table actually needs it, and recognize owned folders after GM changes.
-  const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: folder?.id }), { game, RollTable, resolveFolder });
+  const resolver = await createRollTableFolderResolver({
+    key: "roshar-gm-tables", name: group.folderName, color: group.color,
+    parent: parentFolder, game, Folder,
+  });
+  // Resolve/create the folder only when a missing table needs it.
+  const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: resolver.folder?.id }), {
+    game, RollTable, resolveFolder: resolver.resolve,
+  });
   const { created } = report;
 
   if (created) {
     ui?.notifications?.info?.(format("ThemedTablesCreated", { count: created }));
   }
 
-  return { folder, ...report };
+  return { folder: resolver.folder, ...report };
 }
