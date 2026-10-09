@@ -67,6 +67,8 @@ manifest's declared range. Foundry v14 support is separate work.
   Reuse one existing match without moving it. For identical duplicates, prefer
   the intended folder then a stable ID; preserve the other copies and never
   create a third. Table tools prefer the ownership flag over names.
+- Thematic folders created by the module have `tableFolderKey`. Reuse them after
+  GM renames/moves and create folders lazily only for missing tables.
 - Default results have weight 1 and sequential ranges `[1,1]` to `[20,20]`.
   Keep stable table names/keys because other tools use them for lookup.
 

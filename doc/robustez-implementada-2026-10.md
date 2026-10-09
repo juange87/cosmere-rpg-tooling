@@ -87,9 +87,44 @@ Los diez hallazgos de la revisión se han contrastado y corregido:
   inventario por actor, búsquedas de tablas sin fallback redundante y mapa de
   aliases precalculado con confirmación booleana explícita.
 
+## Tercera revisión: respaldo de DSN, exclusiones y carpetas
+
+1. Tiradas sin animación comprobadas después de 100 ms, sin depender de que
+   termine un waiter. Las animadas esperan a que desaparezca la marca de DSN.
+2. Eliminado el uso de `waitFor3DAnimationByMessageID`, evitando sus listeners
+   internos no cancelables. Un evento completado antes del de creación no
+   deja un nuevo temporizador; el historial de completados está limitado.
+3. Sondeo limitado a 30 comprobaciones; borrar un mensaje cancela su pendiente.
+   Un estado de animación atascado no revela el resultado ni sondea indefinidamente.
+   El listener global admite una finalización posterior al límite.
+4. Ajustes, visibilidad y resultado natural comprobados antes de programar trabajo.
+5. Fondos insuficientes con nombres y motivos de los actores excluidos.
+6. Gasto y drenaje excluyen actores con denominaciones afectadas inválidas,
+   conservan sus inventarios y permiten aplicar los de actores sanos. Si todos
+   están excluidos, el drenaje falla con explicación. Los desbordamientos al
+   calcular nuevos saldos siguen propagándose como errores.
+7. Carpetas temáticas identificadas por flag y creadas solo cuando una tabla
+   faltante las necesita; no se acumulan vacías tras reorganizar las tablas.
+8. Retirados estado `moved`, contadores de reorganización, notificaciones y claves
+   de idioma que ya no podían ejecutarse.
+9. Ambos diálogos muestran los dos avisos cuando coinciden overflow e inventario
+   inválido, mediante un helper compartido.
+10. La comprobación inicial de fondos de una conversión reutiliza su inspección
+    del inventario de origen.
+
+La revisión de DSN se contrastó con su código fuente oficial:
+[Dice3D.js](https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/raw/master/module/Dice3D.js),
+[main.js](https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/raw/master/module/main.js) y
+[ThrowPipeline.js](https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/raw/master/module/throw/ThrowPipeline.js).
+En la versión consultada, el waiter resuelve inmediatamente cuando el mensaje
+no está animando; cuando lo está, registra listeners hasta recibir su evento.
+La nueva implementación evita ese waiter y deja terminar los listeners de
+creación antes de consultar la marca. Esto no sustituye una prueba en la versión
+instalada de Foundry/DSN.
+
 ## Validación
 
-155 pruebas automatizadas aprobadas.
+165 pruebas automatizadas aprobadas.
 
 Regresiones con Node para propiedad de tablas, IDs y procedencia de macros,
 seguridad HTML, conservación de dinero, drenaje, cantidades inválidas, fallos de
