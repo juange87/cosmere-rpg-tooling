@@ -19,6 +19,14 @@ export function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+// v13 cleans untrusted notification text itself; legacy templates need escaping.
+export function notifyCosmere(message, { type = "info", game = globalThis.game, ui = globalThis.ui } = {}) {
+  const generation = Number(game?.release?.generation ?? String(game?.version ?? "").split(".")[0]);
+  return generation >= 13
+    ? ui?.notifications?.[type]?.(String(message ?? ""), { clean: true })
+    : ui?.notifications?.[type]?.(escapeHtml(message));
+}
+
 export function normalizeText(value, fallback = "") {
   const text = String(value ?? "").trim();
   return text || fallback;

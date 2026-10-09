@@ -1,7 +1,8 @@
-import { localize } from "./localization.js";
+import { localize, format } from "./localization.js";
 import {
   buildCosmereChatCard,
   escapeHtml,
+  notifyCosmere,
   getPlayerActors,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
@@ -52,11 +53,18 @@ export async function applySphereTransactionPlan({
   publishChat = true,
   title = localize("SphereTransaction"),
   ChatMessage = globalThis.ChatMessage,
+  game = globalThis.game,
+  ui = globalThis.ui,
 } = {}) {
   if (!plan?.results) throw new Error(localize("ThereIsNoSphereTransactionToApply"));
   if (!plan.ok) throw new Error(plan.error ?? localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
 
   await applySphereInventoryPlan({ actors, plan });
+  if (plan.excluded?.length) {
+    notifyCosmere(format("ExcludedSphereActors", {
+      actors: plan.excluded.map(result => `${result.actorName}: ${result.warning}`).join("; "),
+    }), { type: "warn", game, ui });
+  }
 
   if (publishChat) {
     await postCosmereChatCard({
@@ -156,7 +164,7 @@ export function openSphereManager({
           try {
             await postSphereSummary({ actors, ChatMessage });
           } catch (error) {
-            ui?.notifications?.error?.(escapeHtml(error.message));
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },
@@ -177,10 +185,10 @@ export function openSphereManager({
               plan,
               title: localize("SphereConversion"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
-              ChatMessage,
+              ChatMessage, game, ui,
             });
           } catch (error) {
-            ui?.notifications?.error?.(escapeHtml(error.message));
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },
@@ -199,10 +207,10 @@ export function openSphereManager({
               plan,
               title: localize("GroupSpending"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
-              ChatMessage,
+              ChatMessage, game, ui,
             });
           } catch (error) {
-            ui?.notifications?.error?.(escapeHtml(error.message));
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },
@@ -220,10 +228,10 @@ export function openSphereManager({
               plan,
               title: localize("DrainAfterInvestiture"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
-              ChatMessage,
+              ChatMessage, game, ui,
             });
           } catch (error) {
-            ui?.notifications?.error?.(escapeHtml(error.message));
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },

@@ -240,3 +240,39 @@ test("conversion funding checks reuse the source inventory inspection", () => {
   assert.equal(plan.ok, false);
   assert.equal(scans, 1);
 });
+
+test("successful group spend and drain warn about exclusions even with chat disabled", async () => {
+  const { buildGroupSphereSpendTransaction } = await import("../scripts/sphere-transactions.js");
+  for (const operation of ["spend", "drain"]) {
+    const broken = moneyActor("Kal's Squire <img>", [["spheres|broam", 1.5], ["spheres|mark", 1.5]]);
+    const healthy = moneyActor("Healthy", [["spheres|mark", 5], ["dun|mark", 0]]);
+    const actors = [broken, healthy], notices = [];
+    const plan = operation === "spend" ? buildGroupSphereSpendTransaction({ actors, quantity: 1 }) : planInvestitureDrain({ actors, amount: 1 });
+    assert.equal(plan.ok, true);
+    await applySphereTransactionPlan({ actors, plan, publishChat: false, game: { release: { generation: 13 } },
+      ChatMessage: { create: () => assert.fail("Chat publication enabled") },
+      ui: { notifications: { warn: (text, options) => notices.push({ text, options }) } } });
+    assert.equal(notices.length, 1);
+    assert.ok(notices[0].text.includes("Kal's Squire"));
+    assert.ok(notices[0].text.includes(localize("InvalidSphereInventory")));
+    assert.deepEqual(notices[0].options, { clean: true });
+  }
+});
+
+test("notification text escapes once in v12 and delegates cleaning to v13", async () => {
+  const { notifyCosmere } = await import("../scripts/cosmere-helpers.js");
+  for (const generation of [12, 13]) {
+    const notices = [];
+    notifyCosmere("Kal's Squire <img src=x onerror=bad()>", { type: "error", game: { release: { generation } },
+      ui: { notifications: { error: (...args) => notices.push(args) } } });
+    assert.equal(notices.length, 1);
+    if (generation === 13) {
+      assert.ok(notices[0][0].startsWith("Kal's Squire"));
+      assert.deepEqual(notices[0][1], { clean: true });
+    } else {
+      assert.ok(notices[0][0].startsWith("Kal&#39;s Squire"));
+      assert.ok(notices[0][0].includes("&lt;img"));
+      assert.ok(!notices[0][0].includes("&amp;#39;"));
+    }
+  }
+});
