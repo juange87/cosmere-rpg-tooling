@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { SPHERE_DENOMINATIONS, planSphereConversion, applySphereTransactionPlan } from "../scripts/sphere-manager.js";
+import { buildSphereManagerDialogContent } from "../scripts/sphere-manager.js";
 const actor = { id: "actor", items: SPHERE_DENOMINATIONS.map(({ currency, denom }) => ({ type: "loot", system: { isMoney: true, quantity: 100, price: { currency, denomination: { primary: denom } } } })) };
 
 test("sphere conversions reject equal, unknown and unfunded denominations", () => {
@@ -85,4 +86,19 @@ test("a stale sphere plan is rejected before overwriting changed balances", asyn
 test("integer overflow is rejected even for non-strict sphere transactions", () => {
   const actor = { id: "overflow", items: [{ type: "loot", system: { isMoney: true, quantity: Number.MAX_SAFE_INTEGER, price: { currency: "dun", denomination: { primary: "mark" } } } }] };
   assert.equal(planSphereTransaction({ actors: [actor], changes: { "dun|mark": 1 }, strict: false }).ok, false);
+});
+
+test("malformed legacy money is readable but cannot be modified, and healthy actors remain usable", async () => {
+  for (const quantity of [-1, 1.5, "oops"]) {
+    const malformed = { id: "broken", name: "Broken", items: [{ type: "loot", system: { isMoney: true, quantity, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: () => assert.fail("Malformed item changed") }] };
+    const item = { type: "loot", system: { isMoney: true, quantity: 3, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: async changes => { item.system.quantity = changes["system.quantity"]; } };
+    const healthy = { id: "healthy", name: "Healthy", items: [item] };
+    assert.equal(getSphereQuantity(malformed, "spheres|mark"), 0);
+    assert.match(buildSphereManagerDialogContent([malformed, healthy]), /invalid|inválid/);
+    const badPlan = planSphereTransaction({ actors: [malformed], changes: { "spheres|mark": 1 } });
+    await assert.rejects(applySphereInventoryPlan({ actors: [malformed], plan: badPlan }), /invalid|inválid/);
+    const goodPlan = planSphereTransaction({ actors: [healthy], changes: { "spheres|mark": -1 } });
+    await applySphereInventoryPlan({ actors: [malformed, healthy], plan: goodPlan });
+    assert.equal(item.system.quantity, 2);
+  }
 });

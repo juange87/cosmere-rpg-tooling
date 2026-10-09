@@ -34,20 +34,33 @@ export function buildMoneyItemData(key, quantity) {
   };
 }
 
-export function getSphereQuantity(actor, key) {
+export function inspectSphereQuantity(actor, key) {
   const [currency, denom] = key.split("|");
-  return findMoneyItems(actor, currency, denom).reduce((total, item) => {
+  const invalidItems = [];
+  const quantity = findMoneyItems(actor, currency, denom).reduce((total, item) => {
     const quantity = Number(item.system.quantity ?? 0);
     if (!Number.isSafeInteger(quantity) || quantity < 0 || !Number.isSafeInteger(total + quantity)) {
-      throw new Error(localize("InvalidSphereQuantity"));
+      invalidItems.push(item);
+      return total;
     }
     return total + quantity;
   }, 0);
+  return { quantity, invalidItems };
+}
+
+// Browsing an inventory must remain possible even when an old item is malformed.
+// Writes use strict reads so ignored items are never silently changed or spent.
+export function getSphereQuantity(actor, key, { strict = false } = {}) {
+  const { quantity, invalidItems } = inspectSphereQuantity(actor, key);
+  if (strict && invalidItems.length) throw new Error(localize("InvalidSphereInventory"));
+  return quantity;
 }
 
 export function summarizeSphereBalance(actor) {
+  const invalidKeys = [];
   const rows = SPHERE_DENOMINATIONS.map(denom => {
-    const quantity = getSphereQuantity(actor, denom.key);
+    const { quantity, invalidItems } = inspectSphereQuantity(actor, denom.key);
+    if (invalidItems.length) invalidKeys.push(denom.key);
     return {
       ...denom,
       quantity,
@@ -58,6 +71,7 @@ export function summarizeSphereBalance(actor) {
   return {
     actorId: actor?.id,
     actorName: actor?.name ?? localize("NoActor"),
+    invalidKeys,
     rows,
     totalQuantity: rows.reduce((sum, row) => sum + row.quantity, 0),
     totalValue: rows.reduce((sum, row) => sum + row.valueTotal, 0),
@@ -258,7 +272,7 @@ export async function applySphereInventoryPlan({ actors = [], plan } = {}) {
     const actor = actors.find(item => item?.id === result.actorId);
     if (!actor) throw new Error(localize("ActorNotFound"));
     for (const [key, quantity] of Object.entries(result.current)) {
-      if (getSphereQuantity(actor, key) !== quantity) throw new Error(localize("SphereBalanceChanged"));
+      if (getSphereQuantity(actor, key, { strict: true }) !== quantity) throw new Error(localize("SphereBalanceChanged"));
     }
   }
   for (const result of plan.results) {
@@ -267,7 +281,7 @@ export async function applySphereInventoryPlan({ actors = [], plan } = {}) {
       if (!Number.isSafeInteger(next) || next < 0) throw new Error(localize("InvalidSphereQuantity"));
       const [currency, denom] = key.split("|");
       const items = findMoneyItems(actor, currency, denom);
-      let delta = next - getSphereQuantity(actor, key);
+      let delta = next - getSphereQuantity(actor, key, { strict: true });
       if (delta > 0) {
         if (items.length) await items[0].update({ "system.quantity": Number(items[0].system.quantity) + delta });
         else await actor.createEmbeddedDocuments("Item", [buildMoneyItemData(key, next)]);

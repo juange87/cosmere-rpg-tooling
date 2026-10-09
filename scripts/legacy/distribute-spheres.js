@@ -1,4 +1,4 @@
-import { getSphereQuantity, planSphereTransaction, applySphereInventoryPlan } from "../sphere-transactions.js";
+import { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, applySphereInventoryPlan } from "../sphere-transactions.js";
 import { SPHERE_DENOMINATIONS } from "../sphere-currency.js";
 import { getPlayerActors as playerActors, escapeHtml, normalizeNumber } from "../cosmere-helpers.js";
 import { localize } from "../localization.js";
@@ -40,7 +40,8 @@ export async function run({
       const lines = [];
       if (sphereLine) lines.push(`<div class="cr-stock-line"><span class="cr-stock-dot" style="background:#1a6fa8"></span>${sphereLine}</div>`);
       if (dunLine) lines.push(`<div class="cr-stock-line"><span class="cr-stock-dot" style="background:#666666"></span>${dunLine}</div>`);
-      const stockHTML = lines.length ? lines.join("") : `<div class="cr-stock-empty">${localize("NoSpheres")}</div>`;
+      const stockHTML = (lines.length ? lines.join("") : `<div class="cr-stock-empty">${localize("NoSpheres")}</div>`)
+        + (summarizeSphereBalance(a).invalidKeys.length ? `<div class="cr-warn">${escapeHtml(localize("InvalidSphereInventory"))}</div>` : "");
       return `
       <label class="cr-actor">
         <input type="checkbox" class="actor-check" data-id="${escapeHtml(a.id)}" checked>

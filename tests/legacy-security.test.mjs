@@ -29,6 +29,15 @@ test("sphere dialogs escape actor names and image attributes", async () => {
   }
 });
 
+test("a malformed inventory does not prevent either classic sphere dialog from opening", async () => {
+  for (const id of ["z8dLwcyv2CkyTvLS", "PFVU35wn6SQ4hYxg"]) {
+    const actor = { id: "broken", name: "Broken", type: "character", hasPlayerOwner: true, items: [{ type: "loot", system: { isMoney: true, quantity: "oops", price: { currency: "spheres", denomination: { primary: "mark" } } } }] };
+    const { dialogs } = await executeMacro(`gm-macros/${id}`, { game: { actors: [actor] } });
+    assert.equal(dialogs.length, 1);
+    assert.match(dialogs[0].content, /invalid|inválid/);
+  }
+});
+
 test("private messages treat player names and message bodies as text", async () => {
   const player = { id: "player", name: attack };
   const { dialogs, messages } = await executeMacro("gm-macros/wilsiRBC31LfydfP", { game: { users: { players: [player], get: () => player }, user: { id: "gm", name: "GM" } } });
