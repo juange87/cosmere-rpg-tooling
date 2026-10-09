@@ -238,9 +238,10 @@ export async function run({
     `;
   }
 
-  function setupPreview(actors) {
+  function setupPreview(root, actors) {
+    if (!root?.querySelectorAll) return;
     const refresh = () => {
-      const checked = [...document.querySelectorAll(".actor-check:checked")];
+      const checked = [...root.querySelectorAll(".actor-check:checked")];
       const n = checked.length;
       const nombres = checked.map(c => c.closest("label")?.querySelector("span")?.textContent ?? "?");
       const ids = checked.map(c => c.dataset.id);
@@ -250,7 +251,7 @@ export async function run({
       let hayProblemas = false;
 
       for (const d of DENOMINACIONES) {
-        const val = parseInt(document.getElementById(`inp-${d.currency}-${d.denom}`)?.value) || 0;
+        const val = parseInt(root.querySelector(`#inp-${d.currency}-${d.denom}`)?.value) || 0;
         if (!val) continue;
 
         // Comprobar si algún actor no tiene suficiente
@@ -267,23 +268,23 @@ export async function run({
         }
       }
 
-      const box = document.getElementById("cr-preview");
+      const box = root.querySelector("#cr-preview");
       if (!box) return;
       if (!n) { box.innerHTML = `<span class="cr-warn">${localize("SelectAtLeastOnePlayer")}</span>`; return; }
       if (!lineas.length) { box.innerHTML = localize("EnterAmountsToSeeTheSummary"); return; }
       box.innerHTML = lineas.join("<br>") + `<br><em>→ ${nombres.map(escapeHtml).join(", ")}</em>`;
     };
 
-    document.querySelectorAll(".cr-input, .actor-check").forEach(el => {
+    root.querySelectorAll(".cr-input, .actor-check").forEach(el => {
       el.addEventListener("input", refresh);
       el.addEventListener("change", refresh);
     });
 
-    const toggleBtn = document.querySelector(".cr-toggle-all");
+    const toggleBtn = root.querySelector(".cr-toggle-all");
     if (toggleBtn) {
       toggleBtn.addEventListener("click", (e) => {
         e.preventDefault();
-        const checks = [...document.querySelectorAll(".actor-check")];
+        const checks = [...root.querySelectorAll(".actor-check")];
         const allChecked = checks.every(c => c.checked);
         checks.forEach(c => { c.checked = !allChecked; });
         refresh();
@@ -392,7 +393,7 @@ export async function run({
         cancelar: { icon: '<i class="fas fa-times"></i>', label: localize("Cancel") }
       },
       default: "ok",
-      render: () => setupPreview(actores),
+      render: html => setupPreview(html.element ?? html[0], actores),
       width: 720,
     }, { Dialog });
   }

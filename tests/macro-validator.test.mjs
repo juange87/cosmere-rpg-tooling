@@ -17,3 +17,10 @@ test("all shipped macros have valid, unique IDs and matching LevelDB keys", asyn
   const ids = report.packReports.flatMap(pack => pack.reports.map(item => item.filePath));
   assert.equal(ids.length, 66);
 });
+
+test("validation reports escape error HTML before it reaches the chat", async () => {
+  const { buildMacroValidationChatCard } = await import("../scripts/macro-validator.js");
+  const html = buildMacroValidationChatCard({ errors: ['<img src=x onerror="evil()">'], warnings: [] });
+  assert.match(html, /&lt;img/);
+  assert.doesNotMatch(html, /<img/);
+});

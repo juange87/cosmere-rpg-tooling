@@ -1,3 +1,4 @@
+import { escapeHtml } from "./cosmere-helpers.js";
 #!/usr/bin/env node
 import { localize } from "./localization.js";
 const DEPENDENCY_PATTERNS = [
@@ -156,7 +157,7 @@ export function buildMacroValidationChatCard(report) {
     { label: localize("Errors"), value: report.errors.length ? report.errors.join(" | ") : localize("NoErrors") },
     { label: localize("Warnings"), value: report.warnings.length ? `${report.warnings.length}${localize("ReferenceSToOptionalDependencies")}` : localize("NoWarnings") },
   ];
-  return `<div>${sections.map(section => `<p><strong>${section.label}</strong>: ${section.value}</p>`).join("")}</div>`;
+  return `<div>${sections.map(section => `<p><strong>${escapeHtml(section.label)}</strong>: ${escapeHtml(section.value)}</p>`).join("")}</div>`;
 }
 
 export async function runMacroValidation({
