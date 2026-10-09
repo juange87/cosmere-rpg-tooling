@@ -26,15 +26,23 @@ Hooks.once('ready', async () => {
 
   console.log("Cosmere RPG Tooling | Verificando carpetas y tablas...");
 
-  const parentFolder = await createRollTableFolderResolver({
+  let parentFolder, characterCreationFolder, nameGeneratorsFolder;
+  try {
+    parentFolder = await createRollTableFolderResolver({
     key: "character-creation-root", name: "CosmereRPG: Character Creation", color: "#9b59b6",
-  });
-  const characterCreationFolder = await createRollTableFolderResolver({
+    });
+    characterCreationFolder = await createRollTableFolderResolver({
     key: "character-creation", name: "Character Creation", color: "#4a90e2", parent: parentFolder,
-  });
-  const nameGeneratorsFolder = await createRollTableFolderResolver({
+    });
+    nameGeneratorsFolder = await createRollTableFolderResolver({
     key: "name-generators", name: "Name Generators", color: "#e67e22", parent: parentFolder,
-  });
+    });
+  } catch (error) {
+    console.error("Cosmere RPG Tooling | Base folder preparation failed", error);
+    ui?.notifications?.warn?.(localize("TableSeedingIncomplete"));
+    // Retain the pending seed version so the next ready event can retry.
+    return;
+  }
 
   const tables = [
     {

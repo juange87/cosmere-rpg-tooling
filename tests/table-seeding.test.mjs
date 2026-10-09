@@ -175,3 +175,31 @@ test("missing base tables create only their required folder chain", async () => 
   assert.equal(folders[1].folder, folders[0].id);
   assert.equal(created[0].folder, folders[1].id);
 });
+
+test("base folder flag failures warn, retain seed version and recover on retry", async () => {
+  const saved = Object.fromEntries(["Hooks", "game", "Folder", "RollTable", "ui"].map(key => [key, globalThis[key]]));
+  const callbacks = [], warnings = [], versions = [], tables = [];
+  let rejected = true;
+  const folders = [{ id: "root", type: "RollTable", name: "CosmereRPG: Character Creation",
+    async update(changes) { if (rejected) { rejected = false; throw new Error("Folder write denied"); }
+      this.flags = { [moduleId]: { tableFolderKey: "character-creation-root" } };
+    } }];
+  globalThis.Hooks = { once: (event, callback) => { if (event === "ready") callbacks.push(callback); } };
+  globalThis.game = { users: { activeGM: { isSelf: true } }, tables, folders,
+    settings: { get: () => undefined, set: async (...args) => versions.push(args) } };
+  globalThis.ui = { notifications: { info() {}, warn: text => warnings.push(text) } };
+  globalThis.Folder = { create: async data => {
+    const doc = { ...data, id: `created-${folders.length}` }; folders.push(doc); return doc;
+  } };
+  globalThis.RollTable = { create: async data => tables.push(data) };
+  try {
+    await import("../scripts/init.js?base-folder-failure");
+    await callbacks[1]();
+    assert.equal(warnings.length, 1);
+    assert.equal(versions.length, 0);
+    assert.equal(tables.length, 0);
+    await callbacks[1]();
+    assert.equal(tables.length, 21);
+    assert.equal(versions.length, 1);
+  } finally { Object.assign(globalThis, saved); }
+});
