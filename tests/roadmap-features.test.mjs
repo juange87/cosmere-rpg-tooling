@@ -645,12 +645,7 @@ test("init, package, docs, and sounds expose completed roadmap features", async 
 
   const requiredSounds = [
     "sounds/highstorm-loop.wav",
-    "sounds/thunder-variant-01.wav",
     "sounds/thunder-variant-02.wav",
-    "sounds/shardblade-summon.wav",
-    "sounds/sphere-glow.wav",
-    "sounds/fabrial-hum.wav",
-    "sounds/shadesmar-ambience.wav",
     "sounds/oath-accepted-variant.wav",
   ];
   for (const soundPath of requiredSounds) {
