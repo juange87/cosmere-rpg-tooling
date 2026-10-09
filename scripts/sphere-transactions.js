@@ -78,6 +78,11 @@ export function summarizeSphereBalance(actor) {
   };
 }
 
+function invalidActorResult(actor, error, current = {}) {
+  return { actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"),
+    ok: false, invalid: true, error, current, next: {}, deficit: {} };
+}
+
 export function planSphereTransaction({
   actors = [],
   changes = {},
@@ -95,13 +100,10 @@ export function planSphereTransaction({
     for (const denomination of SPHERE_DENOMINATIONS) {
       const change = normalizeNumber(changes[denomination.key], 0);
       if (!change) continue;
-      const available = getSphereQuantity(actor, denomination.key);
+      const { quantity: available, invalidItems } = inspectSphereQuantity(actor, denomination.key);
+      if (invalidItems.length) return invalidActorResult(actor, localize("InvalidSphereInventory"));
       const planned = available + change;
-      if (!Number.isSafeInteger(planned)) return {
-        actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"),
-        ok: false, invalid: true, error: localize("InvalidSphereQuantity"),
-        current: { ...current, [denomination.key]: available }, next: {}, deficit: {},
-      };
+      if (!Number.isSafeInteger(planned)) return invalidActorResult(actor, localize("InvalidSphereQuantity"), { ...current, [denomination.key]: available });
       current[denomination.key] = available;
       next[denomination.key] = Math.max(0, planned);
       if (planned < 0) deficit[denomination.key] = Math.abs(planned);
@@ -143,6 +145,7 @@ export function planSphereConversion({
   if (!actor || !from || !to || fromKey === toKey || !Number.isSafeInteger(amount) || amount < 0) {
     return invalidConversion(localize("InvalidSphereConversion"));
   }
+  if (inspectSphereQuantity(actor, fromKey).invalidItems.length) return invalidConversion(localize("InvalidSphereInventory"));
   if (getSphereQuantity(actor, fromKey) < amount) {
     return invalidConversion(localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
   }
@@ -174,10 +177,15 @@ export function planGroupSphereSpend({
   }
   let remaining = Number(quantity);
   const allocations = [];
+  const excluded = [];
 
   for (const actor of actors) {
     if (remaining <= 0) break;
-    const available = getSphereQuantity(actor, key);
+    const { quantity: available, invalidItems } = inspectSphereQuantity(actor, key);
+    if (invalidItems.length) {
+      excluded.push({ actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"), key, warning: localize("InvalidSphereInventory") });
+      continue;
+    }
     const spent = Math.min(available, remaining);
     if (spent > 0) {
       allocations.push({
@@ -195,6 +203,7 @@ export function planGroupSphereSpend({
     key,
     requested: Math.max(0, normalizeNumber(quantity, 0)),
     allocations,
+    excluded,
     deficit: remaining,
   };
 }
@@ -212,7 +221,8 @@ export function planInvestitureDrain({
     const changes = {};
     for (const key of drainOrder) {
       if (remaining <= 0) break;
-      const available = getSphereQuantity(actor, key);
+      const { quantity: available, invalidItems } = inspectSphereQuantity(actor, key);
+      if (invalidItems.length) return invalidActorResult(actor, localize("InvalidSphereInventory"));
       const drained = Math.min(available, remaining);
       if (drained > 0) {
         changes[key] = -drained;
@@ -249,6 +259,8 @@ export function buildGroupSphereSpendTransaction({
 } = {}) {
   const spend = planGroupSphereSpend({ actors, key, quantity });
   const results = actors.map(actor => {
+    const excluded = spend.excluded?.find(item => item.actorId === actor?.id);
+    if (excluded) return { ...excluded, excluded: true, current: {}, next: {}, deficit: {}, ok: true };
     const allocation = spend.allocations.find(item => item.actorId === actor?.id);
     const changes = allocation ? { [key]: -allocation.quantity } : {};
     return planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {
@@ -268,6 +280,7 @@ export function buildGroupSphereSpendTransaction({
     requested: spend.requested,
     deficit: spend.deficit,
     allocations: spend.allocations,
+    excluded: spend.excluded ?? [],
     results,
   };
 }
@@ -279,6 +292,7 @@ export async function applySphereInventoryPlan({ actors = [], plan } = {}) {
   // Check the entire plan before writing; a stale dialog must not restore money
   // another transaction has already spent.
   for (const result of plan.results) {
+    if (result.invalid) throw new Error(result.error ?? localize("InvalidSphereQuantity"));
     const actor = actors.find(item => item?.id === result.actorId);
     if (!actor) throw new Error(localize("ActorNotFound"));
     for (const [key, quantity] of Object.entries(result.current)) {

@@ -112,9 +112,26 @@ test("malformed legacy money is readable but cannot be modified, and healthy act
     assert.equal(getSphereQuantity(malformed, "spheres|mark"), 0);
     assert.match(buildSphereManagerDialogContent([malformed, healthy]), /invalid|inválid/);
     const badPlan = planSphereTransaction({ actors: [malformed], changes: { "spheres|mark": 1 } });
+    assert.equal(badPlan.ok, false);
+    assert.equal(badPlan.results[0].invalid, true);
     await assert.rejects(applySphereInventoryPlan({ actors: [malformed], plan: badPlan }), /invalid|inválid/);
     const goodPlan = planSphereTransaction({ actors: [healthy], changes: { "spheres|mark": -1 } });
     await applySphereInventoryPlan({ actors: [malformed, healthy], plan: goodPlan });
     assert.equal(item.system.quantity, 2);
   }
+});
+
+test("group spending excludes malformed denominations before planning and remains applicable", async () => {
+  const { buildGroupSphereSpendTransaction } = await import("../scripts/sphere-transactions.js");
+  const malformed = { id: "broken", name: "Broken", items: [1.5, 2].map(quantity => ({ type: "loot", system: { isMoney: true, quantity, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: () => assert.fail("Malformed denomination spent") })) };
+  const item = { type: "loot", system: { isMoney: true, quantity: 5, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: async changes => { item.system.quantity = changes["system.quantity"]; } };
+  const healthy = { id: "healthy", name: "Healthy", items: [item] };
+  const plan = buildGroupSphereSpendTransaction({ actors: [malformed, healthy], quantity: 3 });
+  assert.equal(plan.ok, true);
+  assert.equal(plan.excluded[0].actorId, "broken");
+  assert.equal(plan.results[0].excluded, true);
+  assert.deepEqual(plan.allocations.map(allocation => allocation.actorId), ["healthy"]);
+  await applySphereInventoryPlan({ actors: [malformed, healthy], plan });
+  assert.equal(item.system.quantity, 2);
+  assert.equal(malformed.items[1].system.quantity, 2);
 });

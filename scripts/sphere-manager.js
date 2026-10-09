@@ -29,7 +29,7 @@ export function buildSphereTransactionChatCard({
 
     return {
       label: result.actorName,
-      value: [changes || localize("NoChanges"), deficits ? `${localize("Deficit")}: ${deficits}` : "", result.error].filter(Boolean).join(" | "),
+      value: [changes || localize("NoChanges"), deficits ? `${localize("Deficit")}: ${deficits}` : "", result.error, result.warning].filter(Boolean).join(" | "),
     };
   });
 
