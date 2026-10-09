@@ -227,6 +227,47 @@ export function getChatRenderHookName({ game = globalThis.game } = {}) {
   return generation >= 13 ? "renderChatMessageHTML" : "renderChatMessage";
 }
 
+// Completion is authoritative. Creation supplies a delayed backup for skipped
+// rolls; never reveal a result while DSN still marks that message as animating.
+export function createDiceHookScheduler({ game, handle, setTimer = setTimeout, clearTimer = clearTimeout }) {
+  const pending = new Map();
+  const complete = messageId => {
+    const entry = pending.get(messageId);
+    if (entry) {
+      clearTimer(entry.probe);
+      clearTimer(entry.backup);
+      pending.delete(messageId);
+    }
+    return handle(messageId);
+  };
+  const created = message => {
+    if (!message?.isRoll || pending.has(message.id)) return;
+    const dice3d = game?.dice3d;
+    if (!game?.modules?.get?.("dice-so-nice")?.active || dice3d?.isEnabled?.() === false) return complete(message.id);
+    const entry = {};
+    pending.set(message.id, entry);
+    const fallback = () => {
+      if (pending.get(message.id) !== entry) return;
+      if (message._dice3danimating) {
+        entry.backup = setTimer(fallback, 1000);
+        return;
+      }
+      complete(message.id);
+    };
+    entry.backup = setTimer(fallback, 30000);
+    // Let DSN's message/render handlers register the animation first. Its
+    // public waiter resolves promptly for skipped animations. Some DSN
+    // settings make it resolve early, so retain the per-message animation guard.
+    entry.probe = setTimer(() => {
+      if (typeof dice3d?.waitFor3DAnimationByMessageID !== "function") return;
+      Promise.resolve().then(() => dice3d.waitFor3DAnimationByMessageID(message.id)).then(() => {
+        if (pending.get(message.id) === entry && !message._dice3danimating) return complete(message.id);
+      }).catch(() => { /* The timed backup remains available if the API fails. */ });
+    }, 100);
+  };
+  return { created, complete };
+}
+
 export function activateCosmereGlobalHooks({
   Hooks = globalThis.Hooks,
   game = globalThis.game,
@@ -235,6 +276,8 @@ export function activateCosmereGlobalHooks({
   AudioHelper = resolveAudioHelper(),
   canvas = globalThis.canvas,
   Sequence = globalThis.Sequence,
+  setTimer = setTimeout,
+  clearTimer = clearTimeout,
 } = {}) {
   if (!Hooks || hooksActivated) return false;
   hooksActivated = true;
@@ -243,13 +286,9 @@ export function activateCosmereGlobalHooks({
   const handle = messageId => handleDiceHook(messageId, context).catch(error => {
     console.error("Cosmere RPG Tooling | Roll hook failed", error);
   });
-  Hooks.on?.("diceSoNiceRollComplete", handle);
-  Hooks.on?.("createChatMessage", message => {
-    // DSN may skip animation or be disabled for the active GM. The document
-    // lifecycle is reliable on every client; the shared ID set prevents the
-    // later DSN completion event from duplicating cards or effects.
-    return handle(message.id);
-  });
+  const scheduler = createDiceHookScheduler({ game, handle, setTimer, clearTimer });
+  Hooks.on?.("diceSoNiceRollComplete", scheduler.complete);
+  Hooks.on?.("createChatMessage", scheduler.created);
   Hooks.on?.(getChatRenderHookName({ game }), (message, html) => {
     handleRollRequestButtons(message, html, { game, ui });
   });

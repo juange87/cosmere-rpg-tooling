@@ -34,19 +34,73 @@ test("without Dice So Nice createChatMessage handles rolls", async () => {
   assert.equal(client.cards.length, 1);
 });
 
-test("active Dice So Nice does not require an animation completion to publish a card", async () => {
-  const { activateCosmereGlobalHooks: activate } = await import("../scripts/settings-and-hooks.js?dsn-skips-animation");
-  const hooks = new Map();
-  const client = context(true);
+function fakeTimers() {
+  let now = 0, nextId = 0;
+  const timers = new Map();
+  return {
+    setTimer: (callback, delay) => { const id = ++nextId; timers.set(id, { callback, time: now + delay }); return id; },
+    clearTimer: id => timers.delete(id),
+    async advance(duration) {
+      const until = now + duration;
+      while (true) {
+        const entry = [...timers].filter(([, timer]) => timer.time <= until).sort((a, b) => a[1].time - b[1].time)[0];
+        if (!entry) break;
+        const [id, timer] = entry; now = timer.time; timers.delete(id); await timer.callback();
+        await new Promise(resolve => setImmediate(resolve));
+      }
+      now = until;
+    },
+  };
+}
+
+async function scheduledClient(dice3d) {
+  const { createDiceHookScheduler } = await import("../scripts/settings-and-hooks.js");
+  const client = context(true), timers = fakeTimers();
+  const roll = { ...message, _dice3danimating: false };
   client.game.modules = new Map([["dice-so-nice", { active: true }]]);
-  activate({ ...client, Hooks: { on: (name, callback) => hooks.set(name, callback) } });
-  await hooks.get("createChatMessage")(message);
+  client.game.dice3d = dice3d;
+  client.game.messages.set(roll.id, roll);
+  const scheduler = createDiceHookScheduler({ game: client.game, handle: id => handleDiceHook(id, client), ...timers });
+  return { ...client, timers, scheduler, roll };
+}
+
+test("DSN results stay hidden throughout animation even if its waiter resolves early", async () => {
+  const client = await scheduledClient({ isEnabled: () => true, waitFor3DAnimationByMessageID: async () => true });
+  client.roll._dice3danimating = true;
+  client.scheduler.created(client.roll);
+  assert.equal(client.cards.length, 0);
+  await client.timers.advance(100);
+  assert.equal(client.cards.length, 0);
+  assert.equal(client.sounds.length, 0);
+  await client.timers.advance(30000);
+  assert.equal(client.cards.length, 0);
+  client.roll._dice3danimating = false;
+  await client.scheduler.complete(client.roll.id);
+  await client.timers.advance(30000);
   assert.equal(client.cards.length, 1);
   assert.equal(client.sounds.length, 1);
-  // An optional delayed completion also must not replay the result.
-  await hooks.get("diceSoNiceRollComplete")(message.id);
+});
+
+test("DSN skipped and disabled animations still publish, without late duplicates", async () => {
+  for (const enabled of [true, false]) {
+    const client = await scheduledClient({ isEnabled: () => enabled, waitFor3DAnimationByMessageID: async () => true });
+    client.scheduler.created(client.roll);
+    await client.timers.advance(100);
+    assert.equal(client.cards.length, 1);
+    await client.scheduler.complete(client.roll.id);
+    assert.equal(client.cards.length, 1);
+  }
+});
+
+test("missing DSN completion and waiter have a delayed backup", async () => {
+  const client = await scheduledClient({ isEnabled: () => true, waitFor3DAnimationByMessageID: () => new Promise(() => {}) });
+  client.scheduler.created(client.roll);
+  await client.timers.advance(29999);
+  assert.equal(client.cards.length, 0);
+  await client.timers.advance(1);
   assert.equal(client.cards.length, 1);
-  assert.equal(client.sounds.length, 1);
+  await client.scheduler.complete(client.roll.id);
+  assert.equal(client.cards.length, 1);
 });
 
 test("discarded d20s do not trigger natural-roll effects", () => {
