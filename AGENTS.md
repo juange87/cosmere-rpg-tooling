@@ -108,8 +108,10 @@ manifest's declared range. Foundry v14 support is separate work.
 - Only the active GM publishes automatic roll cards. Each client plays its roll
   effects locally once, respecting private roll visibility and client settings.
   Use DSN completion first; creation provides a delayed backup for skipped
-  animations. Its public waiter is checked after 100 ms; a 30-second backup
-  never reveals while `_dice3danimating` is true. All paths share deduplication.
+  animations. Check `_dice3danimating` after 100 ms without calling DSN's
+  uncancellable waiter. Poll active animations for at most 30 checks, cancel on
+  deletion, and allow late completions. Skip disabled/irrelevant/hidden rolls
+  before scheduling. All paths share deduplication.
 - `rollHookSound`, `rollHookAnimation`, `soundVolume`, `useAnimations` have client
   scope, retaining former world values as initial defaults. Other behavior and
   table settings have world scope.

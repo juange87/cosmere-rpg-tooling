@@ -40,6 +40,7 @@ function fakeTimers() {
   return {
     setTimer: (callback, delay) => { const id = ++nextId; timers.set(id, { callback, time: now + delay }); return id; },
     clearTimer: id => timers.delete(id),
+    get count() { return timers.size; },
     async advance(duration) {
       const until = now + duration;
       while (true) {
@@ -92,15 +93,65 @@ test("DSN skipped and disabled animations still publish, without late duplicates
   }
 });
 
-test("missing DSN completion and waiter have a delayed backup", async () => {
-  const client = await scheduledClient({ isEnabled: () => true, waitFor3DAnimationByMessageID: () => new Promise(() => {}) });
+test("skipped animations do not call the DSN waiter or wait thirty seconds", async () => {
+  let waiterCalls = 0;
+  const client = await scheduledClient({ isEnabled: () => true, waitFor3DAnimationByMessageID: () => { waiterCalls++; return new Promise(() => {}); } });
   client.scheduler.created(client.roll);
-  await client.timers.advance(29999);
+  await client.timers.advance(99);
   assert.equal(client.cards.length, 0);
   await client.timers.advance(1);
   assert.equal(client.cards.length, 1);
+  assert.equal(waiterCalls, 0);
+  assert.equal(client.timers.count, 0);
+});
+
+test("stuck animation polling is bounded and a late completion still works", async () => {
+  const client = await scheduledClient({ isEnabled: () => true });
+  client.scheduler.created(client.roll);
+  // Simulate DSN's listener running after ours in the same creation hook.
+  client.roll._dice3danimating = true;
+  await client.timers.advance(60000);
+  assert.equal(client.timers.count, 0);
+  assert.equal(client.cards.length, 0);
+  client.roll._dice3danimating = false;
   await client.scheduler.complete(client.roll.id);
   assert.equal(client.cards.length, 1);
+});
+
+test("deletion cancels pending checks and late completions", async () => {
+  const client = await scheduledClient({ isEnabled: () => true });
+  client.roll._dice3danimating = true;
+  client.scheduler.created(client.roll);
+  assert.equal(client.timers.count, 1);
+  client.scheduler.deleted(client.roll);
+  assert.equal(client.timers.count, 0);
+  client.roll._dice3danimating = false;
+  await client.scheduler.complete(client.roll.id);
+  await client.timers.advance(60000);
+  assert.equal(client.cards.length, 0);
+});
+
+test("a completion before creation does not leave a pending timer", async () => {
+  const client = await scheduledClient({ isEnabled: () => true });
+  await client.scheduler.complete(client.roll.id);
+  client.scheduler.created(client.roll);
+  assert.equal(client.timers.count, 0);
+  assert.equal(client.cards.length, 1);
+});
+
+test("irrelevant, hidden and disabled rolls schedule no work", async () => {
+  for (const mode of ["disabled", "no-d20", "ordinary-d20", "hidden", "natural-disabled"]) {
+    const client = await scheduledClient({ isEnabled: () => true });
+    if (mode === "disabled") client.game.settings.get = (_, key) => key === "automaticRollHooks" ? false : undefined;
+    if (mode === "natural-disabled") client.game.settings.get = (_, key) => key === "natural20Effects" ? false : undefined;
+    if (mode === "hidden") client.roll.isContentVisible = false;
+    if (mode === "no-d20") client.roll.rolls = [{ terms: [{ faces: 6, results: [{ result: 6 }] }] }];
+    if (mode === "ordinary-d20") client.roll.rolls = [{ terms: [{ faces: 20, results: [{ result: 10 }] }] }];
+    client.scheduler.created(client.roll);
+    await client.scheduler.complete(client.roll.id);
+    assert.equal(client.timers.count, 0, mode);
+    assert.equal(client.cards.length, 0, mode);
+  }
 });
 
 test("registered DSN hooks defer five clients and preserve hidden-roll visibility without duplicates", async () => {

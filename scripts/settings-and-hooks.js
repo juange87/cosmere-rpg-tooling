@@ -227,45 +227,55 @@ export function getChatRenderHookName({ game = globalThis.game } = {}) {
   return generation >= 13 ? "renderChatMessageHTML" : "renderChatMessage";
 }
 
-// Completion is authoritative. Creation supplies a delayed backup for skipped
-// rolls; never reveal a result while DSN still marks that message as animating.
+// DSN sets _dice3danimating synchronously in createChatMessage. Defer one
+// check until all creation listeners have run, without its uncancellable waiter.
 export function createDiceHookScheduler({ game, handle, setTimer = setTimeout, clearTimer = clearTimeout }) {
   const pending = new Map();
-  const complete = messageId => {
+  const finished = new Set();
+  const remember = id => {
+    finished.add(id);
+    if (finished.size > 1000) finished.delete(finished.values().next().value);
+  };
+  const eligible = message => {
+    if (!message?.isRoll || !settingValue(game, "automaticRollHooks")
+      || message.isContentVisible === false || (message.blind && !game?.user?.isGM && !isActiveGM(game))) return false;
+    const { hasNatural20, hasNatural1 } = inspectD20Rolls(message);
+    return (hasNatural20 && settingValue(game, "natural20Effects"))
+      || (hasNatural1 && settingValue(game, "natural1Effects"));
+  };
+  const cancel = messageId => {
     const entry = pending.get(messageId);
-    if (entry) {
-      clearTimer(entry.probe);
-      clearTimer(entry.backup);
-      pending.delete(messageId);
-    }
+    if (entry) clearTimer(entry.timer);
+    pending.delete(messageId);
+  };
+  const complete = messageId => {
+    const message = game?.messages?.get?.(messageId);
+    if (finished.has(messageId)) return;
+    if (!eligible(message)) { cancel(messageId); return; }
+    // Multiple animations of one message can emit intermediate completions.
+    if (message._dice3danimating) return;
+    cancel(messageId);
+    remember(messageId);
     return handle(messageId);
   };
+  const deleted = message => { cancel(message.id); remember(message.id); };
   const created = message => {
-    if (!message?.isRoll || pending.has(message.id)) return;
-    const dice3d = game?.dice3d;
-    if (!game?.modules?.get?.("dice-so-nice")?.active || dice3d?.isEnabled?.() === false) return complete(message.id);
-    const entry = {};
+    if (!eligible(message) || finished.has(message.id) || pending.has(message.id)) return;
+    if (!game?.modules?.get?.("dice-so-nice")?.active || game?.dice3d?.isEnabled?.() === false) return complete(message.id);
+    const entry = { checks: 0 };
     pending.set(message.id, entry);
-    const fallback = () => {
+    const probe = () => {
       if (pending.get(message.id) !== entry) return;
-      if (message._dice3danimating) {
-        entry.backup = setTimer(fallback, 1000);
-        return;
-      }
-      complete(message.id);
+      if (!eligible(game?.messages?.get?.(message.id))) { cancel(message.id); return; }
+      if (!message._dice3danimating) return complete(message.id);
+      // Stop polling after about 30 seconds. A late completion still works,
+      // but a stuck/deleted message cannot retain timers or reveal early.
+      if (++entry.checks >= 30) { cancel(message.id); return; }
+      entry.timer = setTimer(probe, 1000);
     };
-    entry.backup = setTimer(fallback, 30000);
-    // Let DSN's message/render handlers register the animation first. Its
-    // public waiter resolves promptly for skipped animations. Some DSN
-    // settings make it resolve early, so retain the per-message animation guard.
-    entry.probe = setTimer(() => {
-      if (typeof dice3d?.waitFor3DAnimationByMessageID !== "function") return;
-      Promise.resolve().then(() => dice3d.waitFor3DAnimationByMessageID(message.id)).then(() => {
-        if (pending.get(message.id) === entry && !message._dice3danimating) return complete(message.id);
-      }).catch(() => { /* The timed backup remains available if the API fails. */ });
-    }, 100);
+    entry.timer = setTimer(probe, 100);
   };
-  return { created, complete };
+  return { created, complete, deleted };
 }
 
 export function activateCosmereGlobalHooks({
@@ -289,6 +299,7 @@ export function activateCosmereGlobalHooks({
   const scheduler = createDiceHookScheduler({ game, handle, setTimer, clearTimer });
   Hooks.on?.("diceSoNiceRollComplete", scheduler.complete);
   Hooks.on?.("createChatMessage", scheduler.created);
+  Hooks.on?.("deleteChatMessage", scheduler.deleted);
   Hooks.on?.(getChatRenderHookName({ game }), (message, html) => {
     handleRollRequestButtons(message, html, { game, ui });
   });
