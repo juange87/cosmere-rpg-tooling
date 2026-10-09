@@ -1,3 +1,4 @@
+import { getModuleRollTable } from "./table-seeding.js";
 import { localize } from "./localization.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
@@ -94,7 +95,7 @@ function getCultureName(cultureTable) {
 }
 
 async function drawTableText(game, tableName) {
-  const table = game?.tables?.getName?.(tableName);
+  const table = getModuleRollTable(tableName, game);
   if (!table) {
     throw new Error(`${localize("CouldNotFindTheTable")}${tableName}".`);
   }

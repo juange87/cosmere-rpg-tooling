@@ -10,10 +10,9 @@ export function shouldSeedTables(game = globalThis.game) {
 }
 
 function isUnmodifiedLegacyTable(table, data) {
-  const folderId = table.folder?.id ?? table.folder;
   const results = Array.from(table.results?.contents ?? table.results ?? []);
   return !table.flags?.[COSMERE_MODULE_ID]?.tableKey
-    && table.name === data.name && folderId === data.folder && table.formula === data.formula
+    && table.name === data.name && table.formula === data.formula
     && results.length === data.results.length
     && results.every((result, index) => {
       const expected = data.results[index];
@@ -27,10 +26,11 @@ export async function ensureOwnedRollTable(data, {
 } = {}) {
   const key = tableKey(data.name);
   let existing = game.tables.find(table => table.flags?.[COSMERE_MODULE_ID]?.tableKey === key);
-  // Adopt only an exact, unmodified legacy seed inside its original folder.
-  // Same-name user tables, including edited legacy copies, remain untouched.
+  // A moved legacy seed still has its exact bundled content. Adopt only a
+  // unique match; ambiguous or customized copies remain untouched.
   if (!existing) {
-    existing = game.tables.find(table => isUnmodifiedLegacyTable(table, data));
+    const candidates = game.tables.filter(table => isUnmodifiedLegacyTable(table, data));
+    if (candidates.length === 1) existing = candidates[0];
     if (existing) await existing.update({ [`flags.${COSMERE_MODULE_ID}.tableKey`]: key });
   }
   if (existing) {
@@ -45,6 +45,12 @@ export async function ensureOwnedRollTable(data, {
     flags: { ...data.flags, [COSMERE_MODULE_ID]: { ...data.flags?.[COSMERE_MODULE_ID], tableKey: key } },
   });
   return "created";
+}
+
+export function getModuleRollTable(name, game = globalThis.game) {
+  return game?.tables?.find?.(table => table.flags?.[COSMERE_MODULE_ID]?.tableKey === tableKey(name))
+    ?? game?.tables?.getName?.(name)
+    ?? game?.tables?.find?.(table => table.name === name);
 }
 
 export async function seedRollTableDocuments(documents, context = {}) {

@@ -1,3 +1,4 @@
+import { getModuleRollTable } from "./table-seeding.js";
 import { escapeHtml } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
@@ -21,7 +22,7 @@ export const NAME_GENERATOR_TABLES = [
 
 
 async function drawTableText(game, tableName) {
-  const table = game?.tables?.getName?.(tableName);
+  const table = getModuleRollTable(tableName, game);
   if (!table) {
     throw new Error(`${localize("CouldNotFindTheTable")}${tableName}".`);
   }

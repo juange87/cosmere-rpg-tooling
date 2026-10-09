@@ -61,9 +61,9 @@ manifest's declared range. Foundry v14 support is separate work.
 - Owned tables have `flags["cosmere-rpg-tooling"].tableKey`. Identify ownership
   by this key, never by name alone. Move owned tables with `update({ folder })`;
   never delete and recreate them, or overwrite their customized results.
-- Legacy seeds are adopted only when name, folder, formula and results match
-  exactly. Edited/unowned same-name tables stay untouched; a separate module
-  table may be created to preserve them.
+- Legacy seeds are adopted only through a unique exact match of name, formula
+  and results, even if moved to another folder. Customized or ambiguous copies
+  stay untouched. Table tools prefer the module ownership flag over names.
 - Default results have weight 1 and sequential ranges `[1,1]` to `[20,20]`.
   Keep stable table names/keys because other tools use them for lookup.
 

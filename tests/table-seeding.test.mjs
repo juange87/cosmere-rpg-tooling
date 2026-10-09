@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { ensureOwnedRollTable, shouldSeedTables, TABLE_SEED_VERSION } from "../scripts/table-seeding.js";
+import { ensureOwnedRollTable, shouldSeedTables, TABLE_SEED_VERSION, getModuleRollTable } from "../scripts/table-seeding.js";
 const moduleId = "cosmere-rpg-tooling";
 const data = { name: "Test Table", folder: "module-folder", formula: "1d20", results: [{ text: "Result", weight: 1, range: [1, 1] }] };
 
@@ -26,6 +26,21 @@ test("exact legacy seeds are adopted without replacement", async () => {
   const existing = { ...data, update: async changes => updates.push(changes) };
   assert.equal(await ensureOwnedRollTable(data, { game: { tables: [existing] } }), "existing");
   assert.deepEqual(updates, [{ [`flags.${moduleId}.tableKey`]: "test-table" }]);
+});
+
+test("a unique moved legacy seed is adopted and moved without duplicating it", async () => {
+  const updates = [];
+  const existing = { ...data, id: "legacy-id", folder: "other-folder", update: async changes => updates.push(changes) };
+  assert.equal(await ensureOwnedRollTable(data, { game: { tables: [existing] }, RollTable: { create: () => assert.fail("Duplicated legacy table") } }), "moved");
+  assert.deepEqual(updates, [{ [`flags.${moduleId}.tableKey`]: "test-table" }, { folder: "module-folder" }]);
+});
+
+test("ambiguous legacy copies stay untouched and lookups prefer the owned table", async () => {
+  const copies = ["one", "two"].map(id => ({ ...data, id, update: () => assert.fail("Ambiguous table modified") }));
+  await ensureOwnedRollTable(data, { game: { tables: copies }, RollTable: { create: async table => copies.push(table) } });
+  assert.equal(copies.length, 3);
+  copies.getName = () => copies[0];
+  assert.equal(getModuleRollTable(data.name, { tables: copies }), copies[2]);
 });
 
 test("table seeding honors opt-out and completed version", () => {
