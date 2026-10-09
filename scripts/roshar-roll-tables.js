@@ -288,23 +288,30 @@ export async function ensureRoadmapRollTables({
 } = {}) {
   const group = ROADMAP_ROLL_TABLE_GROUPS[0];
   if (!isActiveGM(game)) return { created: 0, reorganized: 0, total: group.tables.length, skipped: true };
-  let folder = game?.folders?.find?.(item =>
-    item.name === group.folderName &&
-    item.type === "RollTable" &&
-    (!parentFolder || item.folder?.id === parentFolder.id)
-  );
+  const folderKey = "roshar-gm-tables";
+  let folder = game?.folders?.find?.(item => item.type === "RollTable"
+    && item.flags?.["cosmere-rpg-tooling"]?.tableFolderKey === folderKey)
+    ?? game?.folders?.find?.(item => item.name === group.folderName
+      && item.type === "RollTable"
+      && (!parentFolder || (item.folder?.id ?? item.folder) === parentFolder.id));
 
-  if (!folder) {
-    folder = await Folder.create({
-      name: group.folderName,
-      type: "RollTable",
-      color: group.color,
-      folder: parentFolder?.id,
-      sorting: "a",
-    });
-  }
+  const resolveFolder = async () => {
+    if (!folder) {
+      folder = await Folder.create({
+        name: group.folderName,
+        type: "RollTable",
+        color: group.color,
+        folder: parentFolder?.id,
+        sorting: "a",
+        flags: { "cosmere-rpg-tooling": { tableFolderKey: folderKey } },
+      });
+    }
+    return folder.id;
+  };
 
-  const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: folder.id }), { game, RollTable });
+  // Existing tables keep their folders. Only create a folder if a missing
+  // table actually needs it, and recognize owned folders after GM changes.
+  const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: folder?.id }), { game, RollTable, resolveFolder });
   const { created, reorganized } = report;
 
   if (created || reorganized) {

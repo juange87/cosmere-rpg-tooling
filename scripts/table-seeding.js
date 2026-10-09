@@ -22,7 +22,7 @@ function isUnmodifiedLegacyTable(table, data) {
 }
 
 export async function ensureOwnedRollTable(data, {
-  game = globalThis.game, RollTable = globalThis.RollTable,
+  game = globalThis.game, RollTable = globalThis.RollTable, resolveFolder,
 } = {}) {
   const key = tableKey(data.name);
   let existing = game.tables.find(table => table.flags?.[COSMERE_MODULE_ID]?.tableKey === key);
@@ -41,6 +41,7 @@ export async function ensureOwnedRollTable(data, {
   }
   await RollTable.create({
     ...data,
+    folder: resolveFolder ? await resolveFolder() : data.folder,
     flags: { ...data.flags, [COSMERE_MODULE_ID]: { ...data.flags?.[COSMERE_MODULE_ID], tableKey: key } },
   });
   return "created";

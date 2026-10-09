@@ -98,3 +98,39 @@ test("a failed base table does not stop later or thematic tables, and only failu
     assert.deepEqual(versions, [["tableSeedVersion", TABLE_SEED_VERSION]]);
   } finally { Object.assign(globalThis, saved); }
 });
+
+test("thematic reseeding never creates empty folders after GM reorganization", async () => {
+  const { ensureRoadmapRollTables, buildRoadmapRollTableDocuments } = await import("../scripts/roshar-roll-tables.js");
+  const { tableKey } = await import("../scripts/table-seeding.js");
+  const moved = { id: "moved", name: "GM renamed", type: "RollTable", folder: { id: "different-parent" } };
+  const tables = buildRoadmapRollTableDocuments({ folderId: moved.id }).map(data => ({
+    ...data, flags: { [moduleId]: { tableKey: tableKey(data.name) } },
+    update: () => assert.fail("GM table reorganized"),
+  }));
+  const game = { users: { activeGM: { isSelf: true } }, tables, folders: [moved] };
+  for (let retry = 0; retry < 3; retry++) {
+    const report = await ensureRoadmapRollTables({ parentFolder: { id: "default-parent" }, game,
+      Folder: { create: () => assert.fail("Empty default folder created") },
+      RollTable: { create: () => assert.fail("Existing table recreated") } });
+    assert.equal(report.created, 0);
+    assert.equal(report.failed.length, 0);
+  }
+});
+
+test("missing themed tables reuse flagged renamed folders and create default folders lazily", async () => {
+  const { ensureRoadmapRollTables, buildRoadmapRollTableDocuments } = await import("../scripts/roshar-roll-tables.js");
+  const { tableKey } = await import("../scripts/table-seeding.js");
+  for (const hasFolder of [true, false]) {
+    const moved = { id: "moved", name: "GM renamed", type: "RollTable", folder: "different-parent", flags: { [moduleId]: { tableFolderKey: "roshar-gm-tables" } } };
+    const tables = buildRoadmapRollTableDocuments({ folderId: moved.id }).slice(1).map(data => ({ ...data, flags: { [moduleId]: { tableKey: tableKey(data.name) } } }));
+    const createdFolders = [], createdTables = [];
+    const game = { users: { activeGM: { isSelf: true } }, tables, folders: hasFolder ? [moved] : [] };
+    const report = await ensureRoadmapRollTables({ game, Folder: { create: async data => {
+      createdFolders.push(data); return { ...data, id: "new-folder" };
+    } }, RollTable: { create: async data => createdTables.push(data) } });
+    assert.equal(report.created, 1);
+    assert.equal(createdFolders.length, hasFolder ? 0 : 1);
+    assert.equal(createdTables[0].folder, hasFolder ? "moved" : "new-folder");
+    if (!hasFolder) assert.equal(createdFolders[0].flags[moduleId].tableFolderKey, "roshar-gm-tables");
+  }
+});
