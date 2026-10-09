@@ -34,3 +34,14 @@ test("table seeding honors opt-out and completed version", () => {
   assert.equal(shouldSeedTables(game({ tableSeedVersion: TABLE_SEED_VERSION })), false);
   assert.equal(shouldSeedTables(game({ tableSeedVersion: 0 })), true);
 });
+
+test("only Foundry's active GM may seed thematic folders and tables", async () => {
+  const { ensureRoadmapRollTables } = await import("../scripts/roshar-roll-tables.js");
+  const { isActiveGM } = await import("../scripts/cosmere-helpers.js");
+  const clients = [true, false, false, false, false].map(isSelf => ({ users: { activeGM: { isSelf } } }));
+  assert.equal(clients.filter(isActiveGM).length, 1);
+  for (const game of [...clients.slice(1), {}]) {
+    const result = await ensureRoadmapRollTables({ game, Folder: { create: () => assert.fail("Inactive GM created a folder") }, RollTable: { create: () => assert.fail("Inactive GM created a table") } });
+    assert.equal(result.skipped, true);
+  }
+});

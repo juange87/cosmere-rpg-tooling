@@ -1,6 +1,7 @@
 import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
+  isActiveGM,
   buildCosmereChatCard,
 } from "./cosmere-helpers.js";
 import { resolveJb2aAssetPath } from "./jb2a-assets.js";
@@ -147,7 +148,7 @@ async function publishHookCard({ type, message, ChatMessage = globalThis.ChatMes
 export async function handleDiceHook(messageId, context) {
   const { game, ui, ChatMessage, AudioHelper, canvas, Sequence } = context;
   if (!settingValue(game, "automaticRollHooks")) return;
-  if (!game?.users?.activeGM?.isSelf) return;
+  if (!isActiveGM(game)) return;
   if (context.processedIds?.has(messageId)) return;
   const message = game?.messages?.get?.(messageId);
   const rollInspection = inspectD20Rolls(message);

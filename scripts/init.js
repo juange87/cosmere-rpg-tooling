@@ -1,5 +1,5 @@
 import { registerCosmereApi } from "./module-api.js";
-import { COSMERE_MODULE_ID } from "./cosmere-helpers.js";
+import { COSMERE_MODULE_ID, isActiveGM } from "./cosmere-helpers.js";
 import { ensureOwnedRollTable, shouldSeedTables, TABLE_SEED_VERSION } from "./table-seeding.js";
 import { localize } from "./localization.js";
 import { registerCosmereSettings, activateCosmereGlobalHooks } from "./settings-and-hooks.js";
@@ -20,7 +20,7 @@ Hooks.once("ready", () => {
  */
 
 Hooks.once('ready', async () => {
-  if (!game.user.isGM || !shouldSeedTables(game)) {
+  if (!isActiveGM(game) || !shouldSeedTables(game)) {
     return;
   }
 

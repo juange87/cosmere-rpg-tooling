@@ -1,3 +1,4 @@
+import { isActiveGM } from "./cosmere-helpers.js";
 import { ensureOwnedRollTable } from "./table-seeding.js";
 import { localize } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
@@ -286,6 +287,7 @@ export async function ensureRoadmapRollTables({
   ui = globalThis.ui,
 } = {}) {
   const group = ROADMAP_ROLL_TABLE_GROUPS[0];
+  if (!isActiveGM(game)) return { created: 0, reorganized: 0, total: group.tables.length, skipped: true };
   let folder = game?.folders?.find?.(item =>
     item.name === group.folderName &&
     item.type === "RollTable" &&

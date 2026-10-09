@@ -139,3 +139,7 @@ export function hasSequencer({ game = globalThis.game, Sequence = globalThis.Seq
   try { enabled = game?.settings?.get?.(COSMERE_MODULE_ID, "useAnimations") !== false; } catch { /* init */ }
   return enabled && typeof Sequence === "function" && game?.modules?.get?.("sequencer")?.active !== false;
 }
+
+export function isActiveGM(game = globalThis.game) {
+  return game?.users?.activeGM?.isSelf === true;
+}
