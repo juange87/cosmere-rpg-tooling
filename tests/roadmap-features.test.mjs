@@ -110,6 +110,8 @@ test("shared helpers cover roadmap utility categories", () => {
 
 test("settings and global hook helpers define configurable roll behavior", () => {
   assert.deepEqual(COSMERE_SETTINGS.map(setting => setting.key), [
+    "seedRollTables",
+    "tableSeedVersion",
     "automaticRollHooks",
     "natural20Effects",
     "natural1Effects",

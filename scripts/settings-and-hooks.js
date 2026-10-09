@@ -6,6 +6,8 @@ import {
 import { resolveJb2aAssetPath } from "./jb2a-assets.js";
 
 export const COSMERE_SETTINGS = [
+  { key: "seedRollTables", type: Boolean, default: true, requiresReload: true, get name() { return localize("SeedRollTables"); }, get hint() { return localize("SeedRollTablesHint"); } },
+  { key: "tableSeedVersion", type: Number, default: 0, config: false, name: "Table seed version" },
   { key: "automaticRollHooks", type: Boolean, default: true, get name() { return localize("EnableAutomaticHooks"); } },
   { key: "natural20Effects", type: Boolean, default: true, get name() { return localize("Natural20Effects"); } },
   { key: "natural1Effects", type: Boolean, default: true, get name() { return localize("Natural1Effects"); } },
@@ -50,7 +52,7 @@ export function createSettingsRegistrationPlan() {
     settings: COSMERE_SETTINGS.map(setting => ({
       key: setting.key,
       scope: "world",
-      config: true,
+      config: setting.config ?? true,
       type: setting.type,
       default: setting.default,
       name: setting.name,

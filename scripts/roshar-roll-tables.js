@@ -1,3 +1,4 @@
+import { ensureOwnedRollTable } from "./table-seeding.js";
 import { localize } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
   {
@@ -304,15 +305,9 @@ export async function ensureRoadmapRollTables({
   let created = 0;
   let reorganized = 0;
   for (const tableData of buildRoadmapRollTableDocuments({ folderId: folder.id })) {
-    const existing = game.tables.getName(tableData.name);
-    if (existing && existing.folder?.id !== folder.id) {
-      await existing.delete();
-      reorganized += 1;
-    }
-    if (!game.tables.getName(tableData.name)) {
-      await RollTable.create(tableData);
-      created += 1;
-    }
+    const status = await ensureOwnedRollTable(tableData, { game, RollTable });
+    if (status === "moved") reorganized++;
+    if (status === "created") created++;
   }
 
   if (created || reorganized) {

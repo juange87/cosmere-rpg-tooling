@@ -1,3 +1,5 @@
+import { COSMERE_MODULE_ID } from "./cosmere-helpers.js";
+import { ensureOwnedRollTable, shouldSeedTables, TABLE_SEED_VERSION } from "./table-seeding.js";
 import { localize } from "./localization.js";
 import { registerCosmereSettings, activateCosmereGlobalHooks } from "./settings-and-hooks.js";
 import { ensureRoadmapRollTables } from "./roshar-roll-tables.js";
@@ -16,7 +18,7 @@ Hooks.once("ready", () => {
  */
 
 Hooks.once('ready', async () => {
-  if (!game.user.isGM) {
+  if (!game.user.isGM || !shouldSeedTables(game)) {
     return;
   }
 
@@ -370,47 +372,14 @@ Hooks.once('ready', async () => {
   ];
 
   let tablasReorganizadas = 0;
-  
   for (const tableData of tables) {
-    const existingTable = game.tables.getName(tableData.name);
-    
-    if (existingTable && existingTable.folder?.id !== tableData.folder) {
-      console.log(`Cosmere RPG Tooling | ${tableData.name} existe pero no está en la carpeta correcta. Reorganizando...`);
-      
-      try {
-        await existingTable.delete();
-        tablasReorganizadas++;
-        console.log(`Cosmere RPG Tooling | ${tableData.name} eliminada para reorganización`);
-      } catch (error) {
-        console.error(`Cosmere RPG Tooling | Error al eliminar ${tableData.name}:`, error);
-        continue; // Saltar a la siguiente tabla si hay error
-      }
-    }
-    
-    if (!game.tables.getName(tableData.name)) {
-      console.log(`Cosmere RPG Tooling | Creando ${tableData.name}...`);
-      
-      const data = {
-        name: tableData.name,
-        formula: tableData.formula,
-        replacement: true,
-        displayRoll: true,
-        folder: tableData.folder,
-        results: tableData.results
-      };
-
-      try {
-        await RollTable.create(data);
-        console.log(`Cosmere RPG Tooling | ${tableData.name} creada`);
-      } catch (error) {
-        console.error(`Cosmere RPG Tooling | Error al crear ${tableData.name}:`, error);
-      }
-    } else {
-      console.log(`Cosmere RPG Tooling | ${tableData.name} ya existe en la carpeta correcta`);
-    }
+    const status = await ensureOwnedRollTable({ ...tableData, replacement: true, displayRoll: true });
+    if (status === "moved") tablasReorganizadas++;
   }
 
   const roadmapTables = await ensureRoadmapRollTables({ parentFolder });
+
+  await game.settings.set(COSMERE_MODULE_ID, "tableSeedVersion", TABLE_SEED_VERSION);
 
   if (tablasReorganizadas > 0) {
     ui.notifications.info(`Cosmere RPG Tooling: ${tablasReorganizadas}${localize("TableSMovedToTheCorrectFolders")}`);
