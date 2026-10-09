@@ -73,7 +73,7 @@ export function registerCosmereSettings({ game = globalThis.game } = {}) {
     // existing client value remains authoritative in Foundry's settings store.
     let defaultValue = setting.default;
     if (setting.scope === "client") {
-      const stored = game?.settings?.storage?.get?.("world")?.get?.(`${COSMERE_MODULE_ID}.${setting.key}`);
+      const stored = game?.settings?.storage?.get?.("world")?.getSetting?.(`${COSMERE_MODULE_ID}.${setting.key}`);
       if (stored) {
         try {
           const value = typeof stored.value === "string" ? JSON.parse(stored.value) : stored.value;

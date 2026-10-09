@@ -60,7 +60,9 @@ test("client preferences retain old world defaults while shared behavior stays w
   for (const key of ["rollHookSound", "rollHookAnimation", "soundVolume", "useAnimations"]) assert.equal(plan.settings.find(setting => setting.key === key).scope, "client");
   assert.equal(plan.settings.find(setting => setting.key === "automaticRollHooks").scope, "world");
   const registered = new Map();
-  const world = new Map([["cosmere-rpg-tooling.soundVolume", { value: "0.3" }], ["cosmere-rpg-tooling.useAnimations", { value: "false" }]]);
+  // Foundry stores Setting documents by ID, not setting key.
+  const world = new Map([["volume-id", { key: "cosmere-rpg-tooling.soundVolume", value: "0.3" }], ["animation-id", { key: "cosmere-rpg-tooling.useAnimations", value: "false" }]]);
+  world.getSetting = key => [...world.values()].find(setting => setting.key === key);
   registerCosmereSettings({ game: { settings: { storage: new Map([["world", world]]), register: (_, key, data) => registered.set(key, data) } } });
   assert.equal(registered.get("soundVolume").default, 0.3);
   assert.equal(registered.get("useAnimations").default, false);
