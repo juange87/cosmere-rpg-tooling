@@ -1,5 +1,5 @@
-import { escapeHtml } from "./cosmere-helpers.js";
 #!/usr/bin/env node
+import { escapeHtml } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 const DEPENDENCY_PATTERNS = [
   { pattern: /new Sequence|Sequence\(/, label: "Sequence" },
