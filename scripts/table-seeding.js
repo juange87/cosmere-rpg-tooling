@@ -26,18 +26,17 @@ export async function ensureOwnedRollTable(data, {
 } = {}) {
   const key = tableKey(data.name);
   let existing = game.tables.find(table => table.flags?.[COSMERE_MODULE_ID]?.tableKey === key);
-  // A moved legacy seed still has its exact bundled content. Adopt only a
-  // unique match; ambiguous or customized copies remain untouched.
+  // Reuse an exact legacy copy without moving it. Prefer the intended folder
+  // and then a stable ID when several copies exist; do not create another copy
+  // or delete the GM's existing duplicates.
   if (!existing) {
     const candidates = game.tables.filter(table => isUnmodifiedLegacyTable(table, data));
-    if (candidates.length === 1) existing = candidates[0];
+    existing = candidates.find(table => (table.folder?.id ?? table.folder) === data.folder)
+      ?? candidates.sort((a, b) => String(a.id ?? a._id ?? "").localeCompare(String(b.id ?? b._id ?? "")))[0];
     if (existing) await existing.update({ [`flags.${COSMERE_MODULE_ID}.tableKey`]: key });
   }
   if (existing) {
-    if ((existing.folder?.id ?? existing.folder) !== data.folder) {
-      await existing.update({ folder: data.folder });
-      return "moved";
-    }
+    // Ownership is not permission to undo the GM's folder organization.
     return "existing";
   }
   await RollTable.create({
@@ -48,9 +47,11 @@ export async function ensureOwnedRollTable(data, {
 }
 
 export function getModuleRollTable(name, game = globalThis.game) {
-  return game?.tables?.find?.(table => table.flags?.[COSMERE_MODULE_ID]?.tableKey === tableKey(name))
-    ?? game?.tables?.getName?.(name)
-    ?? game?.tables?.find?.(table => table.name === name);
+  const owned = game?.tables?.find?.(table => table.flags?.[COSMERE_MODULE_ID]?.tableKey === tableKey(name));
+  if (owned) return owned;
+  return typeof game?.tables?.getName === "function"
+    ? game.tables.getName(name)
+    : game?.tables?.find?.(table => table.name === name);
 }
 
 export async function seedRollTableDocuments(documents, context = {}) {

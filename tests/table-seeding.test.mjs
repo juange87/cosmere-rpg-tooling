@@ -13,11 +13,11 @@ test("same-name user tables and edited legacy tables are never changed", async (
   assert.equal(created[0].flags[moduleId].tableKey, "test-table");
 });
 
-test("owned tables are moved preserving their UUID and customized results", async () => {
+test("owned tables preserve their UUID, customized results and the GM's folders", async () => {
   const updates = [];
   const existing = { ...data, id: "stable-id", folder: "old-folder", flags: { [moduleId]: { tableKey: "test-table" } }, update: async changes => updates.push(changes) };
-  assert.equal(await ensureOwnedRollTable(data, { game: { tables: [existing] } }), "moved");
-  assert.deepEqual(updates, [{ folder: "module-folder" }]);
+  assert.equal(await ensureOwnedRollTable(data, { game: { tables: [existing] } }), "existing");
+  assert.deepEqual(updates, []);
   assert.equal(existing.id, "stable-id");
 });
 
@@ -28,19 +28,27 @@ test("exact legacy seeds are adopted without replacement", async () => {
   assert.deepEqual(updates, [{ [`flags.${moduleId}.tableKey`]: "test-table" }]);
 });
 
-test("a unique moved legacy seed is adopted and moved without duplicating it", async () => {
+test("a unique moved legacy seed is adopted without undoing its folder organization", async () => {
   const updates = [];
   const existing = { ...data, id: "legacy-id", folder: "other-folder", update: async changes => updates.push(changes) };
-  assert.equal(await ensureOwnedRollTable(data, { game: { tables: [existing] }, RollTable: { create: () => assert.fail("Duplicated legacy table") } }), "moved");
-  assert.deepEqual(updates, [{ [`flags.${moduleId}.tableKey`]: "test-table" }, { folder: "module-folder" }]);
+  assert.equal(await ensureOwnedRollTable(data, { game: { tables: [existing] }, RollTable: { create: () => assert.fail("Duplicated legacy table") } }), "existing");
+  assert.deepEqual(updates, [{ [`flags.${moduleId}.tableKey`]: "test-table" }]);
+  assert.equal(existing.folder, "other-folder");
 });
 
-test("ambiguous legacy copies stay untouched and lookups prefer the owned table", async () => {
-  const copies = ["one", "two"].map(id => ({ ...data, id, update: () => assert.fail("Ambiguous table modified") }));
-  await ensureOwnedRollTable(data, { game: { tables: copies }, RollTable: { create: async table => copies.push(table) } });
-  assert.equal(copies.length, 3);
+test("identical legacy copies do not create a third table and lookups prefer the adopted copy", async () => {
+  const copies = ["two", "one"].map(id => ({ ...data, folder: "gm-folder", id, update: async changes => {
+    assert.deepEqual(Object.keys(changes), [`flags.${moduleId}.tableKey`]);
+    copies.find(table => table.id === id).flags = { [moduleId]: { tableKey: "test-table" } };
+  } }));
+  const context = { game: { tables: copies }, RollTable: { create: () => assert.fail("Third table created") } };
+  await ensureOwnedRollTable(data, context);
+  await ensureOwnedRollTable(data, context);
+  assert.equal(copies.length, 2);
+  assert.equal(copies.filter(table => table.flags?.[moduleId]).length, 1);
   copies.getName = () => copies[0];
-  assert.equal(getModuleRollTable(data.name, { tables: copies }), copies[2]);
+  assert.equal(getModuleRollTable(data.name, { tables: copies }), copies[1]);
+  assert.deepEqual(copies.map(table => table.folder), ["gm-folder", "gm-folder"]);
 });
 
 test("table seeding honors opt-out and completed version", () => {
