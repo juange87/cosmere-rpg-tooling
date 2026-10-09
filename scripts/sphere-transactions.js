@@ -35,12 +35,12 @@ export function buildMoneyItemData(key, quantity) {
 }
 
 function addSphereItem(balance, item) {
-    const quantity = Number(item.system.quantity ?? 0);
-    if (!Number.isSafeInteger(quantity) || quantity < 0 || quantity > Number.MAX_SAFE_INTEGER - balance.quantity) {
-      balance.invalidItems.push(item);
-    } else {
-      balance.quantity += quantity;
-    }
+  const quantity = Number(item.system.quantity ?? 0);
+  if (!Number.isSafeInteger(quantity) || quantity < 0 || quantity > Number.MAX_SAFE_INTEGER - balance.quantity) {
+    balance.invalidItems.push(item);
+  } else {
+    balance.quantity += quantity;
+  }
 }
 
 export function inspectSphereQuantity(actor, key) {

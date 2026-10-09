@@ -8,8 +8,8 @@ C-20 ni cambia la compatibilidad declarada a Foundry v14.
   aliases de origen para las copias antiguas y validación de IDs duplicados.
 - **R-2:** tablas con flags de propiedad, migración conservadora de semillas
   antiguas, movimientos sin borrado, sembrado versionado y desactivable.
-- **R-3:** una tarjeta por tirada desde el GM activo, deduplicación y manejo por creación
-  del mensaje, incluso si Dice So Nice no anima la tirada. R-24 completa la reproducción local de efectos por cliente.
+- **R-3:** una tarjeta por tirada desde el GM activo, deduplicación y finalización de
+  Dice So Nice, con respaldo para tiradas sin animación. R-24 completa la reproducción local de efectos por cliente.
 - **R-4:** escape de nombres, imágenes y texto en las macros clásicas afectadas.
 - **R-5:** archivo de licencia ISC, coherente con la licencia ya declarada.
 - **R-6:** tests y validación en CI de push/PR y antes de publicar una release.
@@ -54,12 +54,13 @@ Los diez hallazgos de la revisión se han contrastado y corregido:
    las escrituras estrictas rechazan la denominación afectada.
 3. Fallos de sembrado aislados por tabla. Se procesan las demás y se reintentan
    las pendientes al recargar, sin duplicar las ya creadas.
-4. Adopción de una coincidencia antigua exacta y única aunque esté en otra carpeta;
-   las búsquedas prefieren tablas con el flag del módulo ante copias ambiguas.
-5. Curación solo cuando aumenta la salud. Los errores de efectos opcionales no
-   hacen fallar una actualización de recursos ya aplicada.
-6. Tarjetas y efectos sin depender del evento de fin de animación de Dice So Nice,
-   con deduplicación del evento tardío.
+4. Reutilización de tablas antiguas coincidentes sin cambiar su carpeta. Si hay
+   varias idénticas, se identifica una de ellas sin crear otra ni borrar ninguna;
+   las búsquedas prefieren la identificada por el módulo.
+5. Curación solo cuando aumenta la salud, sin esperar al efecto. Los fallos
+   síncronos y rechazos tardíos no invalidan la actualización ya aplicada.
+6. Tarjetas y efectos esperan al fin de Dice So Nice. Un respaldo retrasado cubre
+   las animaciones omitidas y no revela resultados mientras sigan animando.
 7. Candidatos sin UUID reconocidos por aliases `legacyNames`, con selección y
    confirmación separada antes de reemplazar código del mundo.
 8. JSON `null`, arrays y valores primitivos producen errores por fichero sin
@@ -69,9 +70,26 @@ Los diez hallazgos de la revisión se han contrastado y corregido:
 10. Interfaz, CSS, vista previa y flujo de transacción compartidos para las macros
     clásicas de esferas. Ambas conservan sus comandos y ahora son wrappers.
 
+## Segunda revisión: regresiones y casos adicionales
+
+- Temporización de DSN verificada con reloj simulado, animación activa, waiter que
+  resuelve antes de tiempo, evento ausente y cinco clientes con visibilidad distinta.
+- Planificación que marca inventarios inválidos antes de aplicar; gasto de grupo
+  que excluye esos saldos y puede completarse con actores sanos.
+- Duplicados antiguos reutilizados sin crear una tercera copia; carpetas del GM
+  conservadas tanto en tablas antiguas como en las identificadas por flags.
+- Errores de overflow/invalid propagados hasta el plan agregado y hasta el error
+  mostrado al aplicar drenaje o gasto de grupo.
+- Actualizaciones de recursos que terminan con una animación aún pendiente,
+  capturando su rechazo posterior.
+- Colores, fondos, tamaño del encabezado y márgenes de tarjetas clásicas restaurados.
+- Productos y sumas del resumen limitados a enteros seguros; una lectura de
+  inventario por actor, búsquedas de tablas sin fallback redundante y mapa de
+  aliases precalculado con confirmación booleana explícita.
+
 ## Validación
 
-147 pruebas automatizadas aprobadas.
+155 pruebas automatizadas aprobadas.
 
 Regresiones con Node para propiedad de tablas, IDs y procedencia de macros,
 seguridad HTML, conservación de dinero, drenaje, cantidades inválidas, fallos de

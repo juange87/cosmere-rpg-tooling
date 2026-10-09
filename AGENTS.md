@@ -61,11 +61,12 @@ manifest's declared range. Foundry v14 support is separate work.
   completion; bump `TABLE_SEED_VERSION` in `scripts/table-seeding.js` when bundled
   table definitions change.
 - Owned tables have `flags["cosmere-rpg-tooling"].tableKey`. Identify ownership
-  by this key, never by name alone. Move owned tables with `update({ folder })`;
-  never delete and recreate them, or overwrite their customized results.
-- Legacy seeds are adopted only through a unique exact match of name, formula
-  and results, even if moved to another folder. Customized or ambiguous copies
-  stay untouched. Table tools prefer the module ownership flag over names.
+  by this key, never by name alone. Preserve existing folders, UUIDs and
+  customized results; ownership does not authorize undoing GM organization.
+- Legacy seeds match exact name, formula and results even in another folder.
+  Reuse one existing match without moving it. For identical duplicates, prefer
+  the intended folder then a stable ID; preserve the other copies and never
+  create a third. Table tools prefer the ownership flag over names.
 - Default results have weight 1 and sequential ranges `[1,1]` to `[20,20]`.
   Keep stable table names/keys because other tools use them for lookup.
 
@@ -96,13 +97,19 @@ manifest's declared range. Foundry v14 support is separate work.
   denomination in `dun`. Inventory identity comes from system metadata, not
   translated names. Reject stale transaction plans before writing.
   Inventory previews tolerate and mark invalid old quantities; strict writes
-  reject affected denominations without blocking other actors' dialogs.
+  reject affected denominations during planning without blocking other actors'
+  dialogs. Group spending excludes those denominations and can use healthy
+  balances. Aggregate plans propagate each actor's invalid/error state. Summary
+  arithmetic must remain within safe integers; unrepresentable totals are null.
 - Guard missing tokens, actors, resource paths and optional animation modules.
   Await document updates; resource updates must work without animation modules.
+  Optional resource animations run without awaiting playback, with a rejection
+  handler for delayed failures.
 - Only the active GM publishes automatic roll cards. Each client plays its roll
   effects locally once, respecting private roll visibility and client settings.
-  `createChatMessage` handles rolls even when Dice So Nice skips animation;
-  its optional completion event shares the same deduplication set.
+  Use DSN completion first; creation provides a delayed backup for skipped
+  animations. Its public waiter is checked after 100 ms; a 30-second backup
+  never reveals while `_dice3danimating` is true. All paths share deduplication.
 - `rollHookSound`, `rollHookAnimation`, `soundVolume`, `useAnimations` have client
   scope, retaining former world values as initial defaults. Other behavior and
   table settings have world scope.

@@ -103,6 +103,29 @@ test("missing DSN completion and waiter have a delayed backup", async () => {
   assert.equal(client.cards.length, 1);
 });
 
+test("registered DSN hooks defer five clients and preserve hidden-roll visibility without duplicates", async () => {
+  const clients = [];
+  for (let index = 0; index < 5; index++) {
+    const { activateCosmereGlobalHooks: activate } = await import(`../scripts/settings-and-hooks.js?timing-client=${index}`);
+    const client = context(index === 0), timers = fakeTimers(), hooks = new Map(), notifications = [];
+    const roll = { ...message, blind: false, whisper: [], _dice3danimating: true, isContentVisible: index !== 4 };
+    client.game.messages.set(roll.id, roll);
+    client.game.modules = new Map([["dice-so-nice", { active: true }]]);
+    client.game.dice3d = { isEnabled: () => true, waitFor3DAnimationByMessageID: async () => true };
+    activate({ ...client, ...timers, Hooks: { on: (key, callback) => hooks.set(key, callback) }, ui: { notifications: { info: text => notifications.push(text) } } });
+    hooks.get("createChatMessage")(roll);
+    await timers.advance(100);
+    assert.equal(client.cards.length + client.sounds.length + notifications.length, 0);
+    roll._dice3danimating = false;
+    await hooks.get("diceSoNiceRollComplete")(roll.id);
+    await timers.advance(30000);
+    assert.equal(client.sounds.length, index === 4 ? 0 : 1);
+    assert.equal(notifications.length, index === 4 ? 0 : 1);
+    clients.push(client);
+  }
+  assert.equal(clients.flatMap(client => client.cards).length, 1);
+});
+
 test("discarded d20s do not trigger natural-roll effects", () => {
   assert.equal(inspectD20Rolls({ isRoll: true, rolls: [{ terms: [{ faces: 20, results: [{ result: 20, active: false }, { result: 1, discarded: true }, { result: 10 }] }] }] }).hasNatural20, false);
 });
