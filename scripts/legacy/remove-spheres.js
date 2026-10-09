@@ -1,6 +1,8 @@
 import { getSphereQuantity, planSphereTransaction, applySphereInventoryPlan } from "../sphere-transactions.js";
 import { SPHERE_DENOMINATIONS } from "../sphere-currency.js";
-import { getPlayerActors as playerActors } from "../cosmere-helpers.js";
+import { getPlayerActors as playerActors, escapeHtml, normalizeNumber } from "../cosmere-helpers.js";
+import { localize } from "../localization.js";
+import { openCosmereDialog } from "../foundry-dialogs.js";
 // Remove Spheres / Eliminar Esferas: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -14,10 +16,6 @@ export async function run({
   AudioHelper = globalThis.foundry?.audio?.AudioHelper ?? globalThis.AudioHelper,
   token = canvas?.tokens?.controlled?.[0],
 } = {}) {
-  const { escapeHtml, normalizeNumber } = await import("../cosmere-helpers.js");
-  const { localize } = await import("../localization.js");
-  const { openCosmereDialog } = await import("../foundry-dialogs.js");
-
   // ============================================================
   // MACRO: Eliminar Esferas de Jugadores — Cosmere RPG
   // Foundry VTT · Sistema cosmere-rpg

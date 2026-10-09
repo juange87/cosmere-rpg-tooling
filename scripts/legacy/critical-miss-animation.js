@@ -1,5 +1,5 @@
-import { requireToken, hasSequencer } from "../cosmere-helpers.js";
-import { getActiveJb2aModuleId } from "../jb2a-assets.js";
+import { hasSequencer } from "../cosmere-helpers.js";
+import { getActiveJb2aModuleId, resolveJb2aAssetPath } from "../jb2a-assets.js";
 import { localize as translate } from "../localization.js";
 // Critical Miss animation: implementation behind the public module API.
 export async function run({
@@ -18,8 +18,6 @@ export async function run({
     ui?.notifications?.warn?.(translate("AnimationDependenciesUnavailable"));
     return false;
   }
-
-  const { resolveJb2aAssetPath } = await import("../jb2a-assets.js");
 
   const center = {
     x: canvas.scene.width / 2,
