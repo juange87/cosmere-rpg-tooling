@@ -30,3 +30,27 @@ test("invalid conversion plans cannot update actor documents", async () => {
   const plan = planSphereConversion({ actor, fromKey: "dun|chip", toKey: "dun|chip", quantity: 1 });
   await assert.rejects(applySphereTransactionPlan({ actors: [actor], plan, publishChat: false }));
 });
+
+const { planInvestitureDrain, planGroupSphereSpend, planSphereTransaction } = await import("../scripts/sphere-manager.js");
+
+test("Investiture drain transfers each sphere to its matching dun denomination", () => {
+  const plan = planInvestitureDrain({ actors: [actor], amount: 103 });
+  assert.equal(plan.ok, true);
+  const result = plan.results[0];
+  assert.equal(result.next["spheres|broam"], 0);
+  assert.equal(result.next["dun|broam"], 200);
+  assert.equal(result.next["spheres|mark"], 97);
+  assert.equal(result.next["dun|mark"], 103);
+  const delta = SPHERE_DENOMINATIONS.reduce((sum, denom) => sum + ((result.next[denom.key] ?? 100) - 100) * denom.value, 0);
+  assert.equal(delta, 0);
+});
+
+test("invalid quantities cannot drain, spend, convert or change inventories", () => {
+  for (const amount of [-1, 1.5, Infinity, NaN, "oops"]) {
+    assert.equal(planInvestitureDrain({ actors: [actor], amount }).ok, false);
+    assert.equal(planGroupSphereSpend({ actors: [actor], quantity: amount }).ok, false);
+    assert.equal(planSphereConversion({ actor, quantity: amount }).ok, false);
+  }
+  assert.equal(planSphereTransaction({ actors: [actor], changes: { "dun|mark": 1.5 } }).ok, false);
+  assert.equal(planSphereTransaction({ actors: [actor], changes: { "unknown": 1 } }).ok, false);
+});

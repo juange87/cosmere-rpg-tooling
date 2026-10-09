@@ -550,6 +550,7 @@
     "Jb2aUnavailable": "JB2A is not active. Enable JB2A_DnD5e (free) or jb2a_patreon (Patreon Complete Collection) to use animations.",
     "SeedRollTables": "Create module roll tables",
     "SeedRollTablesHint": "Create missing module tables on startup. User tables are preserved.",
-    "InvalidSphereConversion": "Choose different valid denominations and a whole, non-negative quantity."
+    "InvalidSphereConversion": "Choose different valid denominations and a whole, non-negative quantity.",
+    "InvalidSphereQuantity": "Sphere quantities must be whole, non-negative numbers."
   }
 }

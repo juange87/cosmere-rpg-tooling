@@ -83,6 +83,10 @@ export function planSphereTransaction({
   changes = {},
   strict = true,
 } = {}) {
+  if (Object.entries(changes).some(([key, value]) =>
+    !SPHERE_DENOMINATIONS.some(denom => denom.key === key) || !Number.isSafeInteger(Number(value)))) {
+    return { ok: false, results: [], error: localize("InvalidSphereQuantity") };
+  }
   const results = actors.map(actor => {
     const current = {};
     const next = {};
@@ -128,6 +132,9 @@ export function planSphereConversion({
   if (!actor || !from || !to || fromKey === toKey || !Number.isSafeInteger(amount) || amount < 0) {
     return { ok: false, results: [], changes: {}, error: localize("InvalidSphereConversion") };
   }
+  if (getSphereQuantity(actor, fromKey) < amount) {
+    return { ok: false, results: [], changes: {}, error: localize("InsufficientFundsReviewTheDeficitBeforeApplying") };
+  }
   const value = amount * from.value;
   const converted = Math.floor(value / to.value);
   const remainder = value % to.value;
@@ -150,7 +157,10 @@ export function planGroupSphereSpend({
   key = "spheres|mark",
   quantity = 0,
 } = {}) {
-  let remaining = Math.max(0, normalizeNumber(quantity, 0));
+  if (!Number.isSafeInteger(Number(quantity)) || Number(quantity) < 0 || !SPHERE_DENOMINATIONS.some(denom => denom.key === key)) {
+    return { ok: false, allocations: [], requested: quantity, deficit: 0, error: localize("InvalidSphereQuantity") };
+  }
+  let remaining = Number(quantity);
   const allocations = [];
 
   for (const actor of actors) {
@@ -181,6 +191,9 @@ export function planInvestitureDrain({
   actors = [],
   amount = 1,
 } = {}) {
+  if (!Number.isSafeInteger(Number(amount)) || Number(amount) < 0) {
+    return { ok: false, results: [], error: localize("InvalidSphereQuantity") };
+  }
   const drainOrder = ["spheres|broam", "spheres|mark", "spheres|chip"];
   const results = actors.map(actor => {
     let remaining = Math.max(0, normalizeNumber(amount, 0));
@@ -191,6 +204,7 @@ export function planInvestitureDrain({
       const drained = Math.min(available, remaining);
       if (drained > 0) {
         changes[key] = -drained;
+        changes[key.replace("spheres|", "dun|")] = drained;
         remaining -= drained;
       }
     }
@@ -237,6 +251,7 @@ export function buildGroupSphereSpendTransaction({
 
   return {
     ok: spend.ok,
+    error: spend.error,
     key,
     requested: spend.requested,
     deficit: spend.deficit,
