@@ -281,10 +281,10 @@ function formatCoins(coins, { deficit = false } = {}) {
 
 function buildLegacySphereChat(results, { remove, split }) {
   const rows = results.map(({ actor, coins, deficit }) => `<li><strong>${escapeHtml(actor.name)}</strong>: ${[formatCoins(coins), formatCoins(deficit, { deficit: true })].filter(Boolean).join(" · ") || "—"}</li>`).join("");
-  return `<div style="border:1px solid ${remove ? "#d8a8a8" : "#8abed8"};border-radius:6px;padding:10px;">
-    <h3>${localize(remove ? "SphereRemoval" : "SphereDistribution")}</h3>
-    ${split ? `<p>${localize("SplitEvenly")}</p>` : ""}
-    <ul>${rows}</ul>
+  return `<div style="border:1px solid ${remove ? "#d8a8a8" : "#8abed8"};border-radius:6px;padding:10px;background:${remove ? "rgba(168,26,26,0.04)" : "rgba(26,111,168,0.05)"};">
+    <h3 style="color:${remove ? "#8a1a1a" : "#1a5f8a"};margin:0 0 6px;font-size:14px;">${localize(remove ? "SphereRemoval" : "SphereDistribution")}</h3>
+    ${split ? `<p style="font-size:11px;color:#555;margin:0 0 6px">${localize("SplitEvenly")}</p>` : ""}
+    <ul style="margin:0;padding-left:16px;font-size:12px;color:#1a1a1a;">${rows}</ul>
   </div>`;
 }
 

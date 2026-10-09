@@ -121,11 +121,16 @@ test("shared classic tools preserve even splitting, chat output and partial-remo
   assert.deepEqual(actors.map(actor => actor.items[0].system.quantity), [4, 3]);
   assert.match(grant.messages[0].content, /Actor 0/);
   assert.match(grant.messages[0].content, /2 Mark/);
+  assert.match(grant.messages[0].content, /background:rgba\(26,111,168,0\.05\)/);
+  assert.match(grant.messages[0].content, /color:#1a5f8a;margin:0 0 6px;font-size:14px/);
   const removal = await executeMacro("gm-macros/PFVU35wn6SQ4hYxg", { game: { actors } });
   assert.doesNotMatch(removal.dialogs[0].content, /id="opt-dividir"/);
   await removal.dialogs[0].buttons.ok.callback(html(10, false));
   assert.deepEqual(actors.map(actor => actor.items.length), [0, 0]);
   assert.match(removal.messages[0].content, /6 Mark.*7 Mark/);
+  assert.match(removal.messages[0].content, /background:rgba\(168,26,26,0\.04\)/);
+  assert.match(removal.messages[0].content, /color:#8a1a1a;margin:0 0 6px;font-size:14px/);
+  assert.match(removal.messages[0].content, /margin:0;padding-left:16px;font-size:12px/);
 });
 
 test("shared classic tools validate every selected inventory before writing", async () => {
