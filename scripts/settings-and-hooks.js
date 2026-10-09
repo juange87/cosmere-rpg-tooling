@@ -98,7 +98,7 @@ export function inspectD20Rolls(message) {
     for (const term of roll.terms ?? []) {
       if (term?.faces !== 20) continue;
       for (const result of term.results ?? []) {
-        if (Number.isFinite(Number(result?.result))) {
+        if (result?.active !== false && !result?.discarded && Number.isFinite(Number(result?.result))) {
           d20Results.push(Number(result.result));
         }
       }
@@ -123,7 +123,7 @@ function playHookAnimation({ type, game = globalThis.game, canvas = globalThis.c
   return true;
 }
 
-async function publishHookCard({ type, ChatMessage = globalThis.ChatMessage } = {}) {
+async function publishHookCard({ type, message, ChatMessage = globalThis.ChatMessage } = {}) {
   if (!ChatMessage) return;
   const natural20 = type === "natural20";
   await ChatMessage.create({
@@ -138,15 +138,23 @@ async function publishHookCard({ type, ChatMessage = globalThis.ChatMessage } = 
       }],
       accent: natural20 ? "#237a3b" : "#9f3a38",
     }),
-    speaker: ChatMessage.getSpeaker?.(),
+    speaker: message?.speaker ?? ChatMessage.getSpeaker?.(),
+    whisper: message?.whisper,
+    blind: message?.blind,
   });
 }
 
-async function handleDiceHook(messageId, context) {
+export async function handleDiceHook(messageId, context) {
   const { game, ui, ChatMessage, AudioHelper, canvas, Sequence } = context;
   if (!settingValue(game, "automaticRollHooks")) return;
+  if (!game?.users?.activeGM?.isSelf) return;
+  if (context.processedIds?.has(messageId)) return;
   const message = game?.messages?.get?.(messageId);
   const rollInspection = inspectD20Rolls(message);
+  if (!rollInspection.hasNatural20 && !rollInspection.hasNatural1) return;
+  context.processedIds?.add(messageId);
+  // Keep deduplication bounded during long sessions.
+  if (context.processedIds?.size > 1000) context.processedIds.delete(context.processedIds.values().next().value);
 
   for (const [key, enabledSetting, label] of [
     ["natural20", "natural20Effects", localize("Natural20Detected")],
@@ -159,7 +167,7 @@ async function handleDiceHook(messageId, context) {
       ui?.notifications?.info?.(label);
     }
     if (settingValue(game, "rollHookChatCards")) {
-      await publishHookCard({ type: key, ChatMessage });
+      await publishHookCard({ type: key, message, ChatMessage });
     }
     if (settingValue(game, "rollHookSound")) {
       AudioHelper?.play?.({
@@ -214,8 +222,13 @@ export function activateCosmereGlobalHooks({
   if (!Hooks || hooksActivated) return false;
   hooksActivated = true;
 
-  Hooks.on?.("diceSoNiceRollComplete", messageId => {
-    handleDiceHook(messageId, { game, ui, ChatMessage, AudioHelper, canvas, Sequence });
+  const context = { game, ui, ChatMessage, AudioHelper, canvas, Sequence, processedIds: new Set() };
+  const handle = messageId => handleDiceHook(messageId, context).catch(error => {
+    console.error("Cosmere RPG Tooling | Roll hook failed", error);
+  });
+  Hooks.on?.("diceSoNiceRollComplete", handle);
+  Hooks.on?.("createChatMessage", message => {
+    if (!game?.modules?.get?.("dice-so-nice")?.active) return handle(message.id);
   });
   Hooks.on?.(getChatRenderHookName({ game }), (message, html) => {
     handleRollRequestButtons(message, html, { game, ui });

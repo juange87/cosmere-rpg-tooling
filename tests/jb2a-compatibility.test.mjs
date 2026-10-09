@@ -65,7 +65,8 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
         faces = 20;
         results = [{ result: 1 }, { result: 20 }];
       }
-      game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [new Die()] }] }) };
+      game.users = { activeGM: { isSelf: true } };
+    game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [new Die()] }] }) };
       const sequence = new Proxy({}, {
         get: (_, key) => (...args) => {
           if (key === "file") files.push(args[0]);
@@ -105,6 +106,7 @@ test("global roll hooks choose the active edition and keep chat without JB2A", a
     const files = [];
     const messages = [];
     const game = createGame(edition ? [edition] : []);
+    game.users = { activeGM: { isSelf: true } };
     game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [{ faces: 20, results: [{ result: 20 }, { result: 1 }] }] }] }) };
     const sequence = new Proxy({}, { get: (_, key) => (...args) => {
       if (key === "file") files.push(args[0]);
