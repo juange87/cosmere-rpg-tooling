@@ -34,6 +34,21 @@ test("without Dice So Nice createChatMessage handles rolls", async () => {
   assert.equal(client.cards.length, 1);
 });
 
+test("active Dice So Nice does not require an animation completion to publish a card", async () => {
+  const { activateCosmereGlobalHooks: activate } = await import("../scripts/settings-and-hooks.js?dsn-skips-animation");
+  const hooks = new Map();
+  const client = context(true);
+  client.game.modules = new Map([["dice-so-nice", { active: true }]]);
+  activate({ ...client, Hooks: { on: (name, callback) => hooks.set(name, callback) } });
+  await hooks.get("createChatMessage")(message);
+  assert.equal(client.cards.length, 1);
+  assert.equal(client.sounds.length, 1);
+  // An optional delayed completion also must not replay the result.
+  await hooks.get("diceSoNiceRollComplete")(message.id);
+  assert.equal(client.cards.length, 1);
+  assert.equal(client.sounds.length, 1);
+});
+
 test("discarded d20s do not trigger natural-roll effects", () => {
   assert.equal(inspectD20Rolls({ isRoll: true, rolls: [{ terms: [{ faces: 20, results: [{ result: 20, active: false }, { result: 1, discarded: true }, { result: 10 }] }] }] }).hasNatural20, false);
 });

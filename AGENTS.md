@@ -95,7 +95,8 @@ manifest's declared range. Foundry v14 support is separate work.
   Await document updates; resource updates must work without animation modules.
 - Only the active GM publishes automatic roll cards. Each client plays its roll
   effects locally once, respecting private roll visibility and client settings.
-  `createChatMessage` is the fallback when Dice So Nice is inactive.
+  `createChatMessage` handles rolls even when Dice So Nice skips animation;
+  its optional completion event shares the same deduplication set.
 - `rollHookSound`, `rollHookAnimation`, `soundVolume`, `useAnimations` have client
   scope, retaining former world values as initial defaults. Other behavior and
   table settings have world scope.

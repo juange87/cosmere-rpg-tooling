@@ -245,7 +245,10 @@ export function activateCosmereGlobalHooks({
   });
   Hooks.on?.("diceSoNiceRollComplete", handle);
   Hooks.on?.("createChatMessage", message => {
-    if (!game?.modules?.get?.("dice-so-nice")?.active) return handle(message.id);
+    // DSN may skip animation or be disabled for the active GM. The document
+    // lifecycle is reliable on every client; the shared ID set prevents the
+    // later DSN completion event from duplicating cards or effects.
+    return handle(message.id);
   });
   Hooks.on?.(getChatRenderHookName({ game }), (message, html) => {
     handleRollRequestButtons(message, html, { game, ui });
