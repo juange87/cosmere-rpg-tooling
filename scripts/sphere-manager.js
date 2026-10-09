@@ -11,7 +11,7 @@ export { SPHERE_DENOMINATIONS } from "./sphere-currency.js";
 import { SPHERE_DENOMINATIONS } from "./sphere-currency.js";
 
 export { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction } from "./sphere-transactions.js";
-import { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction, applySphereInventoryPlan } from "./sphere-transactions.js";
+import { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction, applySphereInventoryPlan, sphereSummaryWarnings } from "./sphere-transactions.js";
 
 export function buildSphereTransactionChatCard({
   title = localize("SphereTransaction"),
@@ -110,8 +110,8 @@ export function buildSphereManagerDialogContent(actors) {
   const rows = actors.map(actor => {
     const summary = summarizeSphereBalance(actor);
     const balance = summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ") || localize("NoSpheres");
-    const warning = summary.overflow ? localize("SphereSummaryOverflow") : summary.invalidKeys.length ? localize("InvalidSphereInventory") : "";
-    return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}${warning ? ` <span class="cr-warn">${escapeHtml(warning)}</span>` : ""}</li>`;
+    const warnings = sphereSummaryWarnings(summary).map(warning => ` <span class="cr-warn">${escapeHtml(warning)}</span>`).join("");
+    return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}${warnings}</li>`;
   }).join("");
   return `
     <div>

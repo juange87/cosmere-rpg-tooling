@@ -96,6 +96,11 @@ export function summarizeSphereBalance(actor) {
   };
 }
 
+export function sphereSummaryWarnings(summary) {
+  return [summary.overflow ? localize("SphereSummaryOverflow") : "",
+    summary.invalidKeys.length ? localize("InvalidSphereInventory") : ""].filter(Boolean);
+}
+
 function invalidActorResult(actor, error, current = {}) {
   return { actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"),
     ok: false, invalid: true, error, current, next: {}, deficit: {} };

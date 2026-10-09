@@ -220,3 +220,14 @@ test("drain excludes affected invalid actors while applying healthy actors", asy
     assert.match(empty.error, /Broken/);
   }
 });
+
+test("both dialogs show simultaneous overflow and invalid-inventory warnings", async () => {
+  const { buildLegacySphereDialogContent } = await import("../scripts/legacy-sphere-tools.js");
+  const broken = moneyActor("Both warnings", [["spheres|broam", Number.MAX_SAFE_INTEGER], ["dun|mark", 1.5]]);
+  for (const build of [buildSphereManagerDialogContent, buildLegacySphereDialogContent]) {
+    const content = build([broken]);
+    assert.ok(content.includes(localize("SphereSummaryOverflow")));
+    assert.ok(content.includes(localize("InvalidSphereInventory")));
+    assert.equal((content.match(/class="cr-warn"/g) ?? []).length, 2);
+  }
+});
