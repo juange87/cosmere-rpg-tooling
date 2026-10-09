@@ -179,3 +179,44 @@ test("sphere summaries never publish unsafe products or totals and scan each inv
   assert.equal(summarizeSphereBalance(summed).totalQuantity, null);
   assert.equal(summarizeSphereBalance(summed).totalValue, null);
 });
+
+function moneyActor(id, entries) {
+  return { id, name: id, items: entries.map(([key, quantity]) => {
+    const [currency, primary] = key.split("|");
+    const item = { type: "loot", system: { isMoney: true, quantity, price: { currency, denomination: { primary } } },
+      update: async changes => { item.system.quantity = changes["system.quantity"]; } };
+    return item;
+  }) };
+}
+
+test("group shortages explain excluded actors and invalid inventories", async () => {
+  const { buildGroupSphereSpendTransaction } = await import("../scripts/sphere-transactions.js");
+  const broken = moneyActor("Broken", [["spheres|mark", 1.5]]);
+  const healthy = moneyActor("Healthy", [["spheres|mark", 2]]);
+  const plan = buildGroupSphereSpendTransaction({ actors: [broken, healthy], quantity: 3 });
+  assert.equal(plan.ok, false);
+  assert.equal(plan.deficit, 1);
+  assert.match(plan.error, /Broken/);
+  assert.match(plan.error, /invalid|inválid/);
+  await assert.rejects(applySphereInventoryPlan({ actors: [broken, healthy], plan }), error => error.message === plan.error);
+  assert.equal(healthy.items[0].system.quantity, 2);
+});
+
+test("drain excludes affected invalid actors while applying healthy actors", async () => {
+  for (const brokenKey of ["spheres|broam", "dun|broam"]) {
+    const broken = moneyActor("Broken", [["spheres|broam", 2], ["dun|broam", 0]]);
+    broken.items.find(item => `${item.system.price.currency}|${item.system.price.denomination.primary}` === brokenKey).system.quantity = 1.5;
+    broken.items.forEach(item => { item.update = () => assert.fail("Excluded actor changed"); });
+    const healthy = moneyActor("Healthy", [["spheres|broam", 3], ["dun|broam", 0]]);
+    const plan = planInvestitureDrain({ actors: [broken, healthy], amount: 1 });
+    assert.equal(plan.ok, true);
+    assert.equal(plan.excluded[0].actorId, "Broken");
+    assert.deepEqual(plan.results[0].next, {});
+    await applySphereInventoryPlan({ actors: [broken, healthy], plan });
+    assert.equal(healthy.items[0].system.quantity, 2);
+    assert.equal(healthy.items[1].system.quantity, 1);
+    const empty = planInvestitureDrain({ actors: [broken], amount: 1 });
+    assert.equal(empty.ok, false);
+    assert.match(empty.error, /Broken/);
+  }
+});

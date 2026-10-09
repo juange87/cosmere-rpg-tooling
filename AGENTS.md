@@ -98,8 +98,9 @@ manifest's declared range. Foundry v14 support is separate work.
   translated names. Reject stale transaction plans before writing.
   Inventory previews tolerate and mark invalid old quantities; strict writes
   reject affected denominations during planning without blocking other actors'
-  dialogs. Group spending excludes those denominations and can use healthy
-  balances. Aggregate plans propagate each actor's invalid/error state. Summary
+  dialogs. Group spending and drain exclude actors whose affected
+  denominations are invalid, report them, and can use healthy balances. A drain
+  with no eligible actors fails; insufficient funds includes exclusion reasons. Aggregate plans propagate each actor's invalid/error state. Summary
   arithmetic must remain within safe integers; unrepresentable totals are null.
 - Guard missing tokens, actors, resource paths and optional animation modules.
   Await document updates; resource updates must work without animation modules.

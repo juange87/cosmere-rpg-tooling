@@ -156,7 +156,7 @@ export function openSphereManager({
           try {
             await postSphereSummary({ actors, ChatMessage });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            ui?.notifications?.error?.(escapeHtml(error.message));
           }
         },
       },
@@ -180,7 +180,7 @@ export function openSphereManager({
               ChatMessage,
             });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            ui?.notifications?.error?.(escapeHtml(error.message));
           }
         },
       },
@@ -202,7 +202,7 @@ export function openSphereManager({
               ChatMessage,
             });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            ui?.notifications?.error?.(escapeHtml(error.message));
           }
         },
       },
@@ -223,7 +223,7 @@ export function openSphereManager({
               ChatMessage,
             });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            ui?.notifications?.error?.(escapeHtml(error.message));
           }
         },
       },

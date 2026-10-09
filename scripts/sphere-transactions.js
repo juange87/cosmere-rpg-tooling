@@ -1,4 +1,4 @@
-import { localize } from "./localization.js";
+import { localize, format } from "./localization.js";
 import { normalizeNumber } from "./cosmere-helpers.js";
 import { SPHERE_DENOMINATIONS, sphereItemName as itemName } from "./sphere-currency.js";
 
@@ -185,6 +185,19 @@ export function planSphereConversion({
   };
 }
 
+function excludedActorResult(actor, key) {
+  return { actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"), key,
+    excluded: true, warning: localize("InvalidSphereInventory"),
+    current: {}, next: {}, deficit: {}, ok: true };
+}
+
+function insufficientFundsError(excluded) {
+  const reason = localize("InsufficientFundsReviewTheDeficitBeforeApplying");
+  return excluded.length ? `${reason} ${format("ExcludedSphereActors", {
+    actors: excluded.map(result => `${result.actorName}: ${result.warning}`).join("; "),
+  })}` : reason;
+}
+
 export function planGroupSphereSpend({
   actors = [],
   key = "spheres|mark",
@@ -201,7 +214,7 @@ export function planGroupSphereSpend({
     if (remaining <= 0) break;
     const { quantity: available, invalidItems } = inspectSphereQuantity(actor, key);
     if (invalidItems.length) {
-      excluded.push({ actorId: actor?.id, actorName: actor?.name ?? localize("NoActor"), key, warning: localize("InvalidSphereInventory") });
+      excluded.push(excludedActorResult(actor, key));
       continue;
     }
     const spent = Math.min(available, remaining);
@@ -223,6 +236,7 @@ export function planGroupSphereSpend({
     allocations,
     excluded,
     deficit: remaining,
+    error: remaining > 0 ? insufficientFundsError(excluded) : undefined,
   };
 }
 
@@ -240,9 +254,11 @@ export function planInvestitureDrain({
     for (const key of drainOrder) {
       if (remaining <= 0) break;
       const { quantity: available, invalidItems } = inspectSphereQuantity(actor, key);
-      if (invalidItems.length) return invalidActorResult(actor, localize("InvalidSphereInventory"));
+      if (invalidItems.length) return excludedActorResult(actor, key);
       const drained = Math.min(available, remaining);
       if (drained > 0) {
+        const destination = key.replace("spheres|", "dun|");
+        if (inspectSphereQuantity(actor, destination).invalidItems.length) return excludedActorResult(actor, destination);
         changes[key] = -drained;
         changes[key.replace("spheres|", "dun|")] = drained;
         remaining -= drained;
@@ -263,10 +279,14 @@ export function planInvestitureDrain({
     return result;
   });
 
+  const excluded = results.filter(result => result.excluded);
+  const ok = results.every(result => result.ok && !result.invalid)
+    && (Number(amount) === 0 || results.some(result => !result.excluded));
   return {
-    ok: results.every(result => result.ok && !result.invalid),
+    ok,
     invalid: results.some(result => result.invalid),
-    error: results.find(result => result.invalid)?.error,
+    error: results.find(result => result.invalid)?.error ?? (!ok ? insufficientFundsError(excluded) : undefined),
+    excluded,
     amount: Math.max(0, normalizeNumber(amount, 0)),
     results,
   };

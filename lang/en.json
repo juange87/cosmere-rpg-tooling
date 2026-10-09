@@ -624,6 +624,7 @@
     "SurgebindingFXPack": "Surgebinding FX Pack",
     "SurgebindingFX": "Surgebinding FX",
     "SphereBalanceChanged": "Sphere balances changed since this dialog was opened. Review the transaction again.",
+    "ExcludedSphereActors": "Excluded actors due to invalid sphere inventories: {actors}",
     "InvalidSphereInventory": "Some sphere items have invalid quantities. Repair them before changing that denomination.",
     "TableSeedingIncomplete": "Some tables could not be seeded. The remaining tables were processed; failed tables will be retried on the next load. See the console for details.",
     "ResourceUpdatedAnimationFailed": "The resource was updated, but its animation could not be played.",
