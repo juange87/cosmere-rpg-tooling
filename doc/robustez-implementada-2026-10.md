@@ -149,9 +149,30 @@ También se comparte el historial de tiradas procesadas, se guarda su inspecció
 para no recorrer los dados en cada sondeo, se evita llenar el historial con IDs
 borrados y se reutiliza directamente el resultado de exclusión del gasto.
 
+## Quinta revisión: seis observaciones restantes
+
+1. Preparación de carpetas base dentro de `try/catch`: un fallo al escribir un
+   flag se registra y avisa al GM, conservando el sembrado pendiente para
+   reintentar al recargar. Prueba de fallo inicial y recuperación posterior.
+2. Avisos de denominaciones omitidas y déficits en tarjetas con etiquetas
+   traducidas; las claves internas se conservan solo en los datos del plan.
+3. Retirada la llamada a `pendingThrows.isPending`. Se detectan las tiradas
+   interactivas mediante sus eventos públicos de apertura/cierre y el estado
+   pendiente del mensaje. Se prueban ambos caminos sin API interna de DSN,
+   incluyendo una marca de animación ausente y una finalización posterior.
+   Eventos contrastados con la [documentación oficial de DSN](https://riccisi.gitlab.io/foundryvtt-dice-so-nice/api/interactive-throws/),
+   y estado del mensaje con su [código fuente](https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/raw/master/module/main.js).
+4. El drenaje vacío avisa con `NoPlayerCharactersFound`, conserva el resultado
+   correcto sin cambios y no publica una tarjeta vacía.
+5. Solo el handler registra el ID de tirada procesada, antes de sus esperas.
+   Una prueba de callbacks concurrentes comprueba una única marca y tarjeta.
+6. Retiradas la comprobación imposible de mensajes borrados en `created` y su
+   colección. Borrar cancela el temporizador y la finalización posterior comprueba
+   que el documento ya no existe en la colección de mensajes de Foundry.
+
 ## Validación
 
-173 pruebas automatizadas aprobadas.
+176 pruebas automatizadas aprobadas.
 
 Regresiones con Node para propiedad de tablas, IDs y procedencia de macros,
 seguridad HTML, conservación de dinero, drenaje, cantidades inválidas, fallos de

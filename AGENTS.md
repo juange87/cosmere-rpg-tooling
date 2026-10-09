@@ -59,7 +59,8 @@ manifest's declared range. Foundry v14 support is separate work.
   from creating duplicate folders/tables.
 - `seedRollTables` allows the GM to disable seeding. `tableSeedVersion` records
   completion; bump `TABLE_SEED_VERSION` in `scripts/table-seeding.js` when bundled
-  table definitions change.
+  table definitions change. Folder preparation errors warn and retain the pending
+  version for a later retry.
 - Owned tables have `flags["cosmere-rpg-tooling"].tableKey`. Identify ownership
   by this key, never by name alone. Preserve existing folders, UUIDs and
   customized results; ownership does not authorize undoing GM organization.
@@ -108,7 +109,8 @@ manifest's declared range. Foundry v14 support is separate work.
   invalid source/destination denominations and can drain healthy ones instead;
   exclude an actor only if the healthy remainder cannot cover its request. Warn
   about exclusions and skipped denominations even with chat publication off.
-  With no actors drain is a no-op; a nonempty group with no eligible actors fails.
+  Display denomination labels in warnings/deficits; keep keys in plan metadata.
+  With no actors drain is a no-op with a no-player warning; a nonempty group with no eligible actors fails.
   Insufficient funds includes exclusion reasons. Aggregate plans propagate each actor's invalid/error state. Summary
   arithmetic must remain within safe integers; unrepresentable totals are null.
 - Guard missing tokens, actors, resource paths and optional animation modules.
@@ -122,8 +124,12 @@ manifest's declared range. Foundry v14 support is separate work.
   uncancellable waiter. Poll active animations for at most 30 checks, cancel on
   deletion, and log then publish one fallback at timeout. Interactive throws
   still pending are not revealed. Animations longer than this limit can receive
-  the fallback before finishing. Cache inspection, share one bounded processed
-  history, and use weak references for deleted messages. Skip disabled,
+  the fallback before finishing. Protect interactive throws through public DSN
+  pending-open/close hooks and the pending flag in the message; do not call
+  `pendingThrows.isPending`. Cache inspection and share one bounded processed
+  history, claimed only by the handler before awaiting effects. Deleted
+  documents are absent from `game.messages`; cancel timers without tracking
+  their IDs or retaining document references. Skip disabled,
   irrelevant and hidden rolls before scheduling. All paths share deduplication.
 - `rollHookSound`, `rollHookAnimation`, `soundVolume`, `useAnimations` have client
   scope, retaining former world values as initial defaults. Other behavior and

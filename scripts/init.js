@@ -29,13 +29,13 @@ Hooks.once('ready', async () => {
   let parentFolder, characterCreationFolder, nameGeneratorsFolder;
   try {
     parentFolder = await createRollTableFolderResolver({
-    key: "character-creation-root", name: "CosmereRPG: Character Creation", color: "#9b59b6",
+      key: "character-creation-root", name: "CosmereRPG: Character Creation", color: "#9b59b6",
     });
     characterCreationFolder = await createRollTableFolderResolver({
-    key: "character-creation", name: "Character Creation", color: "#4a90e2", parent: parentFolder,
+      key: "character-creation", name: "Character Creation", color: "#4a90e2", parent: parentFolder,
     });
     nameGeneratorsFolder = await createRollTableFolderResolver({
-    key: "name-generators", name: "Name Generators", color: "#e67e22", parent: parentFolder,
+      key: "name-generators", name: "Name Generators", color: "#e67e22", parent: parentFolder,
     });
   } catch (error) {
     console.error("Cosmere RPG Tooling | Base folder preparation failed", error);
