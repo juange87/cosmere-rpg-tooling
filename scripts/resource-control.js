@@ -14,7 +14,7 @@ import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js
 export const RESOURCE_KEYS = [
   { key: "health", get label() { return localize("Health"); }, path: "system.resources.hea.value", maxPath: "system.resources.hea.max" },
   { key: "focus", get label() { return localize("Focus"); }, path: "system.resources.foc.value", maxPath: "system.resources.foc.max" },
-  { key: "investiture", label: "Investiture", path: "system.resources.inv.value", maxPath: "system.resources.inv.max" },
+  { key: "investiture", get label() { return localize("Investiture"); }, path: "system.resources.inv.value", maxPath: "system.resources.inv.max" },
 ];
 
 export const NARRATIVE_STATES = [

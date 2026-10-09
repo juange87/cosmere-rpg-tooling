@@ -1,3 +1,4 @@
+import { sphereItemName as itemName } from "../sphere-currency.js";
 // Distribute Spheres / Distribuir Esferas: implementation behind the public module API.
 export async function run({
   game = globalThis.game,
@@ -24,11 +25,6 @@ export async function run({
     { currency: "spheres", denom: "mark", label: localize("MarkInfused"),  color: "#1a6fa8", valor: 5 },
     { currency: "dun",     denom: "mark", label: localize("MarkDun"), color: "#666666", valor: 5 },
   ];
-
-  function itemName(currency, denom) {
-    const currLabel = currency === "spheres" ? "" : " (Dun)";
-    return `${denom.charAt(0).toUpperCase() + denom.slice(1)}${currLabel}`;
-  }
 
   function getPlayerActors() {
     return game.actors.filter(a => a.hasPlayerOwner && a.type === "character");

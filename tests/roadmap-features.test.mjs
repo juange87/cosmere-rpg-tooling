@@ -201,7 +201,7 @@ test("conversation and endeavor manager tracks progress and narrative beats", ()
 
 test("Palabras Aceptadas Deluxe builds a full oath moment", async () => {
   assert.equal(RADIANT_ORDERS.length, 10);
-  assert.equal(RADIANT_ORDERS.find(order => order.key === "windrunner").label, "Windrunner");
+  assert.equal(RADIANT_ORDERS.find(order => order.key === "windrunner").label, "Corredores del Viento");
 
   const moment = buildOathAcceptedMoment({
     actorName: "Kaladin",
@@ -210,12 +210,12 @@ test("Palabras Aceptadas Deluxe builds a full oath moment", async () => {
     whisperTarget: "Bridge Four",
   });
 
-  assert.equal(moment.order.label, "Windrunner");
+  assert.equal(moment.order.label, "Corredores del Viento");
   assert.equal(moment.actorName, "Kaladin");
 
   const html = buildOathAcceptedChatCard(moment);
   assert.match(html, /Palabras Aceptadas/);
-  assert.match(html, /Windrunner/);
+  assert.match(html, /Corredores del Viento/);
   assert.match(html, /I will protect those who cannot protect themselves\./);
 
   const played = [];
@@ -277,8 +277,8 @@ test("surgebinding FX pack defines the ten surges", () => {
   });
   const html = buildSurgebindingChatCard(fx);
 
-  assert.equal(fx.surge.label, "Gravitation");
-  assert.match(html, /Surgebinding FX/);
+  assert.equal(fx.surge.label, "Gravitación");
+  assert.match(html, /Efectos de Potenciación/);
   assert.match(html, /Szeth/);
   assert.match(html, /Guard/);
   assert.match(html, /The target rises toward the ceiling\./);

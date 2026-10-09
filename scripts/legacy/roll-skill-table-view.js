@@ -12,13 +12,13 @@ export async function run({
   token = canvas?.tokens?.controlled?.[0],
 } = {}) {
   const { escapeHtml, normalizeNumber } = await import("../cosmere-helpers.js");
-  const { localize } = await import("../localization.js");
+  const { localize, format } = await import("../localization.js");
   const { openCosmereDialog } = await import("../foundry-dialogs.js");
 
   // MAPEO de habilidades organizadas por categoría
   const categorias = {
     physical: {
-      nombre: "Physical",
+      nombre: localize("Physical"),
       habilidades: {
         "agi": { nombre: localize("Agility2"), attr: "spd" },
         "ath": { nombre: localize("Athletics2"), attr: "str" },
@@ -29,7 +29,7 @@ export async function run({
       }
     },
     cognitive: {
-      nombre: "Cognitive",
+      nombre: localize("Cognitive"),
       habilidades: {
         "cra": { nombre: localize("Crafting3"), attr: "int" },
         "ded": { nombre: localize("Deduction2"), attr: "int" },
@@ -40,7 +40,7 @@ export async function run({
       }
     },
     spiritual: {
-      nombre: "Spiritual",
+      nombre: localize("Spiritual"),
       habilidades: {
         "dec": { nombre: localize("Deception2"), attr: "pre" },
         "ins": { nombre: localize("Insight2"), attr: "awa" },

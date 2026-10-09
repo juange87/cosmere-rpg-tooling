@@ -38,3 +38,7 @@ export function localize(key, { game = globalThis.game } = {}) {
   }
   return catalogs[language][key] ?? english[key] ?? key;
 }
+
+export function format(key, values = {}, options = {}) {
+  return localize(key, options).replace(/\{([^}]+)\}/g, (match, name) => String(values[name] ?? match));
+}

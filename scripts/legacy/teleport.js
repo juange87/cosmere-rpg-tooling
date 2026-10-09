@@ -25,7 +25,7 @@ export async function run({
       size: 1,
       gridHighlight: false,
       label: {
-          text: "Teleport to",
+          text: translate("TeleportTo"),
       }
   }, { show: async (crosshair) => {
 

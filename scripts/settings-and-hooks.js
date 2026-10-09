@@ -129,7 +129,7 @@ async function publishHookCard({ type, message, ChatMessage = globalThis.ChatMes
   await ChatMessage.create({
     content: buildCosmereChatCard({
       eyebrow: localize("CosmereGlobalHook"),
-      title: natural20 ? "Natural 20" : localize("CriticalFailure"),
+      title: natural20 ? localize("Natural20") : localize("CriticalFailure"),
       sections: [{
         label: localize("Result"),
         value: natural20

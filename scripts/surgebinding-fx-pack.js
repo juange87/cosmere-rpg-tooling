@@ -7,16 +7,16 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const SURGES = [
-  { key: "adhesion", label: "Adhesion", file: "jb2a.impact.ground_crack.blue", get cue() { return localize("BindSurfacesOathsOrAttentionAtAKeyMoment"); } },
-  { key: "gravitation", label: "Gravitation", file: "jb2a.energy_beam.normal.blue", get cue() { return localize("ChangeTheDirectionOfFallingOrMarkAVisualLashing"); } },
-  { key: "division", label: "Division", file: "jb2a.explosion.03.orange", get cue() { return localize("ShowDisintegrationHeatOrADangerousFracture"); } },
-  { key: "abrasion", label: "Abrasion", file: "jb2a.wind_stream.white", get cue() { return localize("MarkMovementThatIsFluidSlipperyOrImpossibleToCatch"); } },
-  { key: "progression", label: "Progression", file: "jb2a.healing_generic.02.green", get cue() { return localize("RepresentGrowthHealingOrAcceleratedLife"); } },
-  { key: "illumination", label: "Illumination", file: "jb2a.template_circle.symbol.normal.illusion.purple", get cue() { return localize("CreateLightImagesOrSensoryDistractions"); } },
-  { key: "transformation", label: "Transformation", file: "jb2a.particles.outward.greenyellow.01.03", get cue() { return localize("SignalSoulcastingOrAChangeOfMatter"); } },
-  { key: "transportation", label: "Transportation", file: "jb2a.misty_step.02.blue", get cue() { return localize("MarkATransitionJumpOrBrushWithShadesmar"); } },
-  { key: "cohesion", label: "Cohesion", file: "jb2a.impact.ground_crack.orange", get cue() { return localize("ShapeStoneMudOrSolidSurfaces"); } },
-  { key: "tension", label: "Tension", file: "jb2a.shield.01.outro.yellow", get cue() { return localize("HardenOrStiffenMaterialsWithInvestiture"); } },
+  { key: "adhesion", get label() { return localize("Adhesion"); }, file: "jb2a.impact.ground_crack.blue", get cue() { return localize("BindSurfacesOathsOrAttentionAtAKeyMoment"); } },
+  { key: "gravitation", get label() { return localize("Gravitation"); }, file: "jb2a.energy_beam.normal.blue", get cue() { return localize("ChangeTheDirectionOfFallingOrMarkAVisualLashing"); } },
+  { key: "division", get label() { return localize("Division"); }, file: "jb2a.explosion.03.orange", get cue() { return localize("ShowDisintegrationHeatOrADangerousFracture"); } },
+  { key: "abrasion", get label() { return localize("Abrasion"); }, file: "jb2a.wind_stream.white", get cue() { return localize("MarkMovementThatIsFluidSlipperyOrImpossibleToCatch"); } },
+  { key: "progression", get label() { return localize("Progression"); }, file: "jb2a.healing_generic.02.green", get cue() { return localize("RepresentGrowthHealingOrAcceleratedLife"); } },
+  { key: "illumination", get label() { return localize("Illumination"); }, file: "jb2a.template_circle.symbol.normal.illusion.purple", get cue() { return localize("CreateLightImagesOrSensoryDistractions"); } },
+  { key: "transformation", get label() { return localize("Transformation"); }, file: "jb2a.particles.outward.greenyellow.01.03", get cue() { return localize("SignalSoulcastingOrAChangeOfMatter"); } },
+  { key: "transportation", get label() { return localize("Transportation"); }, file: "jb2a.misty_step.02.blue", get cue() { return localize("MarkATransitionJumpOrBrushWithShadesmar"); } },
+  { key: "cohesion", get label() { return localize("Cohesion"); }, file: "jb2a.impact.ground_crack.orange", get cue() { return localize("ShapeStoneMudOrSolidSurfaces"); } },
+  { key: "tension", get label() { return localize("Tension"); }, file: "jb2a.shield.01.outro.yellow", get cue() { return localize("HardenOrStiffenMaterialsWithInvestiture"); } },
 ];
 
 function resolveSurge(surgeKey) {
@@ -41,7 +41,7 @@ export function buildSurgebindingFx({
 export function buildSurgebindingChatCard(input) {
   const fx = buildSurgebindingFx(input);
   return buildCosmereChatCard({
-    eyebrow: "Surgebinding FX",
+    eyebrow: localize("SurgebindingFX"),
     title: fx.surge.label,
     sections: [
       { label: localize("Source"), value: fx.actorName },
@@ -100,11 +100,11 @@ export function openSurgebindingFxDialog({
   }
 
   openCosmereDialog({
-    title: "Surgebinding FX Pack",
+    title: localize("SurgebindingFXPack"),
     content: `
       <form>
         <div class="form-group"><label>Surge</label><select name="surgeKey">${surgeOptions()}</select></div>
-        <div class="form-group"><label>Actor</label><input name="actorName" type="text" /></div>
+        <div class="form-group"><label>${localize("Actor")}</label><input name="actorName" type="text" /></div>
         <div class="form-group"><label>${localize("Target")}</label><input name="targetName" type="text" /></div>
         <div class="form-group"><label>${localize("Description")}</label><textarea name="note" rows="2"></textarea></div>
         <label><input name="publishChat" type="checkbox" checked /> ${localize("PostCard")}</label>

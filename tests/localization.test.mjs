@@ -62,7 +62,7 @@ test("catalogs cover every localization call and are included in the manifest an
     assert.ok(Object.values(catalog).every(value => typeof value === "string" && value.trim()));
   }
   const sourceTexts = (await macros()).map(macro => macro.command);
-  for (const file of await readdir(new URL("scripts/", root))) {
+  for (const file of await readdir(new URL("scripts/", root), { recursive: true })) {
     if (file.endsWith(".js")) sourceTexts.push(await readFile(new URL(`scripts/${file}`, root), "utf8"));
   }
   for (const source of sourceTexts) {
@@ -205,4 +205,21 @@ test("macro upgrades recognize old Spanish names without renaming or duplicating
   assert.equal(update.command, source.command);
   assert.equal("name" in update, false);
   assert.equal("_id" in update, false);
+});
+
+test("remaining narrative labels and location fragments follow the chosen language", async t => {
+  const game = useLanguage(t, "es");
+  const { SPHERE_DENOMINATIONS, sphereItemName } = await import("../scripts/sphere-currency.js");
+  const { PLOT_DIE_OUTCOMES } = await import("../scripts/plot-die-manager.js");
+  const { buildLocationSeed } = await import("../scripts/location-generator.js");
+  assert.equal(PLOT_DIE_OUTCOMES.find(item => item.key === "opportunity").label, "Oportunidad");
+  assert.equal(SPHERE_DENOMINATIONS[0].label, "Chip infundido");
+  const spanishLocation = buildLocationSeed({ seed: "same" });
+  game.i18n.lang = "en";
+  assert.equal(PLOT_DIE_OUTCOMES.find(item => item.key === "opportunity").label, "Opportunity");
+  assert.equal(SPHERE_DENOMINATIONS[0].label, "Chip infused");
+  assert.notEqual(buildLocationSeed({ seed: "same" }).look, spanishLocation.look);
+  assert.equal(sphereItemName("dun", "mark"), "Mark dun");
+  game.i18n.lang = "es";
+  assert.equal(sphereItemName("dun", "mark"), "Mark dun");
 });

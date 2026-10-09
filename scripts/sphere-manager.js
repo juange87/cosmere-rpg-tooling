@@ -8,14 +8,8 @@ import {
 } from "./cosmere-helpers.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
-export const SPHERE_DENOMINATIONS = [
-  { key: "spheres|chip", currency: "spheres", denom: "chip", label: "Chip infused", value: 1 },
-  { key: "spheres|mark", currency: "spheres", denom: "mark", label: "Mark infused", value: 5 },
-  { key: "spheres|broam", currency: "spheres", denom: "broam", label: "Broam infused", value: 20 },
-  { key: "dun|chip", currency: "dun", denom: "chip", label: "Chip dun", value: 1 },
-  { key: "dun|mark", currency: "dun", denom: "mark", label: "Mark dun", value: 5 },
-  { key: "dun|broam", currency: "dun", denom: "broam", label: "Broam dun", value: 20 },
-];
+export { SPHERE_DENOMINATIONS } from "./sphere-currency.js";
+import { SPHERE_DENOMINATIONS, sphereItemName as itemName } from "./sphere-currency.js";
 
 function findMoneyItem(actor, currency, denom) {
   return Array.from(actor?.items ?? []).find(item =>
@@ -24,11 +18,6 @@ function findMoneyItem(actor, currency, denom) {
     item?.system?.price?.currency === currency &&
     item?.system?.price?.denomination?.primary === denom
   );
-}
-
-function itemName(currency, denom) {
-  const label = denom.charAt(0).toUpperCase() + denom.slice(1);
-  return currency === "dun" ? `${label} dun` : `${label} infused`;
 }
 
 function buildMoneyItemData(key, quantity) {
@@ -276,7 +265,7 @@ export function buildSphereTransactionChatCard({
 
     return {
       label: result.actorName,
-      value: [changes || localize("NoChanges"), deficits ? `Deficit: ${deficits}` : ""].filter(Boolean).join(" | "),
+      value: [changes || localize("NoChanges"), deficits ? `${localize("Deficit")}: ${deficits}` : ""].filter(Boolean).join(" | "),
     };
   });
 
@@ -378,7 +367,7 @@ export function buildSphereManagerDialogContent(actors) {
       <ul>${rows}</ul>
       <hr>
       <h3>${localize("ConvertSpheres")}</h3>
-      <div class="form-group"><label>Actor</label><select name="convertActorId">${actorOptions(actors)}</select></div>
+      <div class="form-group"><label>${localize("Actor")}</label><select name="convertActorId">${actorOptions(actors)}</select></div>
       <div class="form-group"><label>${localize("From")}</label><select name="convertFromKey">${denominationOptions()}</select></div>
       <div class="form-group"><label>${localize("To")}</label><select name="convertToKey">${denominationOptions()}</select></div>
       <div class="form-group"><label>${localize("Amount")}</label><input name="convertQuantity" type="number" value="1" min="0" step="1" /></div>

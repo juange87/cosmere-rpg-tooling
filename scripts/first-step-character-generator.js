@@ -126,7 +126,7 @@ export function openFirstStepCharacterGenerator({
   }
 
   openCosmereDialog({
-    title: "First Step Character Generator",
+    title: localize("FirstStepCharacterGenerator"),
     content: buildDialogContent(),
     buttons: {
       generate: {

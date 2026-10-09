@@ -39,7 +39,7 @@ test("builds a successful plot die result with automatic opportunity", () => {
     successLabel: "Exito",
     plotDieValue: 6,
     plotOutcome: "opportunity",
-    plotOutcomeLabel: "Opportunity",
+    plotOutcomeLabel: "Oportunidad",
     opportunityText: "The guard captain becomes an ally.",
     complicationText: "",
     gmNote: "",
@@ -60,7 +60,7 @@ test("builds a failed plot die result with automatic complication", () => {
   assert.equal(result.successState, "failure");
   assert.equal(result.successLabel, "Fallo");
   assert.equal(result.plotOutcome, "complication");
-  assert.equal(result.plotOutcomeLabel, "Complication");
+  assert.equal(result.plotOutcomeLabel, "Complicación");
 });
 
 test("allows manual opportunity and complication override", () => {
@@ -74,7 +74,7 @@ test("allows manual opportunity and complication override", () => {
   assert.equal(result.successState, "unknown");
   assert.equal(result.successLabel, "Sin dificultad");
   assert.equal(result.plotOutcome, "both");
-  assert.equal(result.plotOutcomeLabel, "Opportunity + Complication");
+  assert.equal(result.plotOutcomeLabel, "Oportunidad + Complicación");
 });
 
 test("renders a plot die chat card", () => {
@@ -96,7 +96,7 @@ test("renders a plot die chat card", () => {
   assert.match(html, /Leadership/);
   assert.match(html, /18 vs 15/);
   assert.match(html, /Exito/);
-  assert.match(html, /Opportunity/);
+  assert.match(html, /Oportunidad/);
   assert.match(html, /The guard captain becomes an ally\./);
   assert.match(html, /Use this after the duel\./);
 });

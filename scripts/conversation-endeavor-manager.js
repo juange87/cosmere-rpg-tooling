@@ -10,7 +10,7 @@ import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js
 
 export const TRACK_TYPES = [
   { key: "conversation", get label() { return localize("Conversation"); } },
-  { key: "endeavor", label: "Endeavor" },
+  { key: "endeavor", get label() { return localize("Endeavor"); } },
 ];
 
 function resolveTrackType(type) {
@@ -89,8 +89,8 @@ export function buildNonCombatChatCard(track) {
   ];
 
   if (resolved.focus) sections.push({ label: localize("FocusOrResistance"), value: resolved.focus });
-  if (lastBeat?.opportunity) sections.push({ label: "Opportunity", value: lastBeat.opportunity });
-  if (lastBeat?.complication) sections.push({ label: "Complication", value: lastBeat.complication });
+  if (lastBeat?.opportunity) sections.push({ get label() { return localize("Opportunity"); }, value: lastBeat.opportunity });
+  if (lastBeat?.complication) sections.push({ get label() { return localize("Complication"); }, value: lastBeat.complication });
   if (lastBeat?.note) sections.push({ label: localize("Note"), value: lastBeat.note });
   if (resolved.summary) sections.push({ label: localize("FinalSummary"), value: resolved.summary });
 
@@ -142,11 +142,11 @@ function buildTrackDialogContent() {
         <input name="progress" type="number" value="1" />
       </div>
       <div class="form-group">
-        <label>Opportunity</label>
+        <label>${localize("Opportunity")}</label>
         <textarea name="opportunity" rows="2"></textarea>
       </div>
       <div class="form-group">
-        <label>Complication</label>
+        <label>${localize("Complication")}</label>
         <textarea name="complication" rows="2"></textarea>
       </div>
       <div class="form-group">
