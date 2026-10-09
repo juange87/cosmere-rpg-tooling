@@ -135,3 +135,24 @@ test("group spending excludes malformed denominations before planning and remain
   assert.equal(item.system.quantity, 2);
   assert.equal(malformed.items[1].system.quantity, 2);
 });
+
+test("drain propagates destination overflow and rejects it with the actual error", async () => {
+  const overflowing = { id: "overflow", name: "Overflow", items: [["spheres", 1], ["dun", Number.MAX_SAFE_INTEGER]].map(([currency, quantity]) => ({ type: "loot", system: { isMoney: true, quantity, price: { currency, denomination: { primary: "broam" } } }, update: () => assert.fail("Overflow written") })) };
+  const plan = planInvestitureDrain({ actors: [overflowing], amount: 1 });
+  assert.equal(plan.ok, false);
+  assert.equal(plan.invalid, true);
+  assert.equal(plan.error, plan.results[0].error);
+  assert.match(plan.error, /Invalid|inválid/);
+  await assert.rejects(applySphereTransactionPlan({ actors: [overflowing], plan, publishChat: false }), error => error.message === plan.error);
+});
+
+test("group transactions cannot report success when an allocation becomes invalid during planning", async () => {
+  const { buildGroupSphereSpendTransaction } = await import("../scripts/sphere-transactions.js");
+  let reads = 0;
+  const changing = { id: "changed", items: [{ type: "loot", system: { isMoney: true, get quantity() { return ++reads === 1 ? 5 : 1.5; }, price: { currency: "spheres", denomination: { primary: "mark" } } }, update: () => assert.fail("Invalid plan written") }] };
+  const plan = buildGroupSphereSpendTransaction({ actors: [changing], quantity: 3 });
+  assert.equal(plan.ok, false);
+  assert.equal(plan.invalid, true);
+  assert.equal(plan.error, plan.results[0].error);
+  await assert.rejects(applySphereInventoryPlan({ actors: [changing], plan }), error => error.message === plan.error);
+});

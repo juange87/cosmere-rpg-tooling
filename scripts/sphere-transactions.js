@@ -246,7 +246,9 @@ export function planInvestitureDrain({
   });
 
   return {
-    ok: results.every(result => result.ok),
+    ok: results.every(result => result.ok && !result.invalid),
+    invalid: results.some(result => result.invalid),
+    error: results.find(result => result.invalid)?.error,
     amount: Math.max(0, normalizeNumber(amount, 0)),
     results,
   };
@@ -274,8 +276,9 @@ export function buildGroupSphereSpendTransaction({
   });
 
   return {
-    ok: spend.ok,
-    error: spend.error,
+    ok: spend.ok && results.every(result => result.ok && !result.invalid),
+    invalid: results.some(result => result.invalid),
+    error: results.find(result => result.invalid)?.error ?? spend.error,
     key,
     requested: spend.requested,
     deficit: spend.deficit,
