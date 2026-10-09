@@ -1,5 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { localize } from "../scripts/localization.js";
 import { SPHERE_DENOMINATIONS, planSphereConversion, applySphereTransactionPlan } from "../scripts/sphere-manager.js";
 import { buildSphereManagerDialogContent } from "../scripts/sphere-manager.js";
 const actor = { id: "actor", items: SPHERE_DENOMINATIONS.map(({ currency, denom }) => ({ type: "loot", system: { isMoney: true, quantity: 100, price: { currency, denomination: { primary: denom } } } })) };
@@ -142,7 +143,7 @@ test("drain propagates destination overflow and rejects it with the actual error
   assert.equal(plan.ok, false);
   assert.equal(plan.invalid, true);
   assert.equal(plan.error, plan.results[0].error);
-  assert.match(plan.error, /Invalid|inválid/);
+  assert.equal(plan.error, localize("InvalidSphereQuantity"));
   await assert.rejects(applySphereTransactionPlan({ actors: [overflowing], plan, publishChat: false }), error => error.message === plan.error);
 });
 
