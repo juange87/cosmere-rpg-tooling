@@ -59,10 +59,12 @@ export async function applySphereTransactionPlan({
   if (!plan?.results) throw new Error(localize("ThereIsNoSphereTransactionToApply"));
   if (!plan.ok) throw new Error(plan.error ?? localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
 
+  if (!plan.results.length) return plan;
   await applySphereInventoryPlan({ actors, plan });
-  if (plan.excluded?.length) {
-    notifyCosmere(format("ExcludedSphereActors", {
-      actors: plan.excluded.map(result => `${result.actorName}: ${result.warning}`).join("; "),
+  const warnings = plan.results.filter(result => result.warning);
+  if (warnings.length) {
+    notifyCosmere(format("SphereInventoryWarnings", {
+      actors: warnings.map(result => `${result.actorName}: ${result.warning}`).join("; "),
     }), { type: "warn", game, ui });
   }
 

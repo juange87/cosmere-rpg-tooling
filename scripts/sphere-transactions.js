@@ -257,19 +257,28 @@ export function planInvestitureDrain({
   const results = actors.map(actor => {
     let remaining = Math.max(0, normalizeNumber(amount, 0));
     const changes = {};
+    const skippedKeys = [];
     for (const key of drainOrder) {
       if (remaining <= 0) break;
       const { quantity: available, invalidItems } = inspectSphereQuantity(actor, key);
-      if (invalidItems.length) return excludedActorResult(actor, key);
+      if (invalidItems.length) { skippedKeys.push(key); continue; }
       const drained = Math.min(available, remaining);
       if (drained > 0) {
         const destination = key.replace("spheres|", "dun|");
-        if (inspectSphereQuantity(actor, destination).invalidItems.length) return excludedActorResult(actor, destination);
+        if (inspectSphereQuantity(actor, destination).invalidItems.length) { skippedKeys.push(destination); continue; }
         changes[key] = -drained;
         changes[key.replace("spheres|", "dun|")] = drained;
         remaining -= drained;
       }
     }
+    const warning = skippedKeys.length
+      ? `${localize("InvalidSphereInventory")} ${format("SkippedSphereDenominations", { denominations: skippedKeys.join(", ") })}`
+      : undefined;
+    // Preserve this actor's whole inventory if healthy denominations cannot
+    // cover its requested drain. Other eligible actors can still proceed.
+    if (remaining > 0 && skippedKeys.length) return {
+      ...excludedActorResult(actor, skippedKeys[0]), skippedKeys, warning,
+    };
     const result = planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {
       actorId: actor?.id,
       actorName: actor?.name ?? localize("NoActor"),
@@ -278,6 +287,7 @@ export function planInvestitureDrain({
       deficit: {},
       ok: remaining === 0,
     };
+    if (warning) { result.warning = warning; result.skippedKeys = skippedKeys; }
     if (remaining > 0) {
       result.deficit.investitureDrain = remaining;
       result.ok = false;
@@ -287,7 +297,7 @@ export function planInvestitureDrain({
 
   const excluded = results.filter(result => result.excluded);
   const ok = results.every(result => result.ok && !result.invalid)
-    && (Number(amount) === 0 || results.some(result => !result.excluded));
+    && (actors.length === 0 || Number(amount) === 0 || results.some(result => !result.excluded));
   return {
     ok,
     invalid: results.some(result => result.invalid),
@@ -306,7 +316,7 @@ export function buildGroupSphereSpendTransaction({
   const spend = planGroupSphereSpend({ actors, key, quantity });
   const results = actors.map(actor => {
     const excluded = spend.excluded?.find(item => item.actorId === actor?.id);
-    if (excluded) return { ...excluded, excluded: true, current: {}, next: {}, deficit: {}, ok: true };
+    if (excluded) return excluded;
     const allocation = spend.allocations.find(item => item.actorId === actor?.id);
     const changes = allocation ? { [key]: -allocation.quantity } : {};
     return planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {

@@ -276,3 +276,33 @@ test("notification text escapes once in v12 and delegates cleaning to v13", asyn
     }
   }
 });
+
+test("drain uses healthy denominations and warns about skipped corrupt broams", async () => {
+  for (const corruptKey of ["spheres|broam", "dun|broam"]) {
+    const actor = moneyActor("Kal", [["spheres|broam", 2], ["dun|broam", 0], ["spheres|mark", 3], ["dun|mark", 0]]);
+    const corrupt = actor.items.find(item => `${item.system.price.currency}|${item.system.price.denomination.primary}` === corruptKey);
+    corrupt.system.quantity = 1.5;
+    actor.items.slice(0, 2).forEach(item => { item.update = () => assert.fail("Skipped broam modified"); });
+    const plan = planInvestitureDrain({ actors: [actor], amount: 2 });
+    assert.equal(plan.ok, true);
+    assert.equal(plan.excluded.length, 0);
+    assert.deepEqual(plan.results[0].skippedKeys, [corruptKey]);
+    assert.equal(plan.results[0].next["spheres|mark"], 1);
+    const notices = [];
+    await applySphereTransactionPlan({ actors: [actor], plan, publishChat: false,
+      ui: { notifications: { warn: text => notices.push(text) } } });
+    assert.equal(notices.length, 1);
+    assert.ok(notices[0].includes(corruptKey));
+    assert.equal(actor.items[2].system.quantity, 1);
+    assert.equal(actor.items[3].system.quantity, 2);
+    assert.equal(corrupt.system.quantity, 1.5);
+  }
+});
+
+test("empty drain is a successful no-op without chat or notifications", async () => {
+  const plan = planInvestitureDrain({ actors: [], amount: 1 });
+  assert.equal(plan.ok, true);
+  assert.deepEqual(plan.results, []);
+  await applySphereTransactionPlan({ actors: [], plan, ChatMessage: { create: () => assert.fail("Empty drain chat") },
+    ui: { notifications: { warn: () => assert.fail("Empty drain warning") } } });
+});
