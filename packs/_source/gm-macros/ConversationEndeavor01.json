@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/conversation.svg",
   "scope": "global",
-  "command": "const { openConversationEndeavorManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/conversation-endeavor-manager.js\");\n\nopenConversationEndeavorManager();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openConversationEndeavorManager();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "ConversationEndeavor01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

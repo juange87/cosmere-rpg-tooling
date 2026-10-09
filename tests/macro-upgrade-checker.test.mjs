@@ -201,7 +201,7 @@ test("ships the GM macro for checking imported world macro copies", async () => 
   assert.equal(macro._key, `!macros!${macro._id}`);
   assert.ok(macro.name.includes("Installed Macro Check"));
   assert.equal(macro.type, "script");
-  assert.match(macro.command, /macro-upgrade-checker\.js/);
+  assert.match(macro.command, /api\.openMacroUpgradeChecker/);
 });
 
 test("provenance protects same-name user macros and matches renamed legacy imports", () => {

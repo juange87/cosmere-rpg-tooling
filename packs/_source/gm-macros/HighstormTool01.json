@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/lightning.svg",
   "scope": "global",
-  "command": "const { openHighstormToolkit } = await import(\"/modules/cosmere-rpg-tooling/scripts/highstorm-toolkit.js\");\n\nopenHighstormToolkit();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openHighstormToolkit();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,7 +16,8 @@
     "cosmere-rpg-tooling": {
       "legacyIds": [
         "HighstormTool01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

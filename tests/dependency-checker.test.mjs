@@ -135,6 +135,6 @@ test("ships a GM macro that opens the dependency checker", async () => {
   assert.equal(macro._key, `!macros!${macro._id}`);
   assert.equal(macro.name, "Dependency Check / Chequeo de Dependencias");
   assert.equal(macro.type, "script");
-  assert.match(macro.command, /dependency-checker\.js/);
+  assert.match(macro.command, /api\.runDependencyCheck/);
   assert.match(macro.command, /runDependencyCheck/);
 });

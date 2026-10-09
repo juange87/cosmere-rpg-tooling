@@ -4,7 +4,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/dice-target.svg",
   "scope": "global",
-  "command": "const { localize } = await import(\"/modules/cosmere-rpg-tooling/scripts/localization.js\");\n// Macro para hacer una tirada de habilidad en Foundry VTT\n// Cambia \"ste\" por la abreviatura de la habilidad que quieras (sigilo = \"ste\", acrobacias = \"acr\", etc.)\n\n// Primero, obtiene el token seleccionado\nlet token = canvas.tokens.controlled[0];\nif (!token) {\n  return ui.notifications.warn(localize(\"PleaseSelectATokenBeforeUsingThisMacro\"));\n}\n\n// Haz la tirada de la habilidad deseada (ejemplo con sigilo)\ntoken.actor.rollSkill(\"inm\");",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runLegacyMacro(\"TEXnuT51VJGlk6qt\");",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,6 +16,9 @@
       "system": "cosmere-rpg",
       "coreVersion": "12.343",
       "systemVersion": "1.0.1"
+    },
+    "cosmere-rpg-tooling": {
+      "apiVersion": 1
     }
   },
   "_id": "TEXnuT51VJGlk6qt",

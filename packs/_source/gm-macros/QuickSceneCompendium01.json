@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/book.svg",
   "scope": "global",
-  "command": "const { openQuickSceneCompendium } = await import(\"/modules/cosmere-rpg-tooling/scripts/quick-scene-compendium.js\");\n\nopenQuickSceneCompendium();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openQuickSceneCompendium();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "QuickSceneCompendium01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

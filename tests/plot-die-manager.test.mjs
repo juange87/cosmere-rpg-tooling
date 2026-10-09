@@ -156,6 +156,6 @@ test("ships a GM macro that opens the plot die manager", async () => {
   assert.equal(macro._key, "!macros!PlotDieManager01");
   assert.equal(macro.name, "Plot Die Manager / Gestor de Plot Die");
   assert.equal(macro.type, "script");
-  assert.match(macro.command, /plot-die-manager\.js/);
+  assert.match(macro.command, /api\.openPlotDieManager/);
   assert.match(macro.command, /openPlotDieManager/);
 });

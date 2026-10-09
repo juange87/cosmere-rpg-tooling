@@ -134,6 +134,6 @@ test("ships a GM macro that opens the Roshar NPC generator", async () => {
   assert.equal(macro._key, "!macros!RosharNPCGen0001");
   assert.equal(macro.name, "Roshar NPC Generator / Generador de PNJ Roshar");
   assert.equal(macro.type, "script");
-  assert.match(macro.command, /roshar-npc-generator\.js/);
+  assert.match(macro.command, /api\.openRosharNpcGenerator/);
   assert.match(macro.command, /openRosharNpcGenerator/);
 });

@@ -475,3 +475,17 @@ Nevertheless, I have used AI to help me create this module (basically to guide m
 ---
 
 **Journey before destination, Radiant!** ⚔️✨
+
+### API pública del módulo
+
+Las macros del compendio llaman a `game.modules.get("cosmere-rpg-tooling").api`.
+La API se registra en `init` y carga sus herramientas mediante imports relativos,
+por lo que funciona también con `routePrefix`. Por ejemplo:
+
+```js
+await game.modules.get("cosmere-rpg-tooling").api.openSphereManager();
+```
+
+Las copias importadas antes de esta API necesitan una actualización inicial con
+el Chequeo de Macros Instaladas. Después reciben las correcciones de los scripts
+al actualizar el módulo sin tener que volver a importar cada macro.

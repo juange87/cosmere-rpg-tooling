@@ -1,3 +1,4 @@
+import { createCosmereApi } from "../scripts/module-api.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
@@ -9,6 +10,7 @@ async function executeMacro(file, { game, canvas = {}, messages = [] } = {}) {
   const command = macro.command.replaceAll('/modules/cosmere-rpg-tooling/scripts/', new URL('../scripts/', import.meta.url).href);
   const dialogs = [];
   class Dialog { constructor(options) { dialogs.push(options); } render() { return this; } }
+  game.modules = new Map([["cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas, Dialog, ChatMessage: { create: async data => messages.push(data) }, ui: { notifications: { info() {}, warn() {}, error() {} } } }) }]]);
   const previousDialog = globalThis.Dialog;
   globalThis.Dialog = Dialog;
   try { await new AsyncFunction("game", "canvas", "ui", "ChatMessage", "Dialog", command)(

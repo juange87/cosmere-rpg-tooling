@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/upgrade.svg",
   "scope": "global",
-  "command": "const { openMacroUpgradeChecker } = await import(\"/modules/cosmere-rpg-tooling/scripts/macro-upgrade-checker.js\");\n\nawait openMacroUpgradeChecker();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openMacroUpgradeChecker();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "MacroUpgradeCheck01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

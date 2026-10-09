@@ -1,3 +1,4 @@
+import { registerCosmereApi } from "./module-api.js";
 import { COSMERE_MODULE_ID } from "./cosmere-helpers.js";
 import { ensureOwnedRollTable, shouldSeedTables, TABLE_SEED_VERSION } from "./table-seeding.js";
 import { localize } from "./localization.js";
@@ -6,6 +7,7 @@ import { ensureRoadmapRollTables } from "./roshar-roll-tables.js";
 
 Hooks.once("init", () => {
   registerCosmereSettings();
+  registerCosmereApi();
 });
 
 Hooks.once("ready", () => {

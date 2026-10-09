@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/checkmark.svg",
   "scope": "global",
-  "command": "const { runMacroValidation } = await import(\"/modules/cosmere-rpg-tooling/scripts/macro-validator.js\");\n\nrunMacroValidation();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runMacroValidation();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "MacroValidation01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

@@ -4,13 +4,17 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/dice-target.svg",
   "scope": "global",
-  "command": "const { resolveJb2aAssetPath } = await import(\"/modules/cosmere-rpg-tooling/scripts/jb2a-assets.js\");\n\nconst center = {\n  x: canvas.scene.width / 2,\n  y: canvas.scene.height / 2\n};\n\nconst jb2aAssetPath = resolveJb2aAssetPath(\"Library/Generic/UI/CriticalMiss_03_Red_200x200.webm\");\nif (!jb2aAssetPath || typeof Sequence !== \"function\") return;\n\nnew Sequence()\n    .effect()\n        .file(jb2aAssetPath)\n        .atLocation(center).scale(5)\n    .play()",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runLegacyMacro(\"9MDhU9WMv0QKYH3D\");",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {},
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "apiVersion": 1
+    }
+  },
   "_id": "9MDhU9WMv0QKYH3D",
   "_key": "!macros!9MDhU9WMv0QKYH3D"
 }

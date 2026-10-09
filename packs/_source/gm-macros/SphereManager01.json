@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/coins.svg",
   "scope": "global",
-  "command": "const { openSphereManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/sphere-manager.js\");\n\nopenSphereManager();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openSphereManager();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "SphereManager01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

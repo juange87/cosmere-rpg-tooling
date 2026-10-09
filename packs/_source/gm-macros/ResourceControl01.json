@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/regen.svg",
   "scope": "global",
-  "command": "const { openResourceControl } = await import(\"/modules/cosmere-rpg-tooling/scripts/resource-control.js\");\n\nopenResourceControl();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openResourceControl();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "ResourceControl01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

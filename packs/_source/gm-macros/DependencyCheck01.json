@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/hazard.svg",
   "scope": "global",
-  "command": "const { runDependencyCheck } = await import(\"/modules/cosmere-rpg-tooling/scripts/dependency-checker.js\");\n\nrunDependencyCheck();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runDependencyCheck();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "DependencyCheck01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

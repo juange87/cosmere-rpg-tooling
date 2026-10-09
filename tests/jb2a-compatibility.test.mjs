@@ -1,3 +1,4 @@
+import { createCosmereApi } from "../scripts/module-api.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
@@ -81,6 +82,10 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
         } }] },
       };
       const command = macro.command.replace(/^const \{ (?:resolveJb2aAssetPath|localize) \} = await import\([^\n]+\);\n/gm, "");
+      const Sequence = function Sequence() { return sequence; };
+      const ui = { notifications: { info(message) { notifications.push(message); }, warn() {} } };
+      const Hooks = { on: (_, callback) => callbacks.push(callback) };
+      game.modules.set("cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas, Sequence, ui, Hooks, Die }) });
       await new AsyncFunction("game", "canvas", "Sequence", "ui", "Hooks", "Die", "resolveJb2aAssetPath", "localize", command)(
         game, canvas, function Sequence() { return sequence; },
         { notifications: { info(message) { notifications.push(message); }, warn() {} } },

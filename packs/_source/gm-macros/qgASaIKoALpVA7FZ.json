@@ -4,7 +4,7 @@
   "author": "qUfD5KYQYHHgdqCR",
   "img": "icons/logo-scifi-blank.png",
   "scope": "global",
-  "command": "const { openOathAcceptedDeluxe } = await import(\"/modules/cosmere-rpg-tooling/scripts/oath-accepted-deluxe.js\");\n\nopenOathAcceptedDeluxe();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openOathAcceptedDeluxe();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -14,7 +14,8 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Palabras Aceptadas Deluxe"
-      ]
+      ],
+      "apiVersion": 1
     }
   },
   "_id": "qgASaIKoALpVA7FZ",

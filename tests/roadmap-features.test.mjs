@@ -1,3 +1,4 @@
+import { API_TOOLS } from "../scripts/module-api.js";
 // These existing behavior checks exercise the Spanish interface.
 globalThis.game = { i18n: { lang: "es" } };
 
@@ -546,7 +547,7 @@ test("macro validation finds valid metadata and dependency references", async ()
 
   const packReport = await validateMacroSourcePack("packs/_source/gm-macros");
   assert.equal(packReport.errors.length, 0);
-  assert.ok(packReport.warnings.some(warning => /AudioHelper|Sequence|JB2A|diceSoNice/.test(warning.message)));
+  assert.equal(packReport.ok, true);
 
   const plan = createMacroValidationPlan();
   assert.deepEqual(plan.checks, [
@@ -579,12 +580,12 @@ test("ships official GM macros for all roadmap tools", async () => {
     assert.equal(macro._key, `!macros!${macro._id}`);
     assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
     assert.equal(macro.type, "script");
-    assert.match(macro.command, new RegExp(script.replace(".", "\\.")));
+    assert.match(macro.command, new RegExp(`api\\.${Object.entries(API_TOOLS).find(([method, file]) => file === script && method !== "playSurgebindingFx")[0]}`));
   }
 
   const oathMacro = await readMacro("packs/_source/gm-macros/qgASaIKoALpVA7FZ.json");
   assert.ok(oathMacro.name.includes("Words Accepted Deluxe"));
-  assert.match(oathMacro.command, /oath-accepted-deluxe\.js/);
+  assert.match(oathMacro.command, /api\.openOathAcceptedDeluxe/);
 });
 
 test("ships individual Surgebinding macros for every Surge", async () => {
@@ -607,7 +608,7 @@ test("ships individual Surgebinding macros for every Surge", async () => {
     assert.ok(macro._id === id || macro.flags["cosmere-rpg-tooling"]?.legacyIds?.includes(id));
     assert.equal(macro._key, `!macros!${macro._id}`);
     assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
-    assert.match(macro.command, /surgebinding-fx-pack\.js/);
+    assert.match(macro.command, /api\.playSurgebindingFx/);
     assert.match(macro.command, new RegExp(`surgeKey: "${surgeKey}"`));
   }
 });

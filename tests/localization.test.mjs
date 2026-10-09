@@ -1,3 +1,4 @@
+import { createCosmereApi } from "../scripts/module-api.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
@@ -180,6 +181,7 @@ test("Roll Skill translates its dialog and preserves the system skill key", asyn
   globalThis.Dialog = Dialog;
   t.after(() => { globalThis.Dialog = previousDialog; });
   const macro = await readJson("packs/_source/player-macros/14tGXTB3AbrChE0p.json");
+  game.modules = new Map([["cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas: { tokens: { controlled: [] } }, Dialog }) }]]);
   await new AsyncFunction("game", "canvas", "ui", executable(macro.command))(game, { tokens: { controlled: [] } }, {});
   assert.equal(options.title, "Skill roll (Nota)");
   assert.match(options.content, /value="agi">Agility/);

@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/dice-target.svg",
   "scope": "global",
-  "command": "const { openPlotDieManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/plot-die-manager.js\");\n\nopenPlotDieManager();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openPlotDieManager();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,7 +16,8 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Gestor de Plot Die"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }

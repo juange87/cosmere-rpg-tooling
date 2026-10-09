@@ -6,7 +6,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/map.svg",
   "scope": "global",
-  "command": "const { openLocationGenerator } = await import(\"/modules/cosmere-rpg-tooling/scripts/location-generator.js\");\n\nopenLocationGenerator();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openLocationGenerator();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -19,7 +19,8 @@
       ],
       "legacyIds": [
         "LocationGenerator01"
-      ]
+      ],
+      "apiVersion": 1
     }
   }
 }
