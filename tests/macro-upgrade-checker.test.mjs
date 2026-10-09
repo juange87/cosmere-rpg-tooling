@@ -31,13 +31,14 @@ test("macro upgrade report detects current, outdated, missing, and duplicate wor
       type: "script",
       img: "icons/svg/d20-black.svg",
       scope: "global",
-      packId: "cosmere-rpg-tooling.player-macros",
+      packId: "cosmere-rpg-tooling.gm-macros",
       packLabel: "CosmereRPG: Player Macros",
     },
   ];
   const worldMacros = [
     {
       id: "world-current",
+      flags: { core: { sourceId: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.roll-skill" } },
       name: "Roll Skill",
       command: "rollSkill()",
       type: "script",
@@ -46,6 +47,7 @@ test("macro upgrade report detects current, outdated, missing, and duplicate wor
     },
     {
       id: "world-old",
+      flags: { core: { sourceId: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.gm-panel" } },
       name: "Panel GM Cosmere",
       command: "import('/old-gm-panel.js')",
       type: "script",
@@ -54,6 +56,7 @@ test("macro upgrade report detects current, outdated, missing, and duplicate wor
     },
     {
       id: "world-duplicate",
+      flags: { core: { sourceId: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.gm-panel" } },
       name: "Panel GM Cosmere",
       command: "import('/new-gm-panel.js')",
       type: "script",
@@ -100,6 +103,7 @@ test("macro upgrade selection updates only explicitly selected outdated world ma
   const updates = [];
   const staleMacro = {
     id: "world-old",
+      flags: { core: { sourceId: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.gm-panel" } },
     name: "Panel GM Cosmere",
     command: "oldCommand()",
     type: "script",
@@ -112,6 +116,7 @@ test("macro upgrade selection updates only explicitly selected outdated world ma
   };
   const currentMacro = {
     id: "world-current",
+      flags: { core: { sourceId: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.roll-skill" } },
     name: "Roll Skill",
     command: "rollSkill()",
     type: "script",
@@ -139,7 +144,7 @@ test("macro upgrade selection updates only explicitly selected outdated world ma
         type: "script",
         img: "icons/svg/d20-black.svg",
         scope: "global",
-        packId: "cosmere-rpg-tooling.player-macros",
+        packId: "cosmere-rpg-tooling.gm-macros",
       },
     ],
     worldMacros: [staleMacro, currentMacro],
@@ -162,6 +167,7 @@ test("macro upgrade HTML escapes names and leaves update checkboxes unchecked", 
   const report = buildMacroUpgradeReport({
     sourceMacros: [{
       _id: "unsafe",
+      packId: "cosmere-rpg-tooling.gm-macros",
       name: "Macro <unsafe>",
       command: "newCommand()",
       type: "script",
@@ -169,6 +175,7 @@ test("macro upgrade HTML escapes names and leaves update checkboxes unchecked", 
     }],
     worldMacros: [{
       id: "world-unsafe",
+      flags: { core: { sourceId: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.unsafe" } },
       name: "Macro <unsafe>",
       command: "oldCommand()",
       type: "script",
@@ -195,4 +202,26 @@ test("ships the GM macro for checking imported world macro copies", async () => 
   assert.ok(macro.name.includes("Installed Macro Check"));
   assert.equal(macro.type, "script");
   assert.match(macro.command, /macro-upgrade-checker\.js/);
+});
+
+test("provenance protects same-name user macros and matches renamed legacy imports", () => {
+  const source = { id: "newid", packId: "cosmere-rpg-tooling.gm-macros", name: "Shared", command: "new", flags: { "cosmere-rpg-tooling": { legacyIds: ["oldid"] } } };
+  const report = buildMacroUpgradeReport({ sourceMacros: [source], worldMacros: [
+    { id: "user", name: "Shared", command: "user code" },
+    { id: "renamed", name: "My renamed macro", command: "old", _stats: { compendiumSource: "Compendium.cosmere-rpg-tooling.gm-macros.Macro.oldid" } },
+  ] });
+  assert.equal(report.counts.worldMatches, 1);
+  assert.equal(report.entries[0].worldMacro.id, "renamed");
+});
+
+test("one rejected macro update does not prevent the remaining selection", async () => {
+  const source = { id: "source", packId: "module.pack", command: "new" };
+  const worldMacros = [
+    { id: "fail", command: "old", flags: { core: { sourceId: "Compendium.module.pack.Macro.source" } }, update: async () => { throw Error("denied"); } },
+    { id: "ok", command: "old", flags: { core: { sourceId: "Compendium.module.pack.Macro.source" } }, update: async () => {} },
+  ];
+  const report = buildMacroUpgradeReport({ sourceMacros: [source], worldMacros });
+  const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys: report.entries.map(entry => entry.key) });
+  assert.equal(result.failed.length, 1);
+  assert.equal(result.updated.length, 1);
 });

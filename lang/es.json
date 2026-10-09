@@ -551,6 +551,7 @@
     "SeedRollTables": "Crear tablas del módulo",
     "SeedRollTablesHint": "Crear las tablas que falten al iniciar. Se conservan las tablas del usuario.",
     "InvalidSphereConversion": "Elige denominaciones válidas distintas y una cantidad entera no negativa.",
-    "InvalidSphereQuantity": "Las cantidades de esferas deben ser números enteros no negativos."
+    "InvalidSphereQuantity": "Las cantidades de esferas deben ser números enteros no negativos.",
+    "MacroUpdatesFailed": "Actualizaciones de macros fallidas: "
   }
 }

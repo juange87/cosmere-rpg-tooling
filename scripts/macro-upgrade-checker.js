@@ -50,6 +50,8 @@ function getDocumentData(document, defaults = {}) {
     img: raw?.img ?? document?.img ?? "",
     scope: raw?.scope ?? document?.scope ?? "global",
     flags: raw?.flags ?? document?.flags ?? {},
+    _stats: raw?._stats ?? document?._stats ?? {},
+    uuid: raw?.uuid ?? document?.uuid ?? "",
     packId: raw?.packId ?? document?.packId ?? defaults.packId ?? "",
     packLabel: raw?.packLabel ?? document?.packLabel ?? defaults.packLabel ?? defaults.packId ?? "",
   };
@@ -78,22 +80,17 @@ export function buildMacroUpgradeReport({
 } = {}) {
   const sources = sourceMacros.map(macro => getDocumentData(macro));
   const world = worldMacros.map(macro => getDocumentData(macro));
-  const worldByName = new Map();
-
-  for (const macro of world) {
-    if (!macro.name) continue;
-    const existing = worldByName.get(macro.name) ?? [];
-    existing.push(macro);
-    worldByName.set(macro.name, existing);
-  }
-
   const entries = [];
   const matchedWorldCopies = new Map();
   for (const source of sources) {
-    // Bilingual compendium names still match copies imported before English
-    // support. Updating a macro preserves its world name and hotbar ID.
-    const names = new Set([source.name, ...(source.flags?.[COSMERE_MODULE_ID]?.legacyNames ?? [])]);
-    const matches = Array.from(names).flatMap(name => worldByName.get(name) ?? []);
+    const ids = [source.id, ...(source.flags?.[COSMERE_MODULE_ID]?.legacyIds ?? [])];
+    const origins = new Set(ids.flatMap(id => [
+      `Compendium.${source.packId}.Macro.${id}`,
+      `Compendium.${source.packId}.${id}`,
+    ]));
+    if (source.uuid) origins.add(source.uuid);
+    const matches = world.filter(macro => [macro._stats.compendiumSource, macro.flags?.core?.sourceId]
+      .some(origin => origin && origins.has(origin)));
     matchedWorldCopies.set(source, matches.length);
     if (!matches.length) {
       entries.push({
@@ -176,6 +173,7 @@ export function buildMacroUpdateData(entry, { now = new Date() } = {}) {
     type: source.type,
     img: source.img,
     scope: source.scope,
+    "flags.core.sourceId": source.uuid || `Compendium.${source.packId}.Macro.${source.id}`,
     flags,
   };
 }
@@ -188,6 +186,7 @@ export async function applyMacroUpgradeSelection({
   const selected = new Set(selectedEntryKeys);
   const updated = [];
   const skipped = [];
+  const failed = [];
 
   for (const entry of report?.entries ?? []) {
     if (!selected.has(entry.key)) continue;
@@ -196,11 +195,15 @@ export async function applyMacroUpgradeSelection({
       continue;
     }
 
-    await entry.worldMacro.document.update(buildMacroUpdateData(entry, { now }));
-    updated.push(entry);
+    try {
+      await entry.worldMacro.document.update(buildMacroUpdateData(entry, { now }));
+      updated.push(entry);
+    } catch (error) {
+      failed.push({ entry, error });
+    }
   }
 
-  return { updated, skipped };
+  return { updated, skipped, failed };
 }
 
 function buildStatusSummary(counts) {
@@ -418,6 +421,7 @@ export async function openMacroUpgradeChecker({
           }
           const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys });
           ui?.notifications?.info?.(`${localize("MacrosUpdated")}${result.updated.length}.`);
+          if (result.failed.length) ui?.notifications?.error?.(`${localize("MacroUpdatesFailed")}${result.failed.length}.`);
           await publishReport(await scanInstalledCosmereMacros({ game }), { ChatMessage });
           return true;
         },

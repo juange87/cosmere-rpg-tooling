@@ -190,9 +190,11 @@ test("Roll Skill translates its dialog and preserves the system skill key", asyn
 
 test("macro upgrades recognize old Spanish names without renaming or duplicating world copies", async () => {
   const source = await readJson("packs/_source/gm-macros/GMPanel01.json");
+  source.packId = "cosmere-rpg-tooling.gm-macros";
+  const origin = `Compendium.${source.packId}.Macro.${source._id}`;
   const report = buildMacroUpgradeReport({ sourceMacros: [source], worldMacros: [
-    { _id: "old", name: "Panel GM Cosmere", command: "old code", type: "script" },
-    { _id: "new", name: source.name, command: "old code", type: "script" },
+    { _id: "old", flags: { core: { sourceId: origin } }, name: "Panel GM Cosmere", command: "old code", type: "script" },
+    { _id: "new", _stats: { compendiumSource: origin }, name: source.name, command: "old code", type: "script" },
   ] });
   assert.equal(report.counts.missing, 0);
   assert.equal(report.counts.outdated, 2);
