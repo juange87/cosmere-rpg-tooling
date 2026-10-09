@@ -45,8 +45,8 @@ export async function run({
           .stretchTo(target)
           .repeats(3, 200, 300)
           .randomizeMirrorY()
-  			.delay(1000)
-  	.sound()
+          .delay(1000)
+      .sound()
           .file("psfx.weapon-attacks.spear.v1")
 
       .play();
