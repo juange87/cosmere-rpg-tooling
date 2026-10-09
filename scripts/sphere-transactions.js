@@ -168,8 +168,9 @@ export function planSphereConversion({
   if (!actor || !from || !to || fromKey === toKey || !Number.isSafeInteger(amount) || amount < 0) {
     return invalidConversion(localize("InvalidSphereConversion"));
   }
-  if (inspectSphereQuantity(actor, fromKey).invalidItems.length) return invalidConversion(localize("InvalidSphereInventory"));
-  if (getSphereQuantity(actor, fromKey) < amount) {
+  const source = inspectSphereQuantity(actor, fromKey);
+  if (source.invalidItems.length) return invalidConversion(localize("InvalidSphereInventory"));
+  if (source.quantity < amount) {
     return invalidConversion(localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
   }
   const value = amount * from.value;

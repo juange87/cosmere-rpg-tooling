@@ -231,3 +231,12 @@ test("both dialogs show simultaneous overflow and invalid-inventory warnings", a
     assert.equal((content.match(/class="cr-warn"/g) ?? []).length, 2);
   }
 });
+
+test("conversion funding checks reuse the source inventory inspection", () => {
+  let scans = 0;
+  const money = moneyActor("Poor", [["spheres|mark", 1]]);
+  const source = { ...money, items: { *[Symbol.iterator]() { scans++; yield* money.items; } } };
+  const plan = planSphereConversion({ actor: source, quantity: 2 });
+  assert.equal(plan.ok, false);
+  assert.equal(scans, 1);
+});
