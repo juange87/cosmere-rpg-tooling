@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { createCosmereApi } from "../scripts/module-api.js";
+import { runLegacyResourceChange } from "../scripts/legacy-tools.js";
 
 test("legacy resource macros await updates and support numeric or object maxima without animations", async () => {
   for (const max of [10, { value: 10 }]) {
@@ -27,5 +28,21 @@ test("retired hook macros register no listeners even when executed repeatedly", 
   for (const key of ["JftnYfOMuXevgcjV", "mSA2KpnWle0X6E6m", "xFULRQmwpU1neOQf"]) {
     await api.runLegacyMacro(key);
     await api.runLegacyMacro(key);
+  }
+});
+
+test("only actual health gains show healing and failed effects do not fail a committed update", async () => {
+  for (const resourceKey of ["hea", "foc"]) {
+    for (const delta of [-1, 1]) {
+      const plays = [], warnings = [];
+      const actor = { system: { resources: { [resourceKey]: { value: 5, max: 10 } } }, update: async change => { actor.system.resources[resourceKey].value = change[`system.resources.${resourceKey}.value`]; } };
+      const chain = new Proxy({}, { get: (_, key) => key === "play" ? async () => { plays.push(true); throw Error("Missing media"); } : () => chain });
+      const result = await runLegacyResourceChange({ resourceKey, delta, canvas: { tokens: { controlled: [{ actor }] } }, game: { modules: new Map([["sequencer", { active: true }], ["JB2A_DnD5e", { active: true }]]) }, Sequence: function () { return chain; }, ui: { notifications: { info() {}, warn: text => warnings.push(text) } } });
+      assert.equal(result, 5 + delta);
+      assert.equal(actor.system.resources[resourceKey].value, result);
+      const shouldHeal = resourceKey === "hea" && delta === 1;
+      assert.equal(plays.length, shouldHeal ? 1 : 0);
+      assert.equal(warnings.length, shouldHeal ? 1 : 0);
+    }
   }
 });

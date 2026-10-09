@@ -31,9 +31,15 @@ export async function runLegacyResourceChange({
   await actor.update({ [path]: next });
   ui?.notifications?.info?.(`${localize(resourceKey === "hea" ? "HealthUpdatedTo" : "FocusUpdatedTo")}${next}.`);
   // Optional visual effects must never prevent the resource update.
-  if (hasSequencer({ game, Sequence })) {
+  if (resourceKey === "hea" && next > current && hasSequencer({ game, Sequence })) {
     const file = resolveJb2aAssetPath("Library/Generic/Healing/HealingAbility_02_Regular_GreenOrange_Loop_600x600.webm", game);
-    if (file) await new Sequence().effect().file(file).atLocation(token).scaleToObject(3).belowTokens().play();
+    if (file) {
+      try {
+        await new Sequence().effect().file(file).atLocation(token).scaleToObject(3).belowTokens().play();
+      } catch {
+        ui?.notifications?.warn?.(localize("ResourceUpdatedAnimationFailed"));
+      }
+    }
   }
   return next;
 }
