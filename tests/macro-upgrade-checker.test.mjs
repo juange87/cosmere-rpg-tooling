@@ -249,7 +249,7 @@ test("explicit legacy name aliases show UUID-less candidates but require separat
   const unconfirmed = await applyMacroUpgradeSelection({ report, selectedEntryKeys: [entry.key] });
   assert.equal(unconfirmed.skipped.length, 1);
   assert.equal(updates.length, 0);
-  await applyMacroUpgradeSelection({ report, selectedEntryKeys: [entry.key], confirmedLegacyEntryKeys: [entry.key] });
+  await applyMacroUpgradeSelection({ report, selectedEntryKeys: [entry.key], confirmLegacyUpgrades: true });
   assert.equal(updates.length, 1);
   assert.equal(updates[0].flags.core.sourceId, "Compendium.module.pack.Macro.source");
   assert.match(buildMacroUpgradeDialogContent(report), /name="confirm-legacy-upgrades"/);

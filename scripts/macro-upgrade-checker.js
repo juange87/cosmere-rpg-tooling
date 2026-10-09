@@ -83,10 +83,15 @@ export function buildMacroUpgradeReport({
   const world = worldMacros.map(macro => getDocumentData(macro));
   const entries = [];
   const matchedWorldCopies = new Map();
-  const legacyNamesFor = source => {
+  const legacyNameOwners = new Map();
+  for (const source of sources) {
     const aliases = source.flags?.[COSMERE_MODULE_ID]?.legacyNames ?? [];
-    return aliases.length ? new Set([source.name, ...aliases]) : new Set();
-  };
+    if (!aliases.length) continue;
+    for (const name of new Set([source.name, ...aliases])) {
+      if (!legacyNameOwners.has(name)) legacyNameOwners.set(name, source);
+      else if (legacyNameOwners.get(name) !== source) legacyNameOwners.set(name, null);
+    }
+  }
   for (const source of sources) {
     const ids = [source.id, ...(source.flags?.[COSMERE_MODULE_ID]?.legacyIds ?? [])];
     const origins = new Set(ids.flatMap(id => [
@@ -96,10 +101,8 @@ export function buildMacroUpgradeReport({
     if (source.uuid) origins.add(source.uuid);
     const provenanceMatches = world.filter(macro => [macro._stats.compendiumSource, macro.flags?.core?.sourceId]
       .some(origin => origin && origins.has(origin)));
-    const legacyNames = legacyNamesFor(source);
     const nameMatches = world.filter(macro => !macro._stats.compendiumSource && !macro.flags?.core?.sourceId
-      && legacyNames.has(macro.name)
-      && sources.filter(candidate => legacyNamesFor(candidate).has(macro.name)).length === 1);
+      && legacyNameOwners.get(macro.name) === source);
     const matches = [...provenanceMatches, ...nameMatches];
     matchedWorldCopies.set(source, matches.length);
     if (!matches.length) {
@@ -192,11 +195,10 @@ export function buildMacroUpdateData(entry, { now = new Date() } = {}) {
 export async function applyMacroUpgradeSelection({
   report,
   selectedEntryKeys = [],
-  confirmedLegacyEntryKeys = [],
+  confirmLegacyUpgrades = false,
   now = new Date(),
 } = {}) {
   const selected = new Set(selectedEntryKeys);
-  const confirmed = new Set(confirmedLegacyEntryKeys);
   const updated = [];
   const skipped = [];
   const failed = [];
@@ -204,7 +206,7 @@ export async function applyMacroUpgradeSelection({
   for (const entry of report?.entries ?? []) {
     if (!selected.has(entry.key)) continue;
     if (entry.status !== "outdated" || !entry.worldMacro?.document?.update
-      || (entry.requiresConfirmation && !confirmed.has(entry.key))) {
+      || (entry.requiresConfirmation && confirmLegacyUpgrades !== true)) {
       skipped.push(entry);
       continue;
     }
@@ -432,12 +434,12 @@ export async function openMacroUpgradeChecker({
             return false;
           }
           const hasLegacySelection = report.entries.some(entry => selectedEntryKeys.includes(entry.key) && entry.requiresConfirmation);
-          const confirmedLegacyEntryKeys = html.find?.("input[name='confirm-legacy-upgrades']")?.is?.(":checked") ? selectedEntryKeys : [];
-          if (hasLegacySelection && !confirmedLegacyEntryKeys.length) {
+          const confirmLegacyUpgrades = html.find?.("input[name='confirm-legacy-upgrades']")?.is?.(":checked") === true;
+          if (hasLegacySelection && !confirmLegacyUpgrades) {
             ui?.notifications?.warn?.(localize("ConfirmLegacyMacroUpgrades"));
             return false;
           }
-          const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys, confirmedLegacyEntryKeys });
+          const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys, confirmLegacyUpgrades });
           ui?.notifications?.info?.(`${localize("MacrosUpdated")}${result.updated.length}.`);
           if (result.failed.length) ui?.notifications?.error?.(`${localize("MacroUpdatesFailed")}${result.failed.length}.`);
           await publishReport(await scanInstalledCosmereMacros({ game }), { ChatMessage });
