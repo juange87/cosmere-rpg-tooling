@@ -53,7 +53,7 @@ export async function run({
 
           // Crear mensaje privado (whisper) solo para ese jugador
           await ChatMessage.create({
-            user: game.user.id, // el usuario que lo envía (tú)
+            author: game.user.id, // el usuario que lo envía (tú)
             whisper: [jugador.id],
             speaker: { alias: game.user.name },
             content: escapeHtml(mensaje)

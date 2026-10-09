@@ -89,23 +89,25 @@ export async function run({
                   const habilidad = html2.find("#habilidad").val();
 
                   // Buscar jugador con permiso OWNER
-                  let player = game.users.players.find(u => actor.testUserPermission(u, OWNER_PERMISSION_LEVEL));
-                  if (!player) return ui.notifications.error(localize("NoPlayerControlsThisCharacter"));
+                  const players = game.users.players.filter(u => actor.testUserPermission(u, OWNER_PERMISSION_LEVEL));
+                  if (!players.length) return ui.notifications.error(localize("NoPlayerControlsThisCharacter"));
 
-                  // Mensaje privado con botón
+                  if (!(habilidad in habilidades)) return;
+
+                // Mensaje privado con botón
                   const chatContent = `
                     <p><b>${escapeHtml(game.user.name)}</b> ${localize("RequestsARollOf")} <b>${escapeHtml(habilidades[habilidad])}</b> ${localize("For")} <b>${escapeHtml(actor.name)}</b>.</p>
                     <button class="roll-solicitud" data-actor-id="${escapeHtml(actor.id)}" data-skill="${escapeHtml(habilidad)}">🎲 ${localize("Roll3")}</button>
                   `;
 
                   await ChatMessage.create({
-                    user: player.id,
-                    whisper: [player.id],
+                    author: game.user.id,
+                    whisper: players.map(player => player.id),
                     speaker: { alias: localize("RollRequest") },
                     content: chatContent
                   });
 
-                  ui.notifications.info(`${localize("RequestSentTo")}${player.name}`);
+                  ui.notifications.info(`${localize("RequestSentTo")}${players.map(player => player.name).join(", ")}`);
                 }
               }
             }

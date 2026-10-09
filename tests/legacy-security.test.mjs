@@ -37,3 +37,18 @@ test("private messages treat player names and message bodies as text", async () 
   assert.match(messages[0].content, /&lt;img/);
   assert.doesNotMatch(messages[0].content, /<img/);
 });
+
+test("Request Roll attributes requests to the GM and whispers to every actor owner", async () => {
+  const players = [{ id: "owner1", name: "One" }, { id: "other", name: "Other" }, { id: "owner2", name: "Two" }];
+  const actor = { id: "actor", name: attack, hasPlayerOwner: true, testUserPermission: user => user.id !== "other" };
+  const actors = [actor];
+  actors.get = () => actor;
+  const { dialogs, messages } = await executeMacro("gm-macros/OHzWpcVmcfaHsk4z", { game: { actors, users: { players }, user: { id: "gm", name: attack } } });
+  await dialogs[0].buttons.siguiente.callback({ find: () => ({ val: () => "actor" }) });
+  await dialogs[1].buttons.enviar.callback({ find: () => ({ val: () => "agi" }) });
+  assert.deepEqual(messages[0].whisper, ["owner1", "owner2"]);
+  assert.equal(messages[0].author, "gm");
+  assert.equal("user" in messages[0], false);
+  assert.match(messages[0].content, /data-skill="agi"/);
+  assert.doesNotMatch(messages[0].content, /<img src=x onerror=/);
+});
