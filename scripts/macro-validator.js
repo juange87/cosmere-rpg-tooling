@@ -34,6 +34,9 @@ export function createMacroValidationPlan() {
 export function validateMacroSourceFile(filePath, macro) {
   const errors = [];
   const warnings = [];
+  if (!macro || typeof macro !== "object" || Array.isArray(macro)) {
+    return { filePath, ok: false, errors: [`${filePath}: ${localize("MacroSourceMustBeObject")}`], warnings };
+  }
 
   if (macro?._id && !/^[A-Za-z0-9]{16}$/.test(macro._id)) {
     errors.push(`${filePath}: _id must contain exactly 16 alphanumeric characters.`);
@@ -85,8 +88,10 @@ export async function validateMacroSourcePack(packPath) {
       continue;
     }
 
-    if (ids.has(macro._id)) errors.push(`${filePath}: duplicate _id ${macro._id}.`);
-    ids.add(macro._id);
+    if (macro?._id) {
+      if (ids.has(macro._id)) errors.push(`${filePath}: duplicate _id ${macro._id}.`);
+      ids.add(macro._id);
+    }
     const report = validateMacroSourceFile(filePath, macro);
     reports.push(report);
     errors.push(...report.errors);

@@ -628,6 +628,7 @@
     "TableSeedingIncomplete": "Some tables could not be seeded. The remaining tables were processed; failed tables will be retried on the next load. See the console for details.",
     "ResourceUpdatedAnimationFailed": "The resource was updated, but its animation could not be played.",
     "LegacyMacroNameMatch": "Name match without a compendium UUID",
-    "ConfirmLegacyMacroUpgrades": "I have reviewed the selected name matches and confirm they are module macros; replacing them may overwrite custom code."
+    "ConfirmLegacyMacroUpgrades": "I have reviewed the selected name matches and confirm they are module macros; replacing them may overwrite custom code.",
+    "MacroSourceMustBeObject": "A macro source must be a JSON object."
   }
 }

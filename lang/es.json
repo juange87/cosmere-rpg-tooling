@@ -628,6 +628,7 @@
     "TableSeedingIncomplete": "No se pudieron preparar algunas tablas. Se han procesado las demás; se reintentará al recargar. Consulta la consola para ver los errores.",
     "ResourceUpdatedAnimationFailed": "El recurso se ha actualizado, pero no se pudo reproducir la animación.",
     "LegacyMacroNameMatch": "Coincidencia de nombre sin UUID de compendio",
-    "ConfirmLegacyMacroUpgrades": "He revisado las coincidencias seleccionadas por nombre y confirmo que son macros del módulo; reemplazarlas puede sobrescribir código personalizado."
+    "ConfirmLegacyMacroUpgrades": "He revisado las coincidencias seleccionadas por nombre y confirmo que son macros del módulo; reemplazarlas puede sobrescribir código personalizado.",
+    "MacroSourceMustBeObject": "La fuente de una macro debe ser un objeto JSON."
   }
 }
