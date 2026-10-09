@@ -9,7 +9,7 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export { SPHERE_DENOMINATIONS } from "./sphere-currency.js";
-import { SPHERE_DENOMINATIONS } from "./sphere-currency.js";
+import { SPHERE_DENOMINATIONS, sphereDenominationLabel } from "./sphere-currency.js";
 
 export { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction } from "./sphere-transactions.js";
 import { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction, applySphereInventoryPlan, sphereSummaryWarnings } from "./sphere-transactions.js";
@@ -25,7 +25,7 @@ export function buildSphereTransactionChatCard({
       .join(", ");
     const deficits = Object.entries(result.deficit ?? {})
       .filter(([, value]) => value > 0)
-      .map(([key, value]) => `${key}${localize("Missing")}${value}`)
+      .map(([key, value]) => `${sphereDenominationLabel(key)}${localize("Missing")}${value}`)
       .join(", ");
 
     return {
@@ -59,7 +59,10 @@ export async function applySphereTransactionPlan({
   if (!plan?.results) throw new Error(localize("ThereIsNoSphereTransactionToApply"));
   if (!plan.ok) throw new Error(plan.error ?? localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
 
-  if (!plan.results.length) return plan;
+  if (!plan.results.length) {
+    if (!actors.length) notifyCosmere(localize("NoPlayerCharactersFound"), { type: "warn", game, ui });
+    return plan;
+  }
   await applySphereInventoryPlan({ actors, plan });
   const warnings = plan.results.filter(result => result.warning);
   if (warnings.length) {

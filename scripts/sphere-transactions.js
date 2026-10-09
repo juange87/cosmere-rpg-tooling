@@ -1,6 +1,6 @@
 import { localize, format } from "./localization.js";
 import { normalizeNumber } from "./cosmere-helpers.js";
-import { SPHERE_DENOMINATIONS, sphereItemName as itemName } from "./sphere-currency.js";
+import { SPHERE_DENOMINATIONS, sphereItemName as itemName, sphereDenominationLabel } from "./sphere-currency.js";
 
 export function findMoneyItems(actor, currency, denom) {
   return Array.from(actor?.items ?? []).filter(item =>
@@ -272,7 +272,7 @@ export function planInvestitureDrain({
       }
     }
     const warning = skippedKeys.length
-      ? `${localize("InvalidSphereInventory")} ${format("SkippedSphereDenominations", { denominations: skippedKeys.join(", ") })}`
+      ? `${localize("InvalidSphereInventory")} ${format("SkippedSphereDenominations", { denominations: skippedKeys.map(sphereDenominationLabel).join(", ") })}`
       : undefined;
     // Preserve this actor's whole inventory if healthy denominations cannot
     // cover its requested drain. Other eligible actors can still proceed.

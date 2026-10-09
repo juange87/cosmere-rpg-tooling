@@ -292,17 +292,32 @@ test("drain uses healthy denominations and warns about skipped corrupt broams", 
     await applySphereTransactionPlan({ actors: [actor], plan, publishChat: false,
       ui: { notifications: { warn: text => notices.push(text) } } });
     assert.equal(notices.length, 1);
-    assert.ok(notices[0].includes(corruptKey));
+    assert.ok(notices[0].includes(SPHERE_DENOMINATIONS.find(denom => denom.key === corruptKey).label));
+    assert.ok(!notices[0].includes(corruptKey));
     assert.equal(actor.items[2].system.quantity, 1);
     assert.equal(actor.items[3].system.quantity, 2);
     assert.equal(corrupt.system.quantity, 1.5);
   }
 });
 
-test("empty drain is a successful no-op without chat or notifications", async () => {
+test("empty drain is a successful no-op with a no-player warning and no chat", async () => {
   const plan = planInvestitureDrain({ actors: [], amount: 1 });
   assert.equal(plan.ok, true);
   assert.deepEqual(plan.results, []);
+  const warnings = [];
   await applySphereTransactionPlan({ actors: [], plan, ChatMessage: { create: () => assert.fail("Empty drain chat") },
-    ui: { notifications: { warn: () => assert.fail("Empty drain warning") } } });
+    ui: { notifications: { warn: text => warnings.push(text) } } });
+  assert.deepEqual(warnings, [localize("NoPlayerCharactersFound")]);
+});
+
+test("sphere deficits use display labels instead of internal denomination keys", async () => {
+  const { buildSphereTransactionChatCard } = await import("../scripts/sphere-manager.js");
+  const plan = planSphereTransaction({ actors: [moneyActor("Poor", [])], changes: { "spheres|mark": -2 } });
+  const card = buildSphereTransactionChatCard({ plan });
+  assert.ok(card.includes(SPHERE_DENOMINATIONS.find(denom => denom.key === "spheres|mark").label));
+  assert.ok(!card.includes("spheres|mark"));
+  const drain = planInvestitureDrain({ actors: [moneyActor("Empty", [])], amount: 1 });
+  const drainCard = buildSphereTransactionChatCard({ plan: drain });
+  assert.ok(drainCard.includes(localize("DrainAfterInvestiture")));
+  assert.ok(!drainCard.includes("investitureDrain"));
 });

@@ -18,3 +18,8 @@ export const SPHERE_DENOMINATIONS = [
   { key: "dun|mark", currency: "dun", denom: "mark", get label() { return localize("MarkDun"); }, value: 5 },
   { key: "dun|broam", currency: "dun", denom: "broam", get label() { return localize("BroamDun"); }, value: 20 },
 ];
+
+export function sphereDenominationLabel(key) {
+  return SPHERE_DENOMINATIONS.find(denom => denom.key === key)?.label
+    ?? localize(key === "investitureDrain" ? "DrainAfterInvestiture" : "Denomination");
+}
