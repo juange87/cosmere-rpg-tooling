@@ -344,4 +344,3 @@ export async function runLegacySphereTool({
     width: 720,
   }, { Dialog });
 }
-

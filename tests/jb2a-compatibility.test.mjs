@@ -94,8 +94,9 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
         localize,
       );
       for (const callback of callbacks) callback("roll-id");
-      assert.equal(files.length, edition ? 1 : 0, macro.name);
-      if (edition) assert.ok(files[0].startsWith(`modules/${edition}/Library/`), macro.name);
+      const animated = edition && !macro.name.startsWith("Reduce Health");
+      assert.equal(files.length, animated ? 1 : 0, macro.name);
+      if (animated) assert.ok(files[0].startsWith(`modules/${edition}/Library/`), macro.name);
       if (id !== "9MDhU9WMv0QKYH3D") {
         assert.equal(notifications.length, 1, macro.name);
         assert.match(notifications[0], /Health updated|natural 20|Critical failure detected/, macro.name);

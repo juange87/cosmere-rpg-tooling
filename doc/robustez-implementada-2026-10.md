@@ -8,8 +8,8 @@ C-20 ni cambia la compatibilidad declarada a Foundry v14.
   aliases de origen para las copias antiguas y validación de IDs duplicados.
 - **R-2:** tablas con flags de propiedad, migración conservadora de semillas
   antiguas, movimientos sin borrado, sembrado versionado y desactivable.
-- **R-3:** una tarjeta por tirada desde el GM activo, deduplicación y fallback
-  sin Dice So Nice. R-24 completa la reproducción local de efectos por cliente.
+- **R-3:** una tarjeta por tirada desde el GM activo, deduplicación y manejo por creación
+  del mensaje, incluso si Dice So Nice no anima la tirada. R-24 completa la reproducción local de efectos por cliente.
 - **R-4:** escape de nombres, imágenes y texto en las macros clásicas afectadas.
 - **R-5:** archivo de licencia ISC, coherente con la licencia ya declarada.
 - **R-6:** tests y validación en CI de push/PR y antes de publicar una release.
@@ -17,7 +17,8 @@ C-20 ni cambia la compatibilidad declarada a Foundry v14.
   tipo y sin permitir convertir una cantidad que el actor no tiene.
 - **R-8:** drenaje a dun de la misma denominación; cantidades enteras no negativas.
 - **R-9:** actualizaciones por procedencia de compendio, preservando nombre/ID
-  del mundo y continuando después de fallos individuales.
+  del mundo y continuando después de fallos individuales. Los nombres antiguos
+  declarados identifican candidatos sin UUID que requieren confirmación del GM.
 - **R-10:** Panel GM carga sus macros por ID desde el compendio.
 - **R-11:** API pública registrada en init; las 66 macros son llamadas de una
   línea. Las copias antiguas requieren una actualización inicial.
@@ -43,7 +44,34 @@ C-20 ni cambia la compatibilidad declarada a Foundry v14.
   del mundo y efectos automáticos de tirada reproducidos localmente una vez.
 - **R-25:** AGENTS.md actualizado y CLAUDE.md enlazado a la guía compartida.
 
+## Correcciones de la revisión posterior
+
+Los diez hallazgos de la revisión se han contrastado y corregido:
+
+1. Migración de ajustes mediante `getSetting`, con una prueba de almacenamiento
+   indexado por ID de documento como el de Foundry.
+2. Inventarios antiguos inválidos señalados en los diálogos sin impedir abrirlos;
+   las escrituras estrictas rechazan la denominación afectada.
+3. Fallos de sembrado aislados por tabla. Se procesan las demás y se reintentan
+   las pendientes al recargar, sin duplicar las ya creadas.
+4. Adopción de una coincidencia antigua exacta y única aunque esté en otra carpeta;
+   las búsquedas prefieren tablas con el flag del módulo ante copias ambiguas.
+5. Curación solo cuando aumenta la salud. Los errores de efectos opcionales no
+   hacen fallar una actualización de recursos ya aplicada.
+6. Tarjetas y efectos sin depender del evento de fin de animación de Dice So Nice,
+   con deduplicación del evento tardío.
+7. Candidatos sin UUID reconocidos por aliases `legacyNames`, con selección y
+   confirmación separada antes de reemplazar código del mundo.
+8. JSON `null`, arrays y valores primitivos producen errores por fichero sin
+   abortar la validación de las demás macros.
+9. Desbordamientos con nombre de actor, error explícito y contratos de resultado
+   completos; sin claves de déficit inventadas.
+10. Interfaz, CSS, vista previa y flujo de transacción compartidos para las macros
+    clásicas de esferas. Ambas conservan sus comandos y ahora son wrappers.
+
 ## Validación
+
+147 pruebas automatizadas aprobadas.
 
 Regresiones con Node para propiedad de tablas, IDs y procedencia de macros,
 seguridad HTML, conservación de dinero, drenaje, cantidades inválidas, fallos de
