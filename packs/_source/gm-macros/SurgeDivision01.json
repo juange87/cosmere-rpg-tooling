@@ -1,6 +1,6 @@
 {
-  "_id": "SurgeDivision01",
-  "_key": "!macros!SurgeDivision01",
+  "_id": "f01387425c684949",
+  "_key": "!macros!f01387425c684949",
   "name": "Surgebinding FX: Division",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeDivision01"
+      ]
+    }
+  }
 }

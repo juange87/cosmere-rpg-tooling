@@ -1,6 +1,6 @@
 {
-  "_id": "SurgeAdhesion01",
-  "_key": "!macros!SurgeAdhesion01",
+  "_id": "d345ddd1f9ee91c7",
+  "_key": "!macros!d345ddd1f9ee91c7",
   "name": "Surgebinding FX: Adhesion",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeAdhesion01"
+      ]
+    }
+  }
 }

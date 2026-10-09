@@ -572,8 +572,9 @@ test("ships official GM macros for all roadmap tools", async () => {
 
   for (const [fileName, [id, name, script]] of expected) {
     const macro = await readMacro(`packs/_source/gm-macros/${fileName}`);
-    assert.equal(macro._id, id);
-    assert.equal(macro._key, `!macros!${id}`);
+    assert.match(macro._id, /^[A-Za-z0-9]{16}$/);
+    assert.ok(macro._id === id || macro.flags["cosmere-rpg-tooling"]?.legacyIds?.includes(id));
+    assert.equal(macro._key, `!macros!${macro._id}`);
     assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
     assert.equal(macro.type, "script");
     assert.match(macro.command, new RegExp(script.replace(".", "\\.")));
@@ -600,8 +601,9 @@ test("ships individual Surgebinding macros for every Surge", async () => {
 
   for (const [fileName, id, name, surgeKey] of expected) {
     const macro = await readMacro(`packs/_source/gm-macros/${fileName}`);
-    assert.equal(macro._id, id);
-    assert.equal(macro._key, `!macros!${id}`);
+    assert.match(macro._id, /^[A-Za-z0-9]{16}$/);
+    assert.ok(macro._id === id || macro.flags["cosmere-rpg-tooling"]?.legacyIds?.includes(id));
+    assert.equal(macro._key, `!macros!${macro._id}`);
     assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
     assert.match(macro.command, /surgebinding-fx-pack\.js/);
     assert.match(macro.command, new RegExp(`surgeKey: "${surgeKey}"`));

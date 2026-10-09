@@ -1,6 +1,6 @@
 {
-  "_id": "SurgeTransportation01",
-  "_key": "!macros!SurgeTransportation01",
+  "_id": "2f824eb818121598",
+  "_key": "!macros!2f824eb818121598",
   "name": "Surgebinding FX: Transportation",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeTransportation01"
+      ]
+    }
+  }
 }

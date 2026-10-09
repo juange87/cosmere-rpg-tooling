@@ -189,8 +189,9 @@ test("macro upgrade HTML escapes names and leaves update checkboxes unchecked", 
 test("ships the GM macro for checking imported world macro copies", async () => {
   const macro = JSON.parse(await readFile("packs/_source/gm-macros/MacroUpgradeCheck01.json", "utf8"));
 
-  assert.equal(macro._id, "MacroUpgradeCheck01");
-  assert.equal(macro._key, "!macros!MacroUpgradeCheck01");
+  assert.match(macro._id, /^[A-Za-z0-9]{16}$/);
+  assert.ok(macro.flags["cosmere-rpg-tooling"].legacyIds.includes("MacroUpgradeCheck01"));
+  assert.equal(macro._key, `!macros!${macro._id}`);
   assert.ok(macro.name.includes("Installed Macro Check"));
   assert.equal(macro.type, "script");
   assert.match(macro.command, /macro-upgrade-checker\.js/);

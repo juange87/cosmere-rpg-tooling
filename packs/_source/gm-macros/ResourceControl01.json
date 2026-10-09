@@ -1,6 +1,6 @@
 {
-  "_id": "ResourceControl01",
-  "_key": "!macros!ResourceControl01",
+  "_id": "38ac00e8b1f52ef7",
+  "_key": "!macros!38ac00e8b1f52ef7",
   "name": "Quick Resource Control / Control Rapido de Recursos",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -16,6 +16,9 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Control Rapido de Recursos"
+      ],
+      "legacyIds": [
+        "ResourceControl01"
       ]
     }
   }

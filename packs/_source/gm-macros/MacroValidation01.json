@@ -1,6 +1,6 @@
 {
-  "_id": "MacroValidation01",
-  "_key": "!macros!MacroValidation01",
+  "_id": "0fbca74ec111ec88",
+  "_key": "!macros!0fbca74ec111ec88",
   "name": "Macro Validation / Validacion de Macros",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -16,6 +16,9 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Validacion de Macros"
+      ],
+      "legacyIds": [
+        "MacroValidation01"
       ]
     }
   }

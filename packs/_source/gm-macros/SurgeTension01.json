@@ -1,6 +1,6 @@
 {
-  "_id": "SurgeTension01",
-  "_key": "!macros!SurgeTension01",
+  "_id": "03a76bd01e7cd161",
+  "_key": "!macros!03a76bd01e7cd161",
   "name": "Surgebinding FX: Tension",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeTension01"
+      ]
+    }
+  }
 }

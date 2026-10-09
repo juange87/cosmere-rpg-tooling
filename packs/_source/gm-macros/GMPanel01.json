@@ -1,6 +1,6 @@
 {
-  "_id": "GMPanel01",
-  "_key": "!macros!GMPanel01",
+  "_id": "a418293e3c1ba9bd",
+  "_key": "!macros!a418293e3c1ba9bd",
   "name": "Cosmere GM Panel / Panel GM Cosmere",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -16,6 +16,9 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Panel GM Cosmere"
+      ],
+      "legacyIds": [
+        "GMPanel01"
       ]
     }
   }

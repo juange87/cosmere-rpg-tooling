@@ -1,6 +1,6 @@
 {
-  "_id": "SphereManager01",
-  "_key": "!macros!SphereManager01",
+  "_id": "4bac2e9cf25f595e",
+  "_key": "!macros!4bac2e9cf25f595e",
   "name": "Advanced Sphere Manager / Gestor de Esferas Avanzado",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -16,6 +16,9 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Gestor de Esferas Avanzado"
+      ],
+      "legacyIds": [
+        "SphereManager01"
       ]
     }
   }

@@ -130,8 +130,9 @@ test("ships a GM macro that opens the dependency checker", async () => {
   const raw = await readFile("packs/_source/gm-macros/DependencyCheck01.json", "utf8");
   const macro = JSON.parse(raw);
 
-  assert.equal(macro._id, "DependencyCheck01");
-  assert.equal(macro._key, "!macros!DependencyCheck01");
+  assert.match(macro._id, /^[A-Za-z0-9]{16}$/);
+  assert.ok(macro.flags["cosmere-rpg-tooling"].legacyIds.includes("DependencyCheck01"));
+  assert.equal(macro._key, `!macros!${macro._id}`);
   assert.equal(macro.name, "Dependency Check / Chequeo de Dependencias");
   assert.equal(macro.type, "script");
   assert.match(macro.command, /dependency-checker\.js/);

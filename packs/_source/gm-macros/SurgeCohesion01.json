@@ -1,6 +1,6 @@
 {
-  "_id": "SurgeCohesion01",
-  "_key": "!macros!SurgeCohesion01",
+  "_id": "dca4aa3fb905ddeb",
+  "_key": "!macros!dca4aa3fb905ddeb",
   "name": "Surgebinding FX: Cohesion",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -12,5 +12,11 @@
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeCohesion01"
+      ]
+    }
+  }
 }

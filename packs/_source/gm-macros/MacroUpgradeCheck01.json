@@ -1,6 +1,6 @@
 {
-  "_id": "MacroUpgradeCheck01",
-  "_key": "!macros!MacroUpgradeCheck01",
+  "_id": "460fb2a20d501b1d",
+  "_key": "!macros!460fb2a20d501b1d",
   "name": "Installed Macro Check / Chequeo de Macros Instaladas",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -16,6 +16,9 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Chequeo de Macros Instaladas"
+      ],
+      "legacyIds": [
+        "MacroUpgradeCheck01"
       ]
     }
   }

@@ -1,6 +1,6 @@
 {
-  "_id": "LocationGenerator01",
-  "_key": "!macros!LocationGenerator01",
+  "_id": "7b836d56c181f617",
+  "_key": "!macros!7b836d56c181f617",
   "name": "Location Generator / Generador de Localizaciones",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
@@ -16,6 +16,9 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Generador de Localizaciones"
+      ],
+      "legacyIds": [
+        "LocationGenerator01"
       ]
     }
   }
