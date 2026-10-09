@@ -223,3 +223,18 @@ test("remaining narrative labels and location fragments follow the chosen langua
   game.i18n.lang = "es";
   assert.equal(sphereItemName("dun", "mark"), "Mark dun");
 });
+
+test("failed catalogs do not prevent module startup or surviving translations", async () => {
+  const { loadCosmereCatalogs } = await import("../scripts/localization.js");
+  const warnings = [];
+  const catalogs = await loadCosmereCatalogs(async language => {
+    if (language === "es") throw Error("HTTP 503");
+    return { Cancel: "Cancel" };
+  }, { warn: message => warnings.push(message) });
+  assert.equal(warnings.length, 1);
+  assert.equal(localize("Cancel", { game: { i18n: { lang: "es" } }, catalogs }), "Cancel");
+  const empty = await loadCosmereCatalogs(async () => { throw Error("offline"); }, { warn() {} });
+  assert.equal(localize("Cancel", { game: { i18n: { lang: "en", localize: () => "Dismiss" } }, catalogs: empty }), "Dismiss");
+  assert.equal(localize("Cancel", { game: {}, catalogs: empty }), "Cancel");
+  assert.equal(localize("Cancel", { game: { i18n: { lang: "en", localize: () => { throw Error("broken plugin"); } } }, catalogs: empty }), "Cancel");
+});
