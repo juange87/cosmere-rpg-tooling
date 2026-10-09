@@ -235,3 +235,28 @@ test("upgrading a migrated macro replaces its old source flag without dropping o
   assert.equal(world.flags.core.favorite, true);
   assert.equal(world.flags.custom.keep, true);
 });
+
+test("explicit legacy name aliases show UUID-less candidates but require separate confirmation", async () => {
+  const source = { id: "source", packId: "module.pack", name: "New / Old", command: "new", flags: { "cosmere-rpg-tooling": { legacyNames: ["Old"] } } };
+  const updates = [];
+  const legacy = { id: "legacy", name: "Old", command: "old", update: async data => updates.push(data) };
+  const unrelated = { id: "unrelated", name: "Old", command: "custom", flags: { core: { sourceId: "Compendium.other.pack.Macro.other" } }, update: () => assert.fail("Other pack changed") };
+  const report = buildMacroUpgradeReport({ sourceMacros: [source], worldMacros: [legacy, unrelated] });
+  assert.equal(report.counts.outdated, 1);
+  assert.equal(report.counts.missing, 0);
+  const entry = report.entries[0];
+  assert.equal(entry.requiresConfirmation, true);
+  const unconfirmed = await applyMacroUpgradeSelection({ report, selectedEntryKeys: [entry.key] });
+  assert.equal(unconfirmed.skipped.length, 1);
+  assert.equal(updates.length, 0);
+  await applyMacroUpgradeSelection({ report, selectedEntryKeys: [entry.key], confirmedLegacyEntryKeys: [entry.key] });
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0].flags.core.sourceId, "Compendium.module.pack.Macro.source");
+  assert.match(buildMacroUpgradeDialogContent(report), /name="confirm-legacy-upgrades"/);
+});
+
+test("an alias shared by two source macros never authorizes a name-only upgrade", () => {
+  const sources = ["one", "two"].map(id => ({ id, name: id, packId: "module.pack", command: "new", flags: { "cosmere-rpg-tooling": { legacyNames: ["Old"] } } }));
+  const report = buildMacroUpgradeReport({ sourceMacros: sources, worldMacros: [{ id: "world", name: "Old", command: "custom" }] });
+  assert.equal(report.counts.worldMatches, 0);
+});

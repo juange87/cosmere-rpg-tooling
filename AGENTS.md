@@ -76,8 +76,10 @@ manifest's declared range. Foundry v14 support is separate work.
 - Every `_id` must match `/^[A-Za-z0-9]{16}$/`; `_key` must be
   `!macros!{_id}`. Keep valid IDs stable and record migrated IDs in
   `flags["cosmere-rpg-tooling"].legacyIds`.
-- Upgrade world copies only through `_stats.compendiumSource` or
-  `flags.core.sourceId`; same-name user macros must remain untouched. Keep
+- Prefer `_stats.compendiumSource` or `flags.core.sourceId` for upgrades.
+  Explicit `legacyNames` aliases may identify candidates with no provenance;
+  these require separate GM confirmation before any update. Unrelated names,
+  ambiguous aliases and macros sourced from other compendia stay untouched. Keep
   world names and IDs when applying selected updates and isolate each failure.
 - Add functionality to scripts and expose it through the API. Avoid embedding
   implementation code or absolute module imports inside macro JSON.
