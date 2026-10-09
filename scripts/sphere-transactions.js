@@ -34,18 +34,31 @@ export function buildMoneyItemData(key, quantity) {
   };
 }
 
+function addSphereItem(balance, item) {
+    const quantity = Number(item.system.quantity ?? 0);
+    if (!Number.isSafeInteger(quantity) || quantity < 0 || quantity > Number.MAX_SAFE_INTEGER - balance.quantity) {
+      balance.invalidItems.push(item);
+    } else {
+      balance.quantity += quantity;
+    }
+}
+
 export function inspectSphereQuantity(actor, key) {
   const [currency, denom] = key.split("|");
-  const invalidItems = [];
-  const quantity = findMoneyItems(actor, currency, denom).reduce((total, item) => {
-    const quantity = Number(item.system.quantity ?? 0);
-    if (!Number.isSafeInteger(quantity) || quantity < 0 || !Number.isSafeInteger(total + quantity)) {
-      invalidItems.push(item);
-      return total;
-    }
-    return total + quantity;
-  }, 0);
-  return { quantity, invalidItems };
+  const balance = { quantity: 0, invalidItems: [] };
+  for (const item of findMoneyItems(actor, currency, denom)) addSphereItem(balance, item);
+  return balance;
+}
+
+export function inspectSphereInventory(actor) {
+  const balances = new Map(SPHERE_DENOMINATIONS.map(denom => [denom.key, { quantity: 0, invalidItems: [] }]));
+  for (const item of actor?.items ?? []) {
+    if (item?.type !== "loot" || item?.system?.isMoney !== true) continue;
+    const price = item.system.price;
+    const balance = balances.get(`${price?.currency}|${price?.denomination?.primary}`);
+    if (balance) addSphereItem(balance, item);
+  }
+  return balances;
 }
 
 // Browsing an inventory must remain possible even when an old item is malformed.
@@ -58,23 +71,28 @@ export function getSphereQuantity(actor, key, { strict = false } = {}) {
 
 export function summarizeSphereBalance(actor) {
   const invalidKeys = [];
+  const balances = inspectSphereInventory(actor);
   const rows = SPHERE_DENOMINATIONS.map(denom => {
-    const { quantity, invalidItems } = inspectSphereQuantity(actor, denom.key);
+    const { quantity, invalidItems } = balances.get(denom.key);
     if (invalidItems.length) invalidKeys.push(denom.key);
     return {
       ...denom,
       quantity,
-      valueTotal: quantity * denom.value,
+      valueTotal: quantity > Math.floor(Number.MAX_SAFE_INTEGER / denom.value) ? null : quantity * denom.value,
     };
   }).filter(row => row.quantity > 0);
 
+  const safeSum = (sum, value) => sum === null || value === null || value > Number.MAX_SAFE_INTEGER - sum ? null : sum + value;
+  const totalQuantity = rows.reduce((sum, row) => safeSum(sum, row.quantity), 0);
+  const totalValue = rows.reduce((sum, row) => safeSum(sum, row.valueTotal), 0);
   return {
     actorId: actor?.id,
     actorName: actor?.name ?? localize("NoActor"),
     invalidKeys,
     rows,
-    totalQuantity: rows.reduce((sum, row) => sum + row.quantity, 0),
-    totalValue: rows.reduce((sum, row) => sum + row.valueTotal, 0),
+    totalQuantity,
+    totalValue,
+    overflow: totalQuantity === null || totalValue === null,
   };
 }
 

@@ -157,3 +157,25 @@ test("group transactions cannot report success when an allocation becomes invali
   assert.equal(plan.error, plan.results[0].error);
   await assert.rejects(applySphereInventoryPlan({ actors: [changing], plan }), error => error.message === plan.error);
 });
+
+test("sphere summaries never publish unsafe products or totals and scan each inventory once", async () => {
+  const { summarizeSphereBalance } = await import("../scripts/sphere-transactions.js");
+  const { buildLegacySphereDialogContent } = await import("../scripts/legacy-sphere-tools.js");
+  let scans = 0;
+  const overflowing = { id: "large", name: "Large", items: { *[Symbol.iterator]() {
+    scans++;
+    yield { type: "loot", system: { isMoney: true, quantity: Number.MAX_SAFE_INTEGER, price: { currency: "spheres", denomination: { primary: "broam" } } } };
+  } } };
+  const summary = summarizeSphereBalance(overflowing);
+  assert.equal(scans, 1);
+  assert.equal(summary.overflow, true);
+  assert.equal(summary.totalValue, null);
+  assert.equal(summary.rows[0].valueTotal, null);
+  assert.equal(summary.totalQuantity, Number.MAX_SAFE_INTEGER);
+  scans = 0;
+  assert.match(buildLegacySphereDialogContent([overflowing]), /safe integer|enteros seguros/);
+  assert.equal(scans, 1);
+  const summed = { items: ["spheres", "dun"].map(currency => ({ type: "loot", system: { isMoney: true, quantity: Number.MAX_SAFE_INTEGER, price: { currency, denomination: { primary: "chip" } } } })) };
+  assert.equal(summarizeSphereBalance(summed).totalQuantity, null);
+  assert.equal(summarizeSphereBalance(summed).totalValue, null);
+});

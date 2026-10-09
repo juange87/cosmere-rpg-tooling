@@ -629,6 +629,7 @@
     "ResourceUpdatedAnimationFailed": "El recurso se ha actualizado, pero no se pudo reproducir la animación.",
     "LegacyMacroNameMatch": "Coincidencia de nombre sin UUID de compendio",
     "ConfirmLegacyMacroUpgrades": "He revisado las coincidencias seleccionadas por nombre y confirmo que son macros del módulo; reemplazarlas puede sobrescribir código personalizado.",
-    "MacroSourceMustBeObject": "La fuente de una macro debe ser un objeto JSON."
+    "MacroSourceMustBeObject": "La fuente de una macro debe ser un objeto JSON.",
+    "SphereSummaryOverflow": "El resumen de esferas supera el límite de enteros seguros; no se puede mostrar el total con precisión."
   }
 }

@@ -6,23 +6,23 @@ import { openCosmereDialog } from "./foundry-dialogs.js";
 
 const DENOMINACIONES = SPHERE_DENOMINATIONS.filter(denom => denom.denom === "mark")
   .map(denom => ({ ...denom, color: denom.currency === "spheres" ? "#1a6fa8" : "#666666" }));
-const getActorStock = (actor, currency, denom) => getSphereQuantity(actor, `${currency}|${denom}`);
 
-function formatStockLine(actor, currency) {
-  const count = getActorStock(actor, currency, "mark");
+function formatStockLine(summary, currency) {
+  const count = summary.rows.find(row => row.key === `${currency}|mark`)?.quantity ?? 0;
   if (count === 0) return "";
   return `${count} M`;
 }
 
 export function buildLegacySphereDialogContent(actors, { remove = false } = {}) {
   const actorRows = actors.map(a => {
-    const sphereLine = formatStockLine(a, "spheres");
-    const dunLine = formatStockLine(a, "dun");
+    const summary = summarizeSphereBalance(a);
+    const sphereLine = formatStockLine(summary, "spheres");
+    const dunLine = formatStockLine(summary, "dun");
     const lines = [];
     if (sphereLine) lines.push(`<div class="cr-stock-line"><span class="cr-stock-dot" style="background:#1a6fa8"></span>${sphereLine}</div>`);
     if (dunLine) lines.push(`<div class="cr-stock-line"><span class="cr-stock-dot" style="background:#666666"></span>${dunLine}</div>`);
     const stockHTML = (lines.length ? lines.join("") : `<div class="cr-stock-empty">${localize("NoSpheres")}</div>`)
-      + (summarizeSphereBalance(a).invalidKeys.length ? `<div class="cr-warn">${escapeHtml(localize("InvalidSphereInventory"))}</div>` : "");
+      + (summary.overflow || summary.invalidKeys.length ? `<div class="cr-warn">${escapeHtml(localize(summary.overflow ? "SphereSummaryOverflow" : "InvalidSphereInventory"))}</div>` : "");
     return `
     <label class="cr-actor">
       <input type="checkbox" class="actor-check" data-id="${escapeHtml(a.id)}" checked>

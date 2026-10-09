@@ -74,7 +74,8 @@ export function buildSphereSummaryChatCard({ actors = [] } = {}) {
     const value = summary.rows.length
       ? summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ")
       : localize("NoSpheresRecorded");
-    return { label: summary.actorName, value: `${value} (${summary.totalValue}${localize("AbstractValue")}${summary.invalidKeys.length ? ` | ${localize("InvalidSphereInventory")}` : ""}` };
+    const total = summary.overflow ? localize("SphereSummaryOverflow") : `${summary.totalValue}${localize("AbstractValue")}`;
+    return { label: summary.actorName, value: `${value} (${total}${summary.invalidKeys.length ? ` | ${localize("InvalidSphereInventory")}` : ""}` };
   });
 
   return buildCosmereChatCard({
@@ -109,7 +110,8 @@ export function buildSphereManagerDialogContent(actors) {
   const rows = actors.map(actor => {
     const summary = summarizeSphereBalance(actor);
     const balance = summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ") || localize("NoSpheres");
-    return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}${summary.invalidKeys.length ? ` <span class="cr-warn">${escapeHtml(localize("InvalidSphereInventory"))}</span>` : ""}</li>`;
+    const warning = summary.overflow ? localize("SphereSummaryOverflow") : summary.invalidKeys.length ? localize("InvalidSphereInventory") : "";
+    return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}${warning ? ` <span class="cr-warn">${escapeHtml(warning)}</span>` : ""}</li>`;
   }).join("");
   return `
     <div>

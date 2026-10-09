@@ -629,6 +629,7 @@
     "ResourceUpdatedAnimationFailed": "The resource was updated, but its animation could not be played.",
     "LegacyMacroNameMatch": "Name match without a compendium UUID",
     "ConfirmLegacyMacroUpgrades": "I have reviewed the selected name matches and confirm they are module macros; replacing them may overwrite custom code.",
-    "MacroSourceMustBeObject": "A macro source must be a JSON object."
+    "MacroSourceMustBeObject": "A macro source must be a JSON object.",
+    "SphereSummaryOverflow": "The sphere summary exceeds the safe integer limit; the total cannot be displayed reliably."
   }
 }
