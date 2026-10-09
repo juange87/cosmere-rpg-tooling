@@ -3,6 +3,7 @@ import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
   escapeHtml,
+  postGmReport,
 } from "./cosmere-helpers.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
@@ -375,12 +376,9 @@ function selectedKeysFromDialog(html) {
     .filter(Boolean);
 }
 
-async function publishReport(report, { ChatMessage = globalThis.ChatMessage } = {}) {
+export async function publishReport(report, { ChatMessage = globalThis.ChatMessage } = {}) {
   if (!ChatMessage) return null;
-  return ChatMessage.create({
-    content: buildMacroUpgradeChatCard(report),
-    speaker: ChatMessage.getSpeaker?.(),
-  });
+  return postGmReport({ content: buildMacroUpgradeChatCard(report), ChatMessage });
 }
 
 export async function openMacroUpgradeChecker({

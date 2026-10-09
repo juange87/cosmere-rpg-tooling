@@ -104,6 +104,7 @@ test("posts the dependency report and warns when something is missing", async ()
     game: createGame(["JB2A_DnD5e"]),
     globals: {},
     ChatMessage: {
+      getWhisperRecipients: () => [{ id: "gm" }],
       getSpeaker() {
         return { alias: "GM" };
       },

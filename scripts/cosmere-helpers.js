@@ -118,10 +118,12 @@ export async function postCosmereChatCard({
     throw new Error(localize("FoundryIsNotAvailableToPostToChat"));
   }
 
+  const recipients = whisperOnly ? gmWhisper(ChatMessage) : undefined;
+  if (whisperOnly && !recipients.length) return null;
   return ChatMessage.create({
     content,
     speaker: ChatMessage.getSpeaker?.(),
-    whisper: whisperOnly ? gmWhisper(ChatMessage) : undefined,
+    whisper: recipients,
   });
 }
 
@@ -142,4 +144,8 @@ export function hasSequencer({ game = globalThis.game, Sequence = globalThis.Seq
 
 export function isActiveGM(game = globalThis.game) {
   return game?.users?.activeGM?.isSelf === true;
+}
+
+export function postGmReport({ content, ChatMessage = globalThis.ChatMessage } = {}) {
+  return postCosmereChatCard({ content, ChatMessage, whisperOnly: true });
 }

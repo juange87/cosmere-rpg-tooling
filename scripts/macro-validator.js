@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import { escapeHtml } from "./cosmere-helpers.js";
+import { escapeHtml, postGmReport } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 const DEPENDENCY_PATTERNS = [
   { pattern: /new Sequence|Sequence\(/, label: "Sequence" },
@@ -171,10 +171,7 @@ export async function runMacroValidation({
       warnings: [{ message: localize("RunNpmRunValidateInTheRepositoryToCheckSourceJSONFilesAndCompilePacks") }],
     };
     if (ChatMessage) {
-      await ChatMessage.create({
-        content: buildMacroValidationChatCard(report),
-        speaker: ChatMessage.getSpeaker?.(),
-      });
+      await postGmReport({ content: buildMacroValidationChatCard(report), ChatMessage });
     }
     ui?.notifications?.info?.(localize("LocalValidationRunNpmRunValidateOutsideFoundry"));
     return report;
@@ -182,10 +179,7 @@ export async function runMacroValidation({
 
   const report = await validateAllMacroSources({ checkCompile: true });
   if (ChatMessage) {
-    await ChatMessage.create({
-      content: buildMacroValidationChatCard(report),
-      speaker: ChatMessage.getSpeaker?.(),
-    });
+    await postGmReport({ content: buildMacroValidationChatCard(report), ChatMessage });
   }
   if (report.ok) ui?.notifications?.info?.(localize("MacroValidationCompletedWithoutErrors"));
   else ui?.notifications?.error?.(localize("MacroValidationFoundErrors"));
