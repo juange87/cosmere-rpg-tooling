@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/juange87/cosmere-rpg-tooling#readme",
   "devDependencies": {
-    "@foundryvtt/foundryvtt-cli": "^3.0.3"
+    "@foundryvtt/foundryvtt-cli": "^3.0.4"
   }
 }
