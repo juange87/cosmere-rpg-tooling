@@ -13,8 +13,19 @@ async function loadCatalog(language) {
   return (await response.json()).COSMERE_TOOLS;
 }
 
-const [english, spanish] = await Promise.all([loadCatalog("en"), loadCatalog("es")]);
-const catalogs = { en: english, es: spanish };
+export async function loadCosmereCatalogs(loader = loadCatalog, logger = console) {
+  const languages = ["en", "es"];
+  const results = await Promise.allSettled(languages.map(language => Promise.resolve().then(() => loader(language))));
+  return Object.fromEntries(results.map((result, index) => {
+    if (result.status === "rejected" || !result.value || typeof result.value !== "object") {
+      logger?.warn?.(`Cosmere RPG Tooling | Could not load ${languages[index]} translations; using fallback.`);
+      return [languages[index], {}];
+    }
+    return [languages[index], result.value];
+  }));
+}
+
+const loadedCatalogs = await loadCosmereCatalogs();
 
 export function getCosmereLanguage(game = globalThis.game) {
   let preference;
@@ -28,13 +39,20 @@ export function getCosmereLanguage(game = globalThis.game) {
 }
 
 /** Translate module-owned text only; never pass player names or notes here. */
-export function localize(key, { game = globalThis.game } = {}) {
+export function localize(key, { game = globalThis.game, catalogs = loadedCatalogs } = {}) {
   const language = getCosmereLanguage(game);
   const fullKey = `COSMERE_TOOLS.${key}`;
-  // Allow Foundry translation modules to override text when languages agree.
-  if (game?.i18n?.lang === language && game.i18n.localize) {
-    const translated = game.i18n.localize(fullKey);
-    if (typeof translated === "string" && translated !== fullKey) return translated;
+  const fallback = catalogs[language]?.[key] ?? catalogs.en?.[key];
+  // A translation plugin may still provide text if a catalog failed to load.
+  if (game?.i18n?.lang === language || !fallback) {
+    try {
+      const translated = game?.i18n?.localize?.(fullKey);
+      if (typeof translated === "string" && translated !== fullKey) return translated;
+    } catch { /* Use the surviving catalog or key. */ }
   }
-  return catalogs[language][key] ?? english[key] ?? key;
+  return fallback ?? key;
+}
+
+export function format(key, values = {}, options = {}) {
+  return localize(key, options).replace(/\{([^}]+)\}/g, (match, name) => String(values[name] ?? match));
 }

@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeIllumination01",
-  "_key": "!macros!SurgeIllumination01",
+  "_id": "a9870d62c11c121b",
+  "_key": "!macros!a9870d62c11c121b",
   "name": "Surgebinding FX: Illumination",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/light.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"illumination\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"illumination\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeIllumination01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

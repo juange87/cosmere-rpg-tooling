@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeProgression01",
-  "_key": "!macros!SurgeProgression01",
+  "_id": "74b84d3a71d6cd2e",
+  "_key": "!macros!74b84d3a71d6cd2e",
   "name": "Surgebinding FX: Progression",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/heal.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"progression\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"progression\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeProgression01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

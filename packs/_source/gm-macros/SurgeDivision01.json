@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeDivision01",
-  "_key": "!macros!SurgeDivision01",
+  "_id": "f01387425c684949",
+  "_key": "!macros!f01387425c684949",
   "name": "Surgebinding FX: Division",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/fire.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"division\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"division\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeDivision01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

@@ -1,6 +1,8 @@
 import { localize } from "./localization.js";
 import {
   COSMERE_MODULE_ID,
+  hasSequencer,
+  clientSoundVolume,
   buildCosmereChatCard,
   escapeHtml,
   gmWhisper,
@@ -9,16 +11,16 @@ import {
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const RADIANT_ORDERS = [
-  { key: "windrunner", label: "Windrunner", color: "#2f80ed", aura: "jb2a.magic_signs.circle.02.abjuration.loop.blue" },
-  { key: "skybreaker", label: "Skybreaker", color: "#4f5b66", aura: "jb2a.magic_signs.circle.02.evocation.loop.blue" },
-  { key: "dustbringer", label: "Dustbringer", color: "#b03a2e", aura: "jb2a.explosion.01.orange" },
-  { key: "edgedancer", label: "Edgedancer", color: "#2e8b57", aura: "jb2a.magic_signs.circle.02.transmutation.loop.green" },
-  { key: "truthwatcher", label: "Truthwatcher", color: "#2aa198", aura: "jb2a.magic_signs.circle.02.divination.loop.green" },
-  { key: "lightweaver", label: "Lightweaver", color: "#c0398c", aura: "jb2a.magic_signs.circle.02.illusion.loop.purple" },
-  { key: "elsecaller", label: "Elsecaller", color: "#5e3c99", aura: "jb2a.magic_signs.circle.02.conjuration.loop.purple" },
-  { key: "willshaper", label: "Willshaper", color: "#d35400", aura: "jb2a.magic_signs.circle.02.transmutation.loop.orange" },
-  { key: "stoneward", label: "Stoneward", color: "#7f6d5f", aura: "jb2a.magic_signs.circle.02.abjuration.loop.yellow" },
-  { key: "bondsmith", label: "Bondsmith", color: "#b7950b", aura: "jb2a.magic_signs.circle.02.enchantment.loop.yellow" },
+  { key: "windrunner", get label() { return localize("Windrunner"); }, color: "#2f80ed", aura: "jb2a.magic_signs.circle.02.abjuration.loop.blue" },
+  { key: "skybreaker", get label() { return localize("Skybreaker"); }, color: "#4f5b66", aura: "jb2a.magic_signs.circle.02.evocation.loop.blue" },
+  { key: "dustbringer", get label() { return localize("Dustbringer"); }, color: "#b03a2e", aura: "jb2a.explosion.01.orange" },
+  { key: "edgedancer", get label() { return localize("Edgedancer"); }, color: "#2e8b57", aura: "jb2a.magic_signs.circle.02.transmutation.loop.green" },
+  { key: "truthwatcher", get label() { return localize("Truthwatcher"); }, color: "#2aa198", aura: "jb2a.magic_signs.circle.02.divination.loop.green" },
+  { key: "lightweaver", get label() { return localize("Lightweaver"); }, color: "#c0398c", aura: "jb2a.magic_signs.circle.02.illusion.loop.purple" },
+  { key: "elsecaller", get label() { return localize("Elsecaller"); }, color: "#5e3c99", aura: "jb2a.magic_signs.circle.02.conjuration.loop.purple" },
+  { key: "willshaper", get label() { return localize("Willshaper"); }, color: "#d35400", aura: "jb2a.magic_signs.circle.02.transmutation.loop.orange" },
+  { key: "stoneward", get label() { return localize("Stoneward"); }, color: "#7f6d5f", aura: "jb2a.magic_signs.circle.02.abjuration.loop.yellow" },
+  { key: "bondsmith", get label() { return localize("Bondsmith"); }, color: "#b7950b", aura: "jb2a.magic_signs.circle.02.enchantment.loop.yellow" },
 ];
 
 export const OATH_ACCEPTED_SOUNDS = {
@@ -59,9 +61,9 @@ export function buildOathAcceptedMoment({
 export function buildOathAcceptedChatCard(momentInput) {
   const moment = buildOathAcceptedMoment(momentInput);
   const sections = [
-    { label: "Actor", value: moment.actorName },
+    { get label() { return localize("Actor"); }, value: moment.actorName },
     { label: localize("RadiantOrder"), value: moment.order.label },
-    { label: "Ideal", value: moment.idealText },
+    { get label() { return localize("Ideal"); }, value: moment.idealText },
   ];
   if (moment.whisperTarget) sections.push({ label: localize("PreludeWhisper"), value: moment.whisperTarget });
   if (moment.gmNote) sections.push({ label: localize("GMNote"), value: moment.gmNote });
@@ -81,7 +83,7 @@ export function buildOathPreludeWhisperCard(momentInput) {
     eyebrow: localize("WordsAcceptedDeluxe"),
     title: localize("BeforeTheWords"),
     sections: [
-      { label: "Actor", value: moment.actorName },
+      { get label() { return localize("Actor"); }, value: moment.actorName },
       { label: localize("RadiantOrder"), value: moment.order.label },
       { label: localize("PreludeWhisper"), value: moment.whisperMessage || localize("PrepareForTheMomentOfSwearingTheIdeal") },
     ],
@@ -90,8 +92,8 @@ export function buildOathPreludeWhisperCard(momentInput) {
   });
 }
 
-function playRadiantAura({ moment, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
-  if (typeof Sequence !== "function") return false;
+function playRadiantAura({ moment, game = globalThis.game, canvas = globalThis.canvas, Sequence = globalThis.Sequence } = {}) {
+  if (!hasSequencer({ game, Sequence })) return false;
   const token = canvas?.tokens?.controlled?.[0];
   const location = token ?? (canvas?.scene ? { x: canvas.scene.width / 2, y: canvas.scene.height / 2 } : null);
   if (!location) return false;
@@ -107,6 +109,7 @@ function playRadiantAura({ moment, canvas = globalThis.canvas, Sequence = global
 }
 
 export async function runOathAcceptedDeluxe({
+  game = globalThis.game,
   input = {},
   playSound = true,
   playAnimation = true,
@@ -131,12 +134,12 @@ export async function runOathAcceptedDeluxe({
     });
   }
   if (playSound) {
-    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.words, volume: 0.8, loop: false }, true);
+    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.words, volume: 0.8 * clientSoundVolume(game), loop: false }, true);
     await wait(delayMs);
-    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.thunder, volume: 1, loop: false }, true);
+    AudioHelper?.play?.({ src: OATH_ACCEPTED_SOUNDS.thunder, volume: clientSoundVolume(game), loop: false }, true);
   }
   if (playAnimation) {
-    playRadiantAura({ moment, canvas, Sequence });
+    playRadiantAura({ moment, game, canvas, Sequence });
   }
 
   await ChatMessage.create({
@@ -175,7 +178,7 @@ export function openOathAcceptedDeluxe({
       <form>
         <div class="form-group"><label>${localize("ActorOrToken")}</label><input name="actorName" type="text" /></div>
         <div class="form-group"><label>${localize("RadiantOrder")}</label><select name="orderKey">${orderOptions()}</select></div>
-        <div class="form-group"><label>Ideal</label><textarea name="idealText" rows="3"></textarea></div>
+        <div class="form-group"><label>${localize("Ideal")}</label><textarea name="idealText" rows="3"></textarea></div>
         <div class="form-group"><label>${localize("PreludeWhisperLabel")}</label><input name="whisperTarget" type="text" /></div>
         <div class="form-group"><label>${localize("PreludeWhisperPlayer")}</label><select name="whisperUserId">${userOptions}</select></div>
         <div class="form-group"><label>${localize("PreludeWhisperMessage")}</label><textarea name="whisperMessage" rows="2"></textarea></div>
@@ -192,6 +195,7 @@ export function openOathAcceptedDeluxe({
         callback: async html => {
           try {
             await runOathAcceptedDeluxe({
+              game,
               input: {
                 actorName: html.find("[name=actorName]").val(),
                 orderKey: html.find("[name=orderKey]").val(),

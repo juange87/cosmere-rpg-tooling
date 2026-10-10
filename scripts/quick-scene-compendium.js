@@ -1,4 +1,4 @@
-import { localize } from "./localization.js";
+import { localize, format } from "./localization.js";
 import {
   buildCosmereChatCard,
   normalizeText,
@@ -59,7 +59,7 @@ export function buildQuickSceneChatCard(sceneInput) {
     title: scene.title,
     subtitle: scene.type.label,
     sections: [
-      ...scene.beats.map((beat, index) => ({ label: `Beat ${index + 1}`, value: beat })),
+      ...scene.beats.map((beat, index) => ({ label: format("BeatNumber", { number: index + 1 }), value: beat })),
       { label: localize("Twist"), value: scene.twist },
     ],
     accent: "#1e3a5f",

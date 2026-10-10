@@ -1,3 +1,4 @@
+import { createCosmereApi } from "../scripts/module-api.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
@@ -61,7 +62,7 @@ test("catalogs cover every localization call and are included in the manifest an
     assert.ok(Object.values(catalog).every(value => typeof value === "string" && value.trim()));
   }
   const sourceTexts = (await macros()).map(macro => macro.command);
-  for (const file of await readdir(new URL("scripts/", root))) {
+  for (const file of await readdir(new URL("scripts/", root), { recursive: true })) {
     if (file.endsWith(".js")) sourceTexts.push(await readFile(new URL(`scripts/${file}`, root), "utf8"));
   }
   for (const source of sourceTexts) {
@@ -180,6 +181,7 @@ test("Roll Skill translates its dialog and preserves the system skill key", asyn
   globalThis.Dialog = Dialog;
   t.after(() => { globalThis.Dialog = previousDialog; });
   const macro = await readJson("packs/_source/player-macros/14tGXTB3AbrChE0p.json");
+  game.modules = new Map([["cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas: { tokens: { controlled: [] } }, Dialog }) }]]);
   await new AsyncFunction("game", "canvas", "ui", executable(macro.command))(game, { tokens: { controlled: [] } }, {});
   assert.equal(options.title, "Skill roll (Nota)");
   assert.match(options.content, /value="agi">Agility/);
@@ -190,9 +192,11 @@ test("Roll Skill translates its dialog and preserves the system skill key", asyn
 
 test("macro upgrades recognize old Spanish names without renaming or duplicating world copies", async () => {
   const source = await readJson("packs/_source/gm-macros/GMPanel01.json");
+  source.packId = "cosmere-rpg-tooling.gm-macros";
+  const origin = `Compendium.${source.packId}.Macro.${source._id}`;
   const report = buildMacroUpgradeReport({ sourceMacros: [source], worldMacros: [
-    { _id: "old", name: "Panel GM Cosmere", command: "old code", type: "script" },
-    { _id: "new", name: source.name, command: "old code", type: "script" },
+    { _id: "old", flags: { core: { sourceId: origin } }, name: "Panel GM Cosmere", command: "old code", type: "script" },
+    { _id: "new", _stats: { compendiumSource: origin }, name: source.name, command: "old code", type: "script" },
   ] });
   assert.equal(report.counts.missing, 0);
   assert.equal(report.counts.outdated, 2);
@@ -201,4 +205,36 @@ test("macro upgrades recognize old Spanish names without renaming or duplicating
   assert.equal(update.command, source.command);
   assert.equal("name" in update, false);
   assert.equal("_id" in update, false);
+});
+
+test("remaining narrative labels and location fragments follow the chosen language", async t => {
+  const game = useLanguage(t, "es");
+  const { SPHERE_DENOMINATIONS, sphereItemName } = await import("../scripts/sphere-currency.js");
+  const { PLOT_DIE_OUTCOMES } = await import("../scripts/plot-die-manager.js");
+  const { buildLocationSeed } = await import("../scripts/location-generator.js");
+  assert.equal(PLOT_DIE_OUTCOMES.find(item => item.key === "opportunity").label, "Oportunidad");
+  assert.equal(SPHERE_DENOMINATIONS[0].label, "Chip infundido");
+  const spanishLocation = buildLocationSeed({ seed: "same" });
+  game.i18n.lang = "en";
+  assert.equal(PLOT_DIE_OUTCOMES.find(item => item.key === "opportunity").label, "Opportunity");
+  assert.equal(SPHERE_DENOMINATIONS[0].label, "Chip infused");
+  assert.notEqual(buildLocationSeed({ seed: "same" }).look, spanishLocation.look);
+  assert.equal(sphereItemName("dun", "mark"), "Mark dun");
+  game.i18n.lang = "es";
+  assert.equal(sphereItemName("dun", "mark"), "Mark dun");
+});
+
+test("failed catalogs do not prevent module startup or surviving translations", async () => {
+  const { loadCosmereCatalogs } = await import("../scripts/localization.js");
+  const warnings = [];
+  const catalogs = await loadCosmereCatalogs(async language => {
+    if (language === "es") throw Error("HTTP 503");
+    return { Cancel: "Cancel" };
+  }, { warn: message => warnings.push(message) });
+  assert.equal(warnings.length, 1);
+  assert.equal(localize("Cancel", { game: { i18n: { lang: "es" } }, catalogs }), "Cancel");
+  const empty = await loadCosmereCatalogs(async () => { throw Error("offline"); }, { warn() {} });
+  assert.equal(localize("Cancel", { game: { i18n: { lang: "en", localize: () => "Dismiss" } }, catalogs: empty }), "Dismiss");
+  assert.equal(localize("Cancel", { game: {}, catalogs: empty }), "Cancel");
+  assert.equal(localize("Cancel", { game: { i18n: { lang: "en", localize: () => { throw Error("broken plugin"); } } }, catalogs: empty }), "Cancel");
 });

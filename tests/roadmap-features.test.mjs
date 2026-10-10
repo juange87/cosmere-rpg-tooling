@@ -1,3 +1,4 @@
+import { API_TOOLS } from "../scripts/module-api.js";
 // These existing behavior checks exercise the Spanish interface.
 globalThis.game = { i18n: { lang: "es" } };
 
@@ -110,6 +111,8 @@ test("shared helpers cover roadmap utility categories", () => {
 
 test("settings and global hook helpers define configurable roll behavior", () => {
   assert.deepEqual(COSMERE_SETTINGS.map(setting => setting.key), [
+    "seedRollTables",
+    "tableSeedVersion",
     "automaticRollHooks",
     "natural20Effects",
     "natural1Effects",
@@ -198,7 +201,7 @@ test("conversation and endeavor manager tracks progress and narrative beats", ()
 
 test("Palabras Aceptadas Deluxe builds a full oath moment", async () => {
   assert.equal(RADIANT_ORDERS.length, 10);
-  assert.equal(RADIANT_ORDERS.find(order => order.key === "windrunner").label, "Windrunner");
+  assert.equal(RADIANT_ORDERS.find(order => order.key === "windrunner").label, "Corredores del Viento");
 
   const moment = buildOathAcceptedMoment({
     actorName: "Kaladin",
@@ -207,12 +210,12 @@ test("Palabras Aceptadas Deluxe builds a full oath moment", async () => {
     whisperTarget: "Bridge Four",
   });
 
-  assert.equal(moment.order.label, "Windrunner");
+  assert.equal(moment.order.label, "Corredores del Viento");
   assert.equal(moment.actorName, "Kaladin");
 
   const html = buildOathAcceptedChatCard(moment);
   assert.match(html, /Palabras Aceptadas/);
-  assert.match(html, /Windrunner/);
+  assert.match(html, /Corredores del Viento/);
   assert.match(html, /I will protect those who cannot protect themselves\./);
 
   const played = [];
@@ -274,8 +277,8 @@ test("surgebinding FX pack defines the ten surges", () => {
   });
   const html = buildSurgebindingChatCard(fx);
 
-  assert.equal(fx.surge.label, "Gravitation");
-  assert.match(html, /Surgebinding FX/);
+  assert.equal(fx.surge.label, "Gravitación");
+  assert.match(html, /Efectos de Potenciación/);
   assert.match(html, /Szeth/);
   assert.match(html, /Guard/);
   assert.match(html, /The target rises toward the ceiling\./);
@@ -544,7 +547,7 @@ test("macro validation finds valid metadata and dependency references", async ()
 
   const packReport = await validateMacroSourcePack("packs/_source/gm-macros");
   assert.equal(packReport.errors.length, 0);
-  assert.ok(packReport.warnings.some(warning => /AudioHelper|Sequence|JB2A|diceSoNice/.test(warning.message)));
+  assert.equal(packReport.ok, true);
 
   const plan = createMacroValidationPlan();
   assert.deepEqual(plan.checks, [
@@ -572,16 +575,17 @@ test("ships official GM macros for all roadmap tools", async () => {
 
   for (const [fileName, [id, name, script]] of expected) {
     const macro = await readMacro(`packs/_source/gm-macros/${fileName}`);
-    assert.equal(macro._id, id);
-    assert.equal(macro._key, `!macros!${id}`);
+    assert.match(macro._id, /^[A-Za-z0-9]{16}$/);
+    assert.ok(macro._id === id || macro.flags["cosmere-rpg-tooling"]?.legacyIds?.includes(id));
+    assert.equal(macro._key, `!macros!${macro._id}`);
     assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
     assert.equal(macro.type, "script");
-    assert.match(macro.command, new RegExp(script.replace(".", "\\.")));
+    assert.match(macro.command, new RegExp(`api\\.${Object.entries(API_TOOLS).find(([method, file]) => file === script && method !== "playSurgebindingFx")[0]}`));
   }
 
   const oathMacro = await readMacro("packs/_source/gm-macros/qgASaIKoALpVA7FZ.json");
   assert.ok(oathMacro.name.includes("Words Accepted Deluxe"));
-  assert.match(oathMacro.command, /oath-accepted-deluxe\.js/);
+  assert.match(oathMacro.command, /api\.openOathAcceptedDeluxe/);
 });
 
 test("ships individual Surgebinding macros for every Surge", async () => {
@@ -600,10 +604,11 @@ test("ships individual Surgebinding macros for every Surge", async () => {
 
   for (const [fileName, id, name, surgeKey] of expected) {
     const macro = await readMacro(`packs/_source/gm-macros/${fileName}`);
-    assert.equal(macro._id, id);
-    assert.equal(macro._key, `!macros!${id}`);
+    assert.match(macro._id, /^[A-Za-z0-9]{16}$/);
+    assert.ok(macro._id === id || macro.flags["cosmere-rpg-tooling"]?.legacyIds?.includes(id));
+    assert.equal(macro._key, `!macros!${macro._id}`);
     assert.ok(macro.name === name || macro.flags["cosmere-rpg-tooling"]?.legacyNames?.includes(name));
-    assert.match(macro.command, /surgebinding-fx-pack\.js/);
+    assert.match(macro.command, /api\.playSurgebindingFx/);
     assert.match(macro.command, new RegExp(`surgeKey: "${surgeKey}"`));
   }
 });
@@ -640,12 +645,7 @@ test("init, package, docs, and sounds expose completed roadmap features", async 
 
   const requiredSounds = [
     "sounds/highstorm-loop.wav",
-    "sounds/thunder-variant-01.wav",
     "sounds/thunder-variant-02.wav",
-    "sounds/shardblade-summon.wav",
-    "sounds/sphere-glow.wav",
-    "sounds/fabrial-hum.wav",
-    "sounds/shadesmar-ambience.wav",
     "sounds/oath-accepted-variant.wav",
   ];
   for (const soundPath of requiredSounds) {

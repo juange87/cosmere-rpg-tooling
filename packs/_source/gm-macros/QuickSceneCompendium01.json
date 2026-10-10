@@ -1,12 +1,12 @@
 {
-  "_id": "QuickSceneCompendium01",
-  "_key": "!macros!QuickSceneCompendium01",
+  "_id": "54c7bdef454c3237",
+  "_key": "!macros!54c7bdef454c3237",
   "name": "Quick Scene Compendium / Compendio de Escenas Rapidas",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/book.svg",
   "scope": "global",
-  "command": "const { openQuickSceneCompendium } = await import(\"/modules/cosmere-rpg-tooling/scripts/quick-scene-compendium.js\");\n\nopenQuickSceneCompendium();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openQuickSceneCompendium();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,7 +16,11 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Compendio de Escenas Rapidas"
-      ]
+      ],
+      "legacyIds": [
+        "QuickSceneCompendium01"
+      ],
+      "apiVersion": 1
     }
   }
 }

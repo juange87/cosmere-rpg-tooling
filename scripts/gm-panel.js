@@ -1,5 +1,5 @@
 import { localize } from "./localization.js";
-import { buildCosmereChatCard } from "./cosmere-helpers.js";
+import { COSMERE_MODULE_ID, buildCosmereChatCard } from "./cosmere-helpers.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
 export const GM_PANEL_ACTIONS = [
@@ -25,10 +25,11 @@ export function buildGmPanelChatCard() {
   });
 }
 
-async function executeMacroByName(name, { game = globalThis.game, ui = globalThis.ui } = {}) {
-  const macro = game?.macros?.getName?.(name) ?? game?.macros?.find?.(item => item.name === name);
+async function executeCompendiumMacro(id, { game = globalThis.game, ui = globalThis.ui } = {}) {
+  const pack = game?.packs?.get?.(`${COSMERE_MODULE_ID}.gm-macros`);
+  const macro = await pack?.getDocument?.(id);
   if (!macro?.execute) {
-    ui?.notifications?.warn?.(`${localize("CouldNotFindTheMacro")}${name}.`);
+    ui?.notifications?.warn?.(`${localize("CouldNotFindTheMacro")}${id}.`);
     return false;
   }
   await macro.execute();
@@ -48,7 +49,7 @@ async function toggleSelectedTokens({ canvas = globalThis.canvas, ui = globalThi
   return tokens.length;
 }
 
-async function runPanelAction(actionKey, dependencies = {}) {
+export async function runPanelAction(actionKey, dependencies = {}) {
   if (actionKey === "resources") {
     const { openResourceControl } = await import("./resource-control.js");
     return openResourceControl(dependencies);
@@ -57,8 +58,8 @@ async function runPanelAction(actionKey, dependencies = {}) {
     const { openSphereManager } = await import("./sphere-manager.js");
     return openSphereManager(dependencies);
   }
-  if (actionKey === "requestRolls") return executeMacroByName("Request Roll", dependencies);
-  if (actionKey === "privateMessage") return executeMacroByName("Send message", dependencies);
+  if (actionKey === "requestRolls") return executeCompendiumMacro("OHzWpcVmcfaHsk4z", dependencies);
+  if (actionKey === "privateMessage") return executeCompendiumMacro("wilsiRBC31LfydfP", dependencies);
   if (actionKey === "sounds") {
     const { openOathAcceptedDeluxe } = await import("./oath-accepted-deluxe.js");
     return openOathAcceptedDeluxe(dependencies);

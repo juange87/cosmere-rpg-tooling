@@ -1,247 +1,18 @@
-import { localize } from "./localization.js";
+import { localize, format } from "./localization.js";
 import {
   buildCosmereChatCard,
   escapeHtml,
+  notifyCosmere,
   getPlayerActors,
-  normalizeNumber,
   postCosmereChatCard,
 } from "./cosmere-helpers.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
-export const SPHERE_DENOMINATIONS = [
-  { key: "spheres|chip", currency: "spheres", denom: "chip", label: "Chip infused", value: 1 },
-  { key: "spheres|mark", currency: "spheres", denom: "mark", label: "Mark infused", value: 5 },
-  { key: "spheres|broam", currency: "spheres", denom: "broam", label: "Broam infused", value: 20 },
-  { key: "dun|chip", currency: "dun", denom: "chip", label: "Chip dun", value: 1 },
-  { key: "dun|mark", currency: "dun", denom: "mark", label: "Mark dun", value: 5 },
-  { key: "dun|broam", currency: "dun", denom: "broam", label: "Broam dun", value: 20 },
-];
+export { SPHERE_DENOMINATIONS } from "./sphere-currency.js";
+import { SPHERE_DENOMINATIONS, sphereDenominationLabel } from "./sphere-currency.js";
 
-function findMoneyItem(actor, currency, denom) {
-  return Array.from(actor?.items ?? []).find(item =>
-    item?.type === "loot" &&
-    item?.system?.isMoney === true &&
-    item?.system?.price?.currency === currency &&
-    item?.system?.price?.denomination?.primary === denom
-  );
-}
-
-function itemName(currency, denom) {
-  const label = denom.charAt(0).toUpperCase() + denom.slice(1);
-  return currency === "dun" ? `${label} dun` : `${label} infused`;
-}
-
-function buildMoneyItemData(key, quantity) {
-  const denomination = SPHERE_DENOMINATIONS.find(item => item.key === key);
-  const currency = denomination?.currency ?? key.split("|")[0];
-  const denom = denomination?.denom ?? key.split("|")[1];
-  return {
-    name: itemName(currency, denom),
-    type: "loot",
-    system: {
-      isMoney: true,
-      quantity,
-      weight: { value: 0, unit: "lb" },
-      price: {
-        value: 1,
-        currency,
-        denomination: { primary: denom, secondary: "none" },
-      },
-      description: { value: "", chat: "", short: "" },
-      events: {},
-      relationships: {},
-    },
-  };
-}
-
-export function getSphereQuantity(actor, key) {
-  const [currency, denom] = key.split("|");
-  return normalizeNumber(findMoneyItem(actor, currency, denom)?.system?.quantity, 0);
-}
-
-export function summarizeSphereBalance(actor) {
-  const rows = SPHERE_DENOMINATIONS.map(denom => {
-    const quantity = getSphereQuantity(actor, denom.key);
-    return {
-      ...denom,
-      quantity,
-      valueTotal: quantity * denom.value,
-    };
-  }).filter(row => row.quantity > 0);
-
-  return {
-    actorId: actor?.id,
-    actorName: actor?.name ?? localize("NoActor"),
-    rows,
-    totalQuantity: rows.reduce((sum, row) => sum + row.quantity, 0),
-    totalValue: rows.reduce((sum, row) => sum + row.valueTotal, 0),
-  };
-}
-
-export function planSphereTransaction({
-  actors = [],
-  changes = {},
-  strict = true,
-} = {}) {
-  const results = actors.map(actor => {
-    const current = {};
-    const next = {};
-    const deficit = {};
-
-    for (const denomination of SPHERE_DENOMINATIONS) {
-      const change = normalizeNumber(changes[denomination.key], 0);
-      if (!change) continue;
-      const available = getSphereQuantity(actor, denomination.key);
-      const planned = available + change;
-      current[denomination.key] = available;
-      next[denomination.key] = Math.max(0, planned);
-      if (planned < 0) deficit[denomination.key] = Math.abs(planned);
-    }
-
-    return {
-      actorId: actor?.id,
-      actorName: actor?.name ?? localize("NoActor"),
-      current,
-      next,
-      deficit,
-      ok: Object.keys(deficit).length === 0,
-    };
-  });
-
-  return {
-    ok: !strict || results.every(result => result.ok),
-    strict,
-    results,
-  };
-}
-
-export function planSphereConversion({
-  actor,
-  fromKey = "spheres|mark",
-  toKey = "dun|mark",
-  quantity = 0,
-  strict = true,
-} = {}) {
-  const amount = Math.max(0, normalizeNumber(quantity, 0));
-  const changes = {
-    [fromKey]: -amount,
-    [toKey]: amount,
-  };
-  const transaction = planSphereTransaction({
-    actors: actor ? [actor] : [],
-    changes,
-    strict,
-  });
-  return {
-    ...transaction,
-    actorId: actor?.id,
-    actorName: actor?.name ?? localize("NoActor"),
-    fromKey,
-    toKey,
-    quantity: amount,
-    changes,
-  };
-}
-
-export function planGroupSphereSpend({
-  actors = [],
-  key = "spheres|mark",
-  quantity = 0,
-} = {}) {
-  let remaining = Math.max(0, normalizeNumber(quantity, 0));
-  const allocations = [];
-
-  for (const actor of actors) {
-    if (remaining <= 0) break;
-    const available = getSphereQuantity(actor, key);
-    const spent = Math.min(available, remaining);
-    if (spent > 0) {
-      allocations.push({
-        actorId: actor?.id,
-        actorName: actor?.name ?? localize("NoActor"),
-        key,
-        quantity: spent,
-      });
-      remaining -= spent;
-    }
-  }
-
-  return {
-    ok: remaining === 0,
-    key,
-    requested: Math.max(0, normalizeNumber(quantity, 0)),
-    allocations,
-    deficit: remaining,
-  };
-}
-
-export function planInvestitureDrain({
-  actors = [],
-  amount = 1,
-} = {}) {
-  const drainOrder = ["spheres|broam", "spheres|mark", "spheres|chip"];
-  const results = actors.map(actor => {
-    let remaining = Math.max(0, normalizeNumber(amount, 0));
-    const changes = {};
-    for (const key of drainOrder) {
-      if (remaining <= 0) break;
-      const available = getSphereQuantity(actor, key);
-      const drained = Math.min(available, remaining);
-      if (drained > 0) {
-        changes[key] = -drained;
-        remaining -= drained;
-      }
-    }
-    const result = planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {
-      actorId: actor?.id,
-      actorName: actor?.name ?? localize("NoActor"),
-      current: {},
-      next: {},
-      deficit: {},
-      ok: remaining === 0,
-    };
-    if (remaining > 0) {
-      result.deficit.investitureDrain = remaining;
-      result.ok = false;
-    }
-    return result;
-  });
-
-  return {
-    ok: results.every(result => result.ok),
-    amount: Math.max(0, normalizeNumber(amount, 0)),
-    results,
-  };
-}
-
-export function buildGroupSphereSpendTransaction({
-  actors = [],
-  key = "spheres|mark",
-  quantity = 0,
-} = {}) {
-  const spend = planGroupSphereSpend({ actors, key, quantity });
-  const results = actors.map(actor => {
-    const allocation = spend.allocations.find(item => item.actorId === actor?.id);
-    const changes = allocation ? { [key]: -allocation.quantity } : {};
-    return planSphereTransaction({ actors: [actor], changes, strict: true }).results[0] ?? {
-      actorId: actor?.id,
-      actorName: actor?.name ?? localize("NoActor"),
-      current: {},
-      next: {},
-      deficit: {},
-      ok: true,
-    };
-  });
-
-  return {
-    ok: spend.ok,
-    key,
-    requested: spend.requested,
-    deficit: spend.deficit,
-    allocations: spend.allocations,
-    results,
-  };
-}
+export { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction } from "./sphere-transactions.js";
+import { getSphereQuantity, summarizeSphereBalance, planSphereTransaction, planSphereConversion, planGroupSphereSpend, planInvestitureDrain, buildGroupSphereSpendTransaction, applySphereInventoryPlan, sphereSummaryWarnings } from "./sphere-transactions.js";
 
 export function buildSphereTransactionChatCard({
   title = localize("SphereTransaction"),
@@ -254,12 +25,12 @@ export function buildSphereTransactionChatCard({
       .join(", ");
     const deficits = Object.entries(result.deficit ?? {})
       .filter(([, value]) => value > 0)
-      .map(([key, value]) => `${key}${localize("Missing")}${value}`)
+      .map(([key, value]) => `${sphereDenominationLabel(key)}${localize("Missing")}${value}`)
       .join(", ");
 
     return {
       label: result.actorName,
-      value: [changes || localize("NoChanges"), deficits ? `Deficit: ${deficits}` : ""].filter(Boolean).join(" | "),
+      value: [changes || localize("NoChanges"), deficits ? `${localize("Deficit")}: ${deficits}` : "", result.error, result.warning].filter(Boolean).join(" | "),
     };
   });
 
@@ -282,24 +53,22 @@ export async function applySphereTransactionPlan({
   publishChat = true,
   title = localize("SphereTransaction"),
   ChatMessage = globalThis.ChatMessage,
+  game = globalThis.game,
+  ui = globalThis.ui,
 } = {}) {
   if (!plan?.results) throw new Error(localize("ThereIsNoSphereTransactionToApply"));
-  if (!plan.ok) throw new Error(localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
+  if (!plan.ok) throw new Error(plan.error ?? localize("InsufficientFundsReviewTheDeficitBeforeApplying"));
 
-  for (const result of plan.results) {
-    const actor = findActorById(actors, result.actorId);
-    if (!actor) continue;
-    for (const [key, nextQuantity] of Object.entries(result.next ?? {})) {
-      const [currency, denom] = key.split("|");
-      const item = findMoneyItem(actor, currency, denom);
-      if (nextQuantity <= 0) {
-        await item?.delete?.();
-      } else if (item) {
-        await item.update?.({ "system.quantity": nextQuantity });
-      } else {
-        await actor.createEmbeddedDocuments?.("Item", [buildMoneyItemData(key, nextQuantity)]);
-      }
-    }
+  if (!plan.results.length) {
+    if (!actors.length) notifyCosmere(localize("NoPlayerCharactersFound"), { type: "warn", game, ui });
+    return plan;
+  }
+  await applySphereInventoryPlan({ actors, plan });
+  const warnings = plan.results.filter(result => result.warning);
+  if (warnings.length) {
+    notifyCosmere(format("SphereInventoryWarnings", {
+      actors: warnings.map(result => `${result.actorName}: ${result.warning}`).join("; "),
+    }), { type: "warn", game, ui });
   }
 
   if (publishChat) {
@@ -318,7 +87,8 @@ export function buildSphereSummaryChatCard({ actors = [] } = {}) {
     const value = summary.rows.length
       ? summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ")
       : localize("NoSpheresRecorded");
-    return { label: summary.actorName, value: `${value} (${summary.totalValue}${localize("AbstractValue")}` };
+    const total = summary.overflow ? localize("SphereSummaryOverflow") : `${summary.totalValue}${localize("AbstractValue")}`;
+    return { label: summary.actorName, value: `${value} (${total}${summary.invalidKeys.length ? ` | ${localize("InvalidSphereInventory")}` : ""}` };
   });
 
   return buildCosmereChatCard({
@@ -353,7 +123,8 @@ export function buildSphereManagerDialogContent(actors) {
   const rows = actors.map(actor => {
     const summary = summarizeSphereBalance(actor);
     const balance = summary.rows.map(row => `${row.quantity} ${row.label}`).join(", ") || localize("NoSpheres");
-    return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}</li>`;
+    const warnings = sphereSummaryWarnings(summary).map(warning => ` <span class="cr-warn">${escapeHtml(warning)}</span>`).join("");
+    return `<li><strong>${escapeHtml(actor.name)}</strong>: ${escapeHtml(balance)}${warnings}</li>`;
   }).join("");
   return `
     <div>
@@ -361,7 +132,7 @@ export function buildSphereManagerDialogContent(actors) {
       <ul>${rows}</ul>
       <hr>
       <h3>${localize("ConvertSpheres")}</h3>
-      <div class="form-group"><label>Actor</label><select name="convertActorId">${actorOptions(actors)}</select></div>
+      <div class="form-group"><label>${localize("Actor")}</label><select name="convertActorId">${actorOptions(actors)}</select></div>
       <div class="form-group"><label>${localize("From")}</label><select name="convertFromKey">${denominationOptions()}</select></div>
       <div class="form-group"><label>${localize("To")}</label><select name="convertToKey">${denominationOptions()}</select></div>
       <div class="form-group"><label>${localize("Amount")}</label><input name="convertQuantity" type="number" value="1" min="0" step="1" /></div>
@@ -398,7 +169,7 @@ export function openSphereManager({
           try {
             await postSphereSummary({ actors, ChatMessage });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },
@@ -419,10 +190,10 @@ export function openSphereManager({
               plan,
               title: localize("SphereConversion"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
-              ChatMessage,
+              ChatMessage, game, ui,
             });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },
@@ -441,10 +212,10 @@ export function openSphereManager({
               plan,
               title: localize("GroupSpending"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
-              ChatMessage,
+              ChatMessage, game, ui,
             });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },
@@ -462,10 +233,10 @@ export function openSphereManager({
               plan,
               title: localize("DrainAfterInvestiture"),
               publishChat: html.find("[name=publishChat]").is(":checked"),
-              ChatMessage,
+              ChatMessage, game, ui,
             });
           } catch (error) {
-            ui?.notifications?.error?.(error.message);
+            notifyCosmere(error.message, { type: "error", game, ui });
           }
         },
       },

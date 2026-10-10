@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeCohesion01",
-  "_key": "!macros!SurgeCohesion01",
+  "_id": "dca4aa3fb905ddeb",
+  "_key": "!macros!dca4aa3fb905ddeb",
   "name": "Surgebinding FX: Cohesion",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/mountain.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"cohesion\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"cohesion\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeCohesion01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

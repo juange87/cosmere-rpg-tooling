@@ -1,12 +1,12 @@
 {
-  "_id": "ConversationEndeavor01",
-  "_key": "!macros!ConversationEndeavor01",
+  "_id": "c3063016fdaf4f0a",
+  "_key": "!macros!c3063016fdaf4f0a",
   "name": "Conversation and Endeavor Manager / Gestor de Conversaciones y Endeavors",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/conversation.svg",
   "scope": "global",
-  "command": "const { openConversationEndeavorManager } = await import(\"/modules/cosmere-rpg-tooling/scripts/conversation-endeavor-manager.js\");\n\nopenConversationEndeavorManager();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openConversationEndeavorManager();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,7 +16,11 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Gestor de Conversaciones y Endeavors"
-      ]
+      ],
+      "legacyIds": [
+        "ConversationEndeavor01"
+      ],
+      "apiVersion": 1
     }
   }
 }

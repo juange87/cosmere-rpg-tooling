@@ -4,7 +4,6 @@
   "description": "CosmereRPG Tools and Content to improve the GM life: Rolltables, Player Macros, and GM Macros",
   "version": "#{VERSION}#",
   "library": false,
-  "manifestPlusVersion": "1.2.0",
   "compatibility": {
     "minimum": 12,
     "verified": 13,
@@ -51,5 +50,30 @@
       "name": "Español",
       "path": "lang/es.json"
     }
-  ]
+  ],
+  "relationships": {
+    "systems": [
+      {
+        "id": "cosmere-rpg",
+        "type": "system",
+        "compatibility": {
+          "minimum": "1.0.0"
+        }
+      }
+    ],
+    "recommends": [
+      {
+        "id": "sequencer",
+        "type": "module"
+      },
+      {
+        "id": "JB2A_DnD5e",
+        "type": "module"
+      },
+      {
+        "id": "dice-so-nice",
+        "type": "module"
+      }
+    ]
+  }
 }

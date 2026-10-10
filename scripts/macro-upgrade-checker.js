@@ -3,6 +3,7 @@ import {
   COSMERE_MODULE_ID,
   buildCosmereChatCard,
   escapeHtml,
+  postGmReport,
 } from "./cosmere-helpers.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
@@ -50,6 +51,8 @@ function getDocumentData(document, defaults = {}) {
     img: raw?.img ?? document?.img ?? "",
     scope: raw?.scope ?? document?.scope ?? "global",
     flags: raw?.flags ?? document?.flags ?? {},
+    _stats: raw?._stats ?? document?._stats ?? {},
+    uuid: raw?.uuid ?? document?.uuid ?? "",
     packId: raw?.packId ?? document?.packId ?? defaults.packId ?? "",
     packLabel: raw?.packLabel ?? document?.packLabel ?? defaults.packLabel ?? defaults.packId ?? "",
   };
@@ -78,22 +81,29 @@ export function buildMacroUpgradeReport({
 } = {}) {
   const sources = sourceMacros.map(macro => getDocumentData(macro));
   const world = worldMacros.map(macro => getDocumentData(macro));
-  const worldByName = new Map();
-
-  for (const macro of world) {
-    if (!macro.name) continue;
-    const existing = worldByName.get(macro.name) ?? [];
-    existing.push(macro);
-    worldByName.set(macro.name, existing);
-  }
-
   const entries = [];
   const matchedWorldCopies = new Map();
+  const legacyNameOwners = new Map();
   for (const source of sources) {
-    // Bilingual compendium names still match copies imported before English
-    // support. Updating a macro preserves its world name and hotbar ID.
-    const names = new Set([source.name, ...(source.flags?.[COSMERE_MODULE_ID]?.legacyNames ?? [])]);
-    const matches = Array.from(names).flatMap(name => worldByName.get(name) ?? []);
+    const aliases = source.flags?.[COSMERE_MODULE_ID]?.legacyNames ?? [];
+    if (!aliases.length) continue;
+    for (const name of new Set([source.name, ...aliases])) {
+      if (!legacyNameOwners.has(name)) legacyNameOwners.set(name, source);
+      else if (legacyNameOwners.get(name) !== source) legacyNameOwners.set(name, null);
+    }
+  }
+  for (const source of sources) {
+    const ids = [source.id, ...(source.flags?.[COSMERE_MODULE_ID]?.legacyIds ?? [])];
+    const origins = new Set(ids.flatMap(id => [
+      `Compendium.${source.packId}.Macro.${id}`,
+      `Compendium.${source.packId}.${id}`,
+    ]));
+    if (source.uuid) origins.add(source.uuid);
+    const provenanceMatches = world.filter(macro => [macro._stats.compendiumSource, macro.flags?.core?.sourceId]
+      .some(origin => origin && origins.has(origin)));
+    const nameMatches = world.filter(macro => !macro._stats.compendiumSource && !macro.flags?.core?.sourceId
+      && legacyNameOwners.get(macro.name) === source);
+    const matches = [...provenanceMatches, ...nameMatches];
     matchedWorldCopies.set(source, matches.length);
     if (!matches.length) {
       entries.push({
@@ -119,6 +129,7 @@ export function buildMacroUpgradeReport({
         worldMacro,
         changedFields,
         canUpdate: status === "outdated",
+        requiresConfirmation: nameMatches.includes(worldMacro),
         duplicateWorldCopies,
       });
     }
@@ -171,6 +182,7 @@ export function buildMacroUpdateData(entry, { now = new Date() } = {}) {
     },
   };
 
+  flags.core = { ...flags.core, sourceId: source.uuid || `Compendium.${source.packId}.Macro.${source.id}` };
   return {
     command: source.command,
     type: source.type,
@@ -183,24 +195,31 @@ export function buildMacroUpdateData(entry, { now = new Date() } = {}) {
 export async function applyMacroUpgradeSelection({
   report,
   selectedEntryKeys = [],
+  confirmLegacyUpgrades = false,
   now = new Date(),
 } = {}) {
   const selected = new Set(selectedEntryKeys);
   const updated = [];
   const skipped = [];
+  const failed = [];
 
   for (const entry of report?.entries ?? []) {
     if (!selected.has(entry.key)) continue;
-    if (entry.status !== "outdated" || !entry.worldMacro?.document?.update) {
+    if (entry.status !== "outdated" || !entry.worldMacro?.document?.update
+      || (entry.requiresConfirmation && confirmLegacyUpgrades !== true)) {
       skipped.push(entry);
       continue;
     }
 
-    await entry.worldMacro.document.update(buildMacroUpdateData(entry, { now }));
-    updated.push(entry);
+    try {
+      await entry.worldMacro.document.update(buildMacroUpdateData(entry, { now }));
+      updated.push(entry);
+    } catch (error) {
+      failed.push({ entry, error });
+    }
   }
 
-  return { updated, skipped };
+  return { updated, skipped, failed };
 }
 
 function buildStatusSummary(counts) {
@@ -226,7 +245,7 @@ function buildDialogRows(entries) {
         <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);text-align:center;">${selector}</td>
         <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);font-weight:700;">${escapeHtml(entry.source.name)}</td>
         <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);">${escapeHtml(entry.source.packLabel)}</td>
-        <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);">${escapeHtml(STATUS_LABELS[entry.status] ?? entry.status)}</td>
+        <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);">${escapeHtml(STATUS_LABELS[entry.status] ?? entry.status)}${entry.requiresConfirmation ? ` — ${escapeHtml(localize("LegacyMacroNameMatch"))}` : ""}</td>
         <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);">${escapeHtml(changed)}</td>
         <td style="padding:6px 8px;border-top:1px solid rgba(31,41,51,0.12);font-size:11px;color:#6f7f95;">${escapeHtml(worldId)}</td>
       </tr>
@@ -258,6 +277,7 @@ export function buildMacroUpgradeDialogContent(report) {
         ${escapeHtml(buildStatusSummary(counts))}
       </div>
       ${warnings}
+      ${entries.some(entry => entry.requiresConfirmation) ? `<label><input type="checkbox" name="confirm-legacy-upgrades"> ${escapeHtml(localize("ConfirmLegacyMacroUpgrades"))}</label>` : ""}
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead>
           <tr>
@@ -372,12 +392,9 @@ function selectedKeysFromDialog(html) {
     .filter(Boolean);
 }
 
-async function publishReport(report, { ChatMessage = globalThis.ChatMessage } = {}) {
+export async function publishReport(report, { ChatMessage = globalThis.ChatMessage } = {}) {
   if (!ChatMessage) return null;
-  return ChatMessage.create({
-    content: buildMacroUpgradeChatCard(report),
-    speaker: ChatMessage.getSpeaker?.(),
-  });
+  return postGmReport({ content: buildMacroUpgradeChatCard(report), ChatMessage });
 }
 
 export async function openMacroUpgradeChecker({
@@ -416,8 +433,15 @@ export async function openMacroUpgradeChecker({
             ui?.notifications?.warn?.(localize("NoOutdatedMacrosSelected"));
             return false;
           }
-          const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys });
+          const hasLegacySelection = report.entries.some(entry => selectedEntryKeys.includes(entry.key) && entry.requiresConfirmation);
+          const confirmLegacyUpgrades = html.find?.("input[name='confirm-legacy-upgrades']")?.is?.(":checked") === true;
+          if (hasLegacySelection && !confirmLegacyUpgrades) {
+            ui?.notifications?.warn?.(localize("ConfirmLegacyMacroUpgrades"));
+            return false;
+          }
+          const result = await applyMacroUpgradeSelection({ report, selectedEntryKeys, confirmLegacyUpgrades });
           ui?.notifications?.info?.(`${localize("MacrosUpdated")}${result.updated.length}.`);
+          if (result.failed.length) ui?.notifications?.error?.(`${localize("MacroUpdatesFailed")}${result.failed.length}.`);
           await publishReport(await scanInstalledCosmereMacros({ game }), { ChatMessage });
           return true;
         },

@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeGravitation01",
-  "_key": "!macros!SurgeGravitation01",
+  "_id": "c1ea1138d2cacaf0",
+  "_key": "!macros!c1ea1138d2cacaf0",
   "name": "Surgebinding FX: Gravitation",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/lightning.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"gravitation\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"gravitation\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeGravitation01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

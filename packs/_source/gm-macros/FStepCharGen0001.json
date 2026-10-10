@@ -6,11 +6,15 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/d20-grey.svg",
   "scope": "global",
-  "command": "const { openFirstStepCharacterGenerator } = await import(\"/modules/cosmere-rpg-tooling/scripts/first-step-character-generator.js\");\n\nopenFirstStepCharacterGenerator();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openFirstStepCharacterGenerator();",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "apiVersion": 1
+    }
+  }
 }

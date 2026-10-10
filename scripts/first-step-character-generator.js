@@ -1,3 +1,5 @@
+import { getModuleRollTable } from "./table-seeding.js";
+import { escapeHtml } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
@@ -18,17 +20,9 @@ export const NAME_GENERATOR_TABLES = [
   "Veden Names",
 ];
 
-function escapeHtml(value) {
-  return String(value ?? "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
 
 async function drawTableText(game, tableName) {
-  const table = game?.tables?.getName?.(tableName);
+  const table = getModuleRollTable(tableName, game);
   if (!table) {
     throw new Error(`${localize("CouldNotFindTheTable")}${tableName}".`);
   }
@@ -126,7 +120,7 @@ export function openFirstStepCharacterGenerator({
   }
 
   openCosmereDialog({
-    title: "First Step Character Generator",
+    title: localize("FirstStepCharacterGenerator"),
     content: buildDialogContent(),
     buttons: {
       generate: {

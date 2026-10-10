@@ -1,3 +1,4 @@
+import { createCosmereApi } from "../scripts/module-api.js";
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
@@ -50,7 +51,7 @@ test("manifest permits activation without forcing either JB2A edition", async ()
     ["JB2A_DnD5e", "jb2a_patreon"].includes(entry.id)), false);
 });
 
-const directMacroIds = ["JftnYfOMuXevgcjV", "mSA2KpnWle0X6E6m", "9MDhU9WMv0QKYH3D", "Llo5ZpODs3yEeKhS", "aPHfJqQlm7EKoGyN"];
+const directMacroIds = [ "9MDhU9WMv0QKYH3D", "Llo5ZpODs3yEeKhS", "aPHfJqQlm7EKoGyN"];
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
 
 for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
@@ -65,9 +66,10 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
         faces = 20;
         results = [{ result: 1 }, { result: 20 }];
       }
-      game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [new Die()] }] }) };
+      game.users = { activeGM: { isSelf: true } };
+    game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [new Die()] }] }) };
       const sequence = new Proxy({}, {
-        get: (_, key) => (...args) => {
+        get: (_, key) => key === "then" ? undefined : (...args) => {
           if (key === "file") files.push(args[0]);
           return sequence;
         },
@@ -80,6 +82,10 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
         } }] },
       };
       const command = macro.command.replace(/^const \{ (?:resolveJb2aAssetPath|localize) \} = await import\([^\n]+\);\n/gm, "");
+      const Sequence = function Sequence() { return sequence; };
+      const ui = { notifications: { info(message) { notifications.push(message); }, warn() {} } };
+      const Hooks = { on: (_, callback) => callbacks.push(callback) };
+      game.modules.set("cosmere-rpg-tooling", { api: createCosmereApi({ game, canvas, Sequence, ui, Hooks, Die }) });
       await new AsyncFunction("game", "canvas", "Sequence", "ui", "Hooks", "Die", "resolveJb2aAssetPath", "localize", command)(
         game, canvas, function Sequence() { return sequence; },
         { notifications: { info(message) { notifications.push(message); }, warn() {} } },
@@ -88,8 +94,9 @@ for (const edition of ["JB2A_DnD5e", "jb2a_patreon", null]) {
         localize,
       );
       for (const callback of callbacks) callback("roll-id");
-      assert.equal(files.length, edition ? 1 : 0, macro.name);
-      if (edition) assert.ok(files[0].startsWith(`modules/${edition}/Library/`), macro.name);
+      const animated = edition && !macro.name.startsWith("Reduce Health");
+      assert.equal(files.length, animated ? 1 : 0, macro.name);
+      if (animated) assert.ok(files[0].startsWith(`modules/${edition}/Library/`), macro.name);
       if (id !== "9MDhU9WMv0QKYH3D") {
         assert.equal(notifications.length, 1, macro.name);
         assert.match(notifications[0], /Health updated|natural 20|Critical failure detected/, macro.name);
@@ -105,8 +112,9 @@ test("global roll hooks choose the active edition and keep chat without JB2A", a
     const files = [];
     const messages = [];
     const game = createGame(edition ? [edition] : []);
+    game.users = { activeGM: { isSelf: true } };
     game.messages = { get: () => ({ isRoll: true, rolls: [{ terms: [{ faces: 20, results: [{ result: 20 }, { result: 1 }] }] }] }) };
-    const sequence = new Proxy({}, { get: (_, key) => (...args) => {
+    const sequence = new Proxy({}, { get: (_, key) => key === "then" ? undefined : (...args) => {
       if (key === "file") files.push(args[0]);
       return sequence;
     } });

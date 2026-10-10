@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { escapeHtml, postGmReport } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 const DEPENDENCY_PATTERNS = [
   { pattern: /new Sequence|Sequence\(/, label: "Sequence" },
@@ -33,7 +34,13 @@ export function createMacroValidationPlan() {
 export function validateMacroSourceFile(filePath, macro) {
   const errors = [];
   const warnings = [];
+  if (!macro || typeof macro !== "object" || Array.isArray(macro)) {
+    return { filePath, ok: false, errors: [`${filePath}: ${localize("MacroSourceMustBeObject")}`], warnings };
+  }
 
+  if (macro?._id && !/^[A-Za-z0-9]{16}$/.test(macro._id)) {
+    errors.push(`${filePath}: _id must contain exactly 16 alphanumeric characters.`);
+  }
   if (!macro?._id) errors.push(`${filePath}${localize("MissingId")}`);
   if (!macro?._key) errors.push(`${filePath}${localize("MissingKey")}`);
   if (macro?._id && macro?._key && macro._key !== `!macros!${macro._id}`) {
@@ -68,6 +75,7 @@ export async function validateMacroSourcePack(packPath) {
   const errors = [];
   const warnings = [];
   const names = new Map();
+  const ids = new Set();
   const reports = [];
 
   for (const entry of entries) {
@@ -80,6 +88,10 @@ export async function validateMacroSourcePack(packPath) {
       continue;
     }
 
+    if (macro?._id) {
+      if (ids.has(macro._id)) errors.push(`${filePath}: duplicate _id ${macro._id}.`);
+      ids.add(macro._id);
+    }
     const report = validateMacroSourceFile(filePath, macro);
     reports.push(report);
     errors.push(...report.errors);
@@ -150,7 +162,7 @@ export function buildMacroValidationChatCard(report) {
     { label: localize("Errors"), value: report.errors.length ? report.errors.join(" | ") : localize("NoErrors") },
     { label: localize("Warnings"), value: report.warnings.length ? `${report.warnings.length}${localize("ReferenceSToOptionalDependencies")}` : localize("NoWarnings") },
   ];
-  return `<div>${sections.map(section => `<p><strong>${section.label}</strong>: ${section.value}</p>`).join("")}</div>`;
+  return `<div>${sections.map(section => `<p><strong>${escapeHtml(section.label)}</strong>: ${escapeHtml(section.value)}</p>`).join("")}</div>`;
 }
 
 export async function runMacroValidation({
@@ -164,10 +176,7 @@ export async function runMacroValidation({
       warnings: [{ message: localize("RunNpmRunValidateInTheRepositoryToCheckSourceJSONFilesAndCompilePacks") }],
     };
     if (ChatMessage) {
-      await ChatMessage.create({
-        content: buildMacroValidationChatCard(report),
-        speaker: ChatMessage.getSpeaker?.(),
-      });
+      await postGmReport({ content: buildMacroValidationChatCard(report), ChatMessage });
     }
     ui?.notifications?.info?.(localize("LocalValidationRunNpmRunValidateOutsideFoundry"));
     return report;
@@ -175,10 +184,7 @@ export async function runMacroValidation({
 
   const report = await validateAllMacroSources({ checkCompile: true });
   if (ChatMessage) {
-    await ChatMessage.create({
-      content: buildMacroValidationChatCard(report),
-      speaker: ChatMessage.getSpeaker?.(),
-    });
+    await postGmReport({ content: buildMacroValidationChatCard(report), ChatMessage });
   }
   if (report.ok) ui?.notifications?.info?.(localize("MacroValidationCompletedWithoutErrors"));
   else ui?.notifications?.error?.(localize("MacroValidationFoundErrors"));

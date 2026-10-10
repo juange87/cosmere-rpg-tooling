@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeAdhesion01",
-  "_key": "!macros!SurgeAdhesion01",
+  "_id": "d345ddd1f9ee91c7",
+  "_key": "!macros!d345ddd1f9ee91c7",
   "name": "Surgebinding FX: Adhesion",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/lightning.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"adhesion\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"adhesion\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeAdhesion01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

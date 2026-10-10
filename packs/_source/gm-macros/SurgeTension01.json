@@ -1,16 +1,23 @@
 {
-  "_id": "SurgeTension01",
-  "_key": "!macros!SurgeTension01",
+  "_id": "03a76bd01e7cd161",
+  "_key": "!macros!03a76bd01e7cd161",
   "name": "Surgebinding FX: Tension",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/shield.svg",
   "scope": "global",
-  "command": "const { playSurgebindingFx } = await import(\"/modules/cosmere-rpg-tooling/scripts/surgebinding-fx-pack.js\");\n\nplaySurgebindingFx({ input: { surgeKey: \"tension\" } });",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.playSurgebindingFx({ input: { surgeKey: \"tension\" } });",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "SurgeTension01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

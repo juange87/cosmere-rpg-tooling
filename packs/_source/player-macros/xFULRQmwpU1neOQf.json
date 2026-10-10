@@ -4,7 +4,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/angel.svg",
   "scope": "global",
-  "command": "const { localize } = await import(\"/modules/cosmere-rpg-tooling/scripts/localization.js\");\n// Hook: escucha clicks en botones de solicitud de tirada\nHooks.on(\"renderChatMessage\", (message, html) => {\n  html.find(\"button.roll-solicitud\").click(ev => {\n    const actorId = ev.currentTarget.dataset.actorId;\n    const skill = ev.currentTarget.dataset.skill;\n\n    const actor = game.actors.get(actorId);\n    if (!actor) {\n      ui.notifications.error(localize(\"CouldNotFindTheActorForTheRoll2\"));\n      return;\n    }\n\n    // Lanza la tirada desde la sesión del jugador\n    actor.rollSkill(skill, { chatMessage: true });\n  });\n});",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runLegacyMacro(\"xFULRQmwpU1neOQf\");",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,6 +16,9 @@
       "system": "cosmere-rpg",
       "coreVersion": "12.343",
       "systemVersion": "1.0.1"
+    },
+    "cosmere-rpg-tooling": {
+      "apiVersion": 1
     }
   },
   "_id": "xFULRQmwpU1neOQf",

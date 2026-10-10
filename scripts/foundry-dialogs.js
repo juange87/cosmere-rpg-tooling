@@ -23,6 +23,7 @@ export function createDialogHtmlAdapter(root) {
   const query = selector => Array.from(queryRoot?.querySelectorAll?.(selector) ?? []);
 
   return {
+    element: queryRoot,
     find(selector) {
       const elements = query(selector);
       return {

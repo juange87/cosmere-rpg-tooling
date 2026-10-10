@@ -1,3 +1,4 @@
+import { clientSoundVolume } from "./cosmere-helpers.js";
 import { localize } from "./localization.js";
 import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js";
 
@@ -237,6 +238,7 @@ export function buildHighstormCalendarJournalContent({
 }
 
 export async function runHighstormCue({
+  game = globalThis.game,
   cueKey = "approach",
   minutes = 0,
   note = "",
@@ -255,7 +257,7 @@ export async function runHighstormCue({
 
   if (playSound && AudioHelper?.play) {
     const sound = getHighstormSound(soundKey);
-    AudioHelper.play({ src: sound.src, volume: sound.volume, loop: sound.loop }, true);
+    AudioHelper.play({ src: sound.src, volume: sound.volume * clientSoundVolume(game), loop: sound.loop }, true);
   }
 
   const whisper = whisperOnly
@@ -427,6 +429,7 @@ function buildDialogContent() {
 }
 
 export function openHighstormToolkit({
+  game = globalThis.game,
   Dialog = globalThis.Dialog,
   ChatMessage = globalThis.ChatMessage,
   AudioHelper = resolveAudioHelper(),
@@ -447,6 +450,7 @@ export function openHighstormToolkit({
         callback: async html => {
           try {
             await runHighstormCue({
+              game,
               cueKey: html.find("#cr-highstorm-cue").val(),
               minutes: html.find("#cr-highstorm-minutes").val(),
               note: html.find("#cr-highstorm-note").val(),

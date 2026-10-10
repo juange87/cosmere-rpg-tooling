@@ -4,7 +4,7 @@
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/invisible.svg",
   "scope": "global",
-  "command": "const { localize } = await import(\"/modules/cosmere-rpg-tooling/scripts/localization.js\");\n// Obtén los tokens seleccionados\nlet tokens = canvas.tokens.controlled;\n// Verifica que haya tokens seleccionados\nif (tokens.length === 0) {\n  ui.notifications.warn(localize(\"SelectOneOrMoreTokensToShowOrHide2\"));\n} else {\n  // Alterna el estado de oculto de cada token\n  for (let token of tokens) {\n    let isHidden = token.document.hidden;\n    await token.document.update({hidden: !isHidden});\n  }\n}",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runLegacyMacro(\"87gGNbW3oGPdYImJ\");",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,6 +16,9 @@
       "system": "cosmere-rpg",
       "coreVersion": "12.343",
       "systemVersion": "1.0.1"
+    },
+    "cosmere-rpg-tooling": {
+      "apiVersion": 1
     }
   },
   "_id": "87gGNbW3oGPdYImJ",

@@ -3,16 +3,16 @@ import { hasCosmereDialogSupport, openCosmereDialog } from "./foundry-dialogs.js
 
 export const PLOT_DIE_OUTCOMES = [
   { key: "auto", get label() { return localize("AutomaticByValue"); } },
-  { key: "opportunity", label: "Opportunity" },
-  { key: "complication", label: "Complication" },
-  { key: "both", label: "Opportunity + Complication" },
+  { key: "opportunity", get label() { return localize("Opportunity"); } },
+  { key: "complication", get label() { return localize("Complication"); } },
+  { key: "both", get label() { return localize("OpportunityAndComplication"); } },
   { key: "none", get label() { return localize("NoNarrativeEffect"); } },
 ];
 
 const PLOT_OUTCOME_LABELS = {
-  opportunity: "Opportunity",
-  complication: "Complication",
-  both: "Opportunity + Complication",
+  get opportunity() { return localize("Opportunity"); },
+  get complication() { return localize("Complication"); },
+  get both() { return localize("OpportunityAndComplication"); },
   get none() { return localize("NoNarrativeEffect"); },
 };
 

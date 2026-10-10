@@ -1,12 +1,12 @@
 {
-  "_id": "LocationGenerator01",
-  "_key": "!macros!LocationGenerator01",
+  "_id": "7b836d56c181f617",
+  "_key": "!macros!7b836d56c181f617",
   "name": "Location Generator / Generador de Localizaciones",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/map.svg",
   "scope": "global",
-  "command": "const { openLocationGenerator } = await import(\"/modules/cosmere-rpg-tooling/scripts/location-generator.js\");\n\nopenLocationGenerator();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openLocationGenerator();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,7 +16,11 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Generador de Localizaciones"
-      ]
+      ],
+      "legacyIds": [
+        "LocationGenerator01"
+      ],
+      "apiVersion": 1
     }
   }
 }

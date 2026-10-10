@@ -1,12 +1,12 @@
 {
-  "_id": "DependencyCheck01",
-  "_key": "!macros!DependencyCheck01",
+  "_id": "ad6b55523a12104e",
+  "_key": "!macros!ad6b55523a12104e",
   "name": "Dependency Check / Chequeo de Dependencias",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/hazard.svg",
   "scope": "global",
-  "command": "const { runDependencyCheck } = await import(\"/modules/cosmere-rpg-tooling/scripts/dependency-checker.js\");\n\nrunDependencyCheck();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.runDependencyCheck();",
   "folder": null,
   "sort": 0,
   "ownership": {
@@ -16,7 +16,11 @@
     "cosmere-rpg-tooling": {
       "legacyNames": [
         "Chequeo de Dependencias"
-      ]
+      ],
+      "legacyIds": [
+        "DependencyCheck01"
+      ],
+      "apiVersion": 1
     }
   }
 }

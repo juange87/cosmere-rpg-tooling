@@ -100,6 +100,6 @@ test("ships a GM macro that opens the first step generator", async () => {
   assert.equal(macro._key, "!macros!FStepCharGen0001");
   assert.equal(macro.name, "First Step Character Generator");
   assert.equal(macro.type, "script");
-  assert.match(macro.command, /first-step-character-generator\.js/);
+  assert.match(macro.command, /api\.openFirstStepCharacterGenerator/);
   assert.match(macro.command, /openFirstStepCharacterGenerator/);
 });

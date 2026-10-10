@@ -1,16 +1,23 @@
 {
-  "_id": "HighstormTool01",
-  "_key": "!macros!HighstormTool01",
+  "_id": "5b6f29ba3d96a5b5",
+  "_key": "!macros!5b6f29ba3d96a5b5",
   "name": "Highstorm Toolkit",
   "type": "script",
   "author": "6cxUP4dSannVjU9o",
   "img": "icons/svg/lightning.svg",
   "scope": "global",
-  "command": "const { openHighstormToolkit } = await import(\"/modules/cosmere-rpg-tooling/scripts/highstorm-toolkit.js\");\n\nopenHighstormToolkit();",
+  "command": "return await game.modules.get(\"cosmere-rpg-tooling\").api.openHighstormToolkit();",
   "folder": null,
   "sort": 0,
   "ownership": {
     "default": 0
   },
-  "flags": {}
+  "flags": {
+    "cosmere-rpg-tooling": {
+      "legacyIds": [
+        "HighstormTool01"
+      ],
+      "apiVersion": 1
+    }
+  }
 }

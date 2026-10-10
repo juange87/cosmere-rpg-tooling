@@ -1,151 +1,169 @@
+<!-- CODEGRAPH_START -->
+## CodeGraph
+
+In repositories indexed by CodeGraph (a `.codegraph/` directory exists at the repo root), reach for it BEFORE grep/find or reading files when you need to understand or locate code:
+
+- **MCP tool** (when available): `codegraph_explore` answers most code questions in one call — the relevant symbols' verbatim source plus the call paths between them, including dynamic-dispatch hops grep can't follow. Name a file or symbol in the query to read its current line-numbered source. If it's listed but deferred, load it by name via tool search.
+- **Shell** (always works): `codegraph explore "<symbol names or question>"` prints the same output.
+
+If there is no `.codegraph/` directory, skip CodeGraph entirely — indexing is the user's decision.
+<!-- CODEGRAPH_END -->
+
 # AGENTS.md
 
-This file provides guidance to Codex (Codex.ai/code) when working with code in this repository.
+## Project
 
-## Project Overview
+Foundry VTT module `cosmere-rpg-tooling`: GM tools for Cosmere RPG, character
+creation, Roshar generators, resources, spheres, conversations, visual effects
+and macro maintenance. Vanilla JavaScript ES modules; Foundry v12–v13 is the
+manifest's declared range. Foundry v14 support is separate work.
 
-This is a **Foundry VTT module** for Cosmere RPG that provides GM tools including roll tables for character creation, name generators, and macro compendiums for players and GMs. The module is written in vanilla JavaScript (ES modules) and uses Foundry VTT's API.
+## Architecture
 
-## Key Architecture
+- `module.json`: manifest with release placeholders `#{VERSION}#`, `#{URL}#`,
+  `#{MANIFEST}#`, `#{DOWNLOAD}#`; relationships restrict the system to
+  `cosmere-rpg` and recommend optional Sequencer, JB2A and Dice So Nice modules.
+- `scripts/init.js`: registers settings and the public API on `init`; activates
+  roll hooks and seeds tables on `ready`.
+- `scripts/module-api.js`: public `game.modules.get("cosmere-rpg-tooling").api`.
+  Macro JSON commands are one-line API calls. Relative imports work behind
+  Foundry's `routePrefix`. Existing pre-API world macros need one upgrade.
+- `scripts/legacy/`: implementations of classic macros, with injected Foundry
+  dependencies. Three retired hook macros remain as compatibility notices and
+  register no listeners.
+- `scripts/legacy-sphere-tools.js`: shared dialog, preview and transactions for
+  classic sphere distribution/removal; the two legacy files are thin wrappers.
+- `scripts/cosmere-helpers.js`: common HTML escaping, actor/token resolution,
+  resource access, client preferences and private GM reports.
+- `scripts/sphere-currency.js`, `scripts/sphere-transactions.js`: shared currency
+  definitions, validation, accounting and inventory writes for all sphere tools.
+- `scripts/foundry-dialogs.js`: DialogV2 adapter with Dialog v1 fallback. Use the
+  supplied dialog root; do not query the global document for dialog controls.
+- `scripts/localization.js`, `lang/en.json`, `lang/es.json`: module-local language
+  override, lazy labels and independent catalog fallbacks. Use `localize` or
+  `format` for module-owned UI text; never translate player names or notes.
+- `tests/*.test.mjs`: Node test runner with injected Foundry doubles.
+- `compile-packs.js`: validates JSON sources, compiles all packs into staging,
+  then replaces previous output with rollback on failure.
+- `sounds/`: only audio used by the current tools. Software license: ISC in
+  `LICENSE` and `package.json`.
 
-### Module Structure
-- **module.json**: Foundry VTT module manifest with placeholder tokens (`#{VERSION}#`, `#{URL}#`, `#{MANIFEST}#`, `#{DOWNLOAD}#`) that are replaced during the GitHub Actions release workflow
-- **scripts/init.js**: Main initialization script that runs on Foundry's `ready` hook (GM-only)
-- **compile-packs.js**: ESM script that uses `@foundryvtt/foundryvtt-cli` to compile JSON source files into LevelDB compendium packs
-- **sounds/**: Audio files bundled with the module for macros that play sound effects
+## Roll tables
 
-### Core Functionality (scripts/init.js)
+21 d20 tables: 11 base tables in `scripts/init.js` and 10 thematic tables in
+`scripts/roshar-roll-tables.js`. The hierarchy beneath
+`CosmereRPG: Character Creation` contains `Character Creation`,
+`Name Generators` and `Roshar GM Tables`.
 
-The module automatically creates a hierarchical folder structure for roll tables:
-```
-CosmereRPG: Character Creation (parent folder)
-├── Character Creation (subfolder)
-│   ├── Character Goals Table
-│   ├── Character Obstacles Table
-│   └── Radiant Purpose Table
-└── Name Generators (subfolder)
-    ├── Alethi Names
-    ├── Azish Names
-    ├── Herdazian Names
-    ├── Reshi Names
-    ├── Shin Names
-    ├── Thaylen Names
-    ├── Unkalaki Names
-    └── Veden Names
-```
+- Only `game.users.activeGM?.isSelf` may seed, preventing multiple GM clients
+  from creating duplicate folders/tables.
+- `seedRollTables` allows the GM to disable seeding. `tableSeedVersion` records
+  completion; bump `TABLE_SEED_VERSION` in `scripts/table-seeding.js` when bundled
+  table definitions change. Folder preparation errors warn and retain the pending
+  version for a later retry.
+- Owned tables have `flags["cosmere-rpg-tooling"].tableKey`. Identify ownership
+  by this key, never by name alone. Preserve existing folders, UUIDs and
+  customized results; ownership does not authorize undoing GM organization.
+- Legacy seeds match exact name, formula and results even in another folder.
+  Reuse one existing match without moving it. For identical duplicates, prefer
+  the intended folder then a stable ID; preserve the other copies and never
+  create a third. Table tools prefer the ownership flag over names.
+- All module folders have `tableFolderKey`; adopt the flag on matching legacy
+  folders before any rename. Reuse them after GM renames/moves and create each
+  folder chain lazily only for missing tables. Base definitions pass folder
+  resolvers to the seeder; document creation receives the resolved folder ID.
+- Default results have weight 1 and sequential ranges `[1,1]` to `[20,20]`.
+  Keep stable table names/keys because other tools use them for lookup.
 
-**Important implementation details:**
-- The module only runs initialization for GMs (`game.user.isGM`)
-- Tables are created programmatically using `RollTable.create()` with the Foundry API
-- The module handles reorganization: if tables exist in wrong folders, they are deleted and recreated
-- All tables use `1d20` formula with 20 equally-weighted results
-- Folders use specific colors: parent (`#9b59b6`), Character Creation (`#4a90e2`), Name Generators (`#e67e22`)
+## Macros and compendia
 
-## Development Commands
+66 macro documents: **21 player macros and 45 GM macros**.
 
-### Compiling Compendium Packs
+- Tracked JSON: `packs/_source/player-macros/` and `packs/_source/gm-macros/`.
+- Generated, gitignored LevelDB: `packs/player-macros/`, `packs/gm-macros/`.
+- Every `_id` must match `/^[A-Za-z0-9]{16}$/`; `_key` must be
+  `!macros!{_id}`. Keep valid IDs stable and record migrated IDs in
+  `flags["cosmere-rpg-tooling"].legacyIds`.
+- Prefer `_stats.compendiumSource` or `flags.core.sourceId` for upgrades.
+  Explicit `legacyNames` aliases may identify candidates with no provenance;
+  these require separate GM confirmation before any update. Unrelated names,
+  ambiguous aliases and macros sourced from other compendia stay untouched. Keep
+  world names and IDs when applying selected updates and isolate each failure.
+- Add functionality to scripts and expose it through the API. Avoid embedding
+  implementation code or absolute module imports inside macro JSON.
+- After modifying macro source JSON, always run `npm run compile`.
 
-After modifying macro source files in `packs/_source/player-macros/` or `packs/_source/gm-macros/`, run:
+## Safety and settings
+
+- Escape actor/user names, image attributes, notes and validation errors before
+  interpolating them into HTML. Use the shared `escapeHtml`. For plain-text
+  notifications use `notifyCosmere`: v13 receives raw text with `clean: true`,
+  v12 receives escaped text, avoiding double escaping.
+- Sphere counts must be safe integers ≥ 0. Convert by value with change; reject
+  identical source/destination. Investiture drain transfers spheres to the same
+  denomination in `dun`. Inventory identity comes from system metadata, not
+  translated names. Reject stale transaction plans before writing.
+  Inventory previews tolerate and mark invalid old quantities; strict writes
+  reject affected denominations during planning without blocking other actors'
+  dialogs. Group spending skips invalid chosen denominations. Drain skips
+  invalid source/destination denominations and can drain healthy ones instead;
+  exclude an actor only if the healthy remainder cannot cover its request. Warn
+  about exclusions and skipped denominations even with chat publication off.
+  Display denomination labels in warnings/deficits; keep keys in plan metadata.
+  With no actors drain is a no-op with a no-player warning; a nonempty group with no eligible actors fails.
+  Insufficient funds includes exclusion reasons. Aggregate plans propagate each actor's invalid/error state. Summary
+  arithmetic must remain within safe integers; unrepresentable totals are null.
+- Guard missing tokens, actors, resource paths and optional animation modules.
+  Await document updates; resource updates must work without animation modules.
+  Optional resource animations run without awaiting playback, with a rejection
+  handler for delayed failures.
+- Only the active GM publishes automatic roll cards. Each client plays its roll
+  effects locally once, respecting private roll visibility and client settings.
+  Use DSN completion first; creation provides a delayed backup for skipped
+  animations. Check `_dice3danimating` after 100 ms without calling DSN's
+  uncancellable waiter. Poll active animations for at most 30 checks, cancel on
+  deletion, and log then publish one fallback at timeout. Interactive throws
+  still pending are not revealed. Animations longer than this limit can receive
+  the fallback before finishing. Protect interactive throws through public DSN
+  pending-open/close hooks and the pending flag in the message; do not call
+  `pendingThrows.isPending`. Cache inspection and share one bounded processed
+  history, claimed only by the handler before awaiting effects. Deleted
+  documents are absent from `game.messages`; cancel timers without tracking
+  their IDs or retaining document references. Skip disabled,
+  irrelevant and hidden rolls before scheduling. All paths share deduplication.
+- `rollHookSound`, `rollHookAnimation`, `soundVolume`, `useAnimations` have client
+  scope, retaining former world values as initial defaults. Other behavior and
+  table settings have world scope.
+- Maintenance reports are whispered to all GMs; with no recipients they must
+  not fall back to public chat.
+
+## Development and validation
 
 ```bash
+npm ci
+npm test
+npm run validate
 npm run compile
 ```
 
-This uses `@foundryvtt/foundryvtt-cli` to compile individual JSON files into LevelDB directories that Foundry v13 reads natively. Requires `npm install` first.
+`npm test` runs behavioral regressions without a Foundry installation.
+`npm run validate` checks source metadata/IDs and compilation; compilation
+requires installed npm dependencies. CI runs tests and validation for every push
+and PR; the release workflow also requires them before packaging.
 
-### Testing
+Real Foundry smoke tests are still necessary for compendium imports, dialogs,
+permissions, active-GM election, multi-client audio/animation and system schemas.
+Do not claim these runtime checks happened from Node tests alone.
 
-No automated tests. Test the module by:
-1. Compiling the compendium packs (if macros were modified)
-2. Installing the module in a Foundry VTT development instance
-3. Activating the module and verifying all features work
+## Releases and content
 
-## Release Process
+`.github/workflows/main.yml` handles published version tags, replaces manifest
+placeholders, runs checks and builds a zip containing `module.json`, `README.md`,
+`LICENSE`, `scripts/`, compiled packs, `sounds/` and `lang/`. JSON sources and tests
+are not packaged. Missing required paths fail the build. Dependabot monitors
+GitHub Actions and npm.
 
-Releases are automated via GitHub Actions (`.github/workflows/main.yml`):
-
-1. Create a GitHub release with a tag in format `v<major>.<minor>.<patch>` (e.g., `v1.0.0`)
-2. The workflow automatically:
-   - Extracts the version from the tag
-   - Replaces placeholders in `module.json` with actual values
-   - Installs npm dependencies and **compiles compendium packs** from JSON source to LevelDB format
-   - Creates a `module.zip` archive containing: `module.json`, `README.md`, `LICENSE`, `scripts/`, `packs/player-macros/`, `packs/gm-macros/`, `sounds/`
-   - Uploads the manifest and archive to the GitHub release
-
-**Note**: The release includes only the compiled LevelDB directories, not the source JSON files in `packs/_source/`.
-
-## Adding New Roll Tables
-
-To add new tables, edit `scripts/init.js` and add an object to the `tables` array:
-
-```javascript
-{
-  name: "Table Name",
-  formula: "1d20",  // or "1d10", "1d100", etc.
-  folder: characterCreationFolder.id,  // or nameGeneratorsFolder.id
-  results: [
-    { text: "Result 1", weight: 1, range: [1, 1] },
-    { text: "Result 2", weight: 1, range: [2, 2] },
-    // ... more results
-  ]
-}
-```
-
-**Important**: The `range` values must be sequential and match the die formula. For a `1d20`, ranges go from `[1,1]` to `[20,20]`.
-
-## Compendium Packs
-
-The module includes two compendium packs with macros:
-- **CosmereRPG: Player Macros** (21 macros) - Skill roll macros for players
-- **CosmereRPG: GM Macros** (19 macros) - Resource management, animation, and sound effect macros for GMs
-
-### Compendium Structure
-
-Compendium packs use a dual-format system:
-1. **Source files** (for version control): Individual JSON files in `packs/_source/player-macros/` and `packs/_source/gm-macros/`
-2. **Compiled files** (for Foundry, gitignored): LevelDB directories `packs/player-macros/` and `packs/gm-macros/`
-
-### Adding or Editing Macros
-
-To add or edit macros:
-
-1. **Edit source files**: Modify the individual JSON files in `packs/_source/player-macros/` or `packs/_source/gm-macros/`
-2. **Compile to LevelDB**: Run `npm run compile` to regenerate the pack directories
-3. **Test in Foundry**: The module.json references the LevelDB directories which Foundry reads directly
-
-### Macro File Structure
-
-Each macro JSON file contains:
-```javascript
-{
-  "_id": "unique_id",
-  "_key": "!macros!unique_id",  // Required for Foundry v13 LevelDB
-  "name": "Macro Name",
-  "type": "script",           // or "chat"
-  "author": "author_id",
-  "img": "path/to/icon.svg",
-  "scope": "global",          // or "actor"
-  "command": "// JavaScript code here",
-  "folder": null,             // or folder ID
-  "sort": 0,
-  "ownership": { "default": 0 },
-  "flags": {}
-}
-```
-
-**Important**: The `_key` field is **mandatory** — `@foundryvtt/foundryvtt-cli` silently skips documents without it. The format is `!macros!{_id}`.
-
-### Compiling Packs
-
-The `compile-packs.js` script uses `@foundryvtt/foundryvtt-cli` to compile source JSON into LevelDB:
-- Reads all JSON files from `packs/_source/<pack-name>/`
-- Outputs LevelDB directories to `packs/<pack-name>/`
-- Cleans previous compiled output before each build
-
-**Important**: Always run `npm run compile` after modifying macro source files.
-
-## Language and Content Notes
-
-- The README and code comments are primarily in **Spanish**
-- Content is based on Brotherwise Games' Cosmere RPG character creation materials
-- Name generators are specific to Roshar cultures from Brandon Sanderson's Stormlight Archive
+Comments and documentation are primarily Spanish; UI catalogs support English
+and Spanish. Keep the original improvement report as historical context. New
+content proposals C-1–C-20 are separate from robustness R-1–R-25. Reference
+licensed official tables by UUID rather than copying their contents.

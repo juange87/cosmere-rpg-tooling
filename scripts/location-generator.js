@@ -18,38 +18,38 @@ export const LOCATION_TYPES = [
 ];
 
 const LOCATION_PARTS = {
-  look: [
-    "crem-coated terraces around a narrow central path",
-    "storm-bent stone buildings tied down with thick rope",
-    "bright banners half-hidden by rain-dark cloth",
-    "lanterns glowing through gemstone shutters",
-    "chull tracks pressed deep into drying mud",
-    "carved glyphs worn smooth by repeated storms",
-  ],
-  conflict: [
-    "two local authorities claim command at the same time",
-    "a missing shipment has made everyone suspicious",
-    "a coming highstorm leaves too little time for caution",
-    "a secret meeting is about to be exposed",
-    "an old oath binds people who no longer trust each other",
-    "a dangerous spren has become part of daily life",
-  ],
-  detail: [
-    "a cracked spanreed writes one word every hour",
-    "all maps of the place disagree on one room",
-    "spheres dim whenever a certain name is spoken",
-    "a wall has fresh handprints under ancient crem",
-    "children know a safer route than the guards",
-    "a quiet ardent watches outsiders too closely",
-  ],
-  opportunity: [
-    "earn a local patron by solving the immediate dispute",
-    "find shelter, supplies, or a guide before the storm hits",
-    "recover a clue connected to a larger faction objective",
-    "turn a rival's impatience into leverage",
-    "gain a private audience with someone normally unreachable",
-    "discover a hidden route into the next scene",
-  ],
+  get look() { return [
+    localize("LocationFragment1"),
+    localize("LocationFragment2"),
+    localize("LocationFragment3"),
+    localize("LocationFragment4"),
+    localize("LocationFragment5"),
+    localize("LocationFragment6"),
+  ]; },
+  get conflict() { return [
+    localize("LocationFragment7"),
+    localize("LocationFragment8"),
+    localize("LocationFragment9"),
+    localize("LocationFragment10"),
+    localize("LocationFragment11"),
+    localize("LocationFragment12"),
+  ]; },
+  get detail() { return [
+    localize("LocationFragment13"),
+    localize("LocationFragment14"),
+    localize("LocationFragment15"),
+    localize("LocationFragment16"),
+    localize("LocationFragment17"),
+    localize("LocationFragment18"),
+  ]; },
+  get opportunity() { return [
+    localize("LocationFragment19"),
+    localize("LocationFragment20"),
+    localize("LocationFragment21"),
+    localize("LocationFragment22"),
+    localize("LocationFragment23"),
+    localize("LocationFragment24"),
+  ]; },
 };
 
 function hashSeed(seed, salt) {
@@ -94,7 +94,7 @@ export function buildLocationChatCard(locationInput) {
     subtitle: location.type.label,
     sections: [
       { label: localize("Appearance"), value: location.look },
-      { label: "Tension", value: location.conflict },
+      { get label() { return localize("Tension"); }, value: location.conflict },
       { label: localize("Detail"), value: location.detail },
       { label: localize("Opportunity"), value: location.opportunity },
     ],

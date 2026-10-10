@@ -19,6 +19,14 @@ export function escapeHtml(value) {
     .replaceAll("'", "&#39;");
 }
 
+// v13 cleans untrusted notification text itself; legacy templates need escaping.
+export function notifyCosmere(message, { type = "info", game = globalThis.game, ui = globalThis.ui } = {}) {
+  const generation = Number(game?.release?.generation ?? String(game?.version ?? "").split(".")[0]);
+  return generation >= 13
+    ? ui?.notifications?.[type]?.(String(message ?? ""), { clean: true })
+    : ui?.notifications?.[type]?.(escapeHtml(message));
+}
+
 export function normalizeText(value, fallback = "") {
   const text = String(value ?? "").trim();
   return text || fallback;
@@ -118,9 +126,42 @@ export async function postCosmereChatCard({
     throw new Error(localize("FoundryIsNotAvailableToPostToChat"));
   }
 
+  const recipients = whisperOnly ? gmWhisper(ChatMessage) : undefined;
+  if (whisperOnly && !recipients.length) return null;
   return ChatMessage.create({
     content,
     speaker: ChatMessage.getSpeaker?.(),
-    whisper: whisperOnly ? gmWhisper(ChatMessage) : undefined,
+    whisper: recipients,
   });
+}
+
+export function requireToken({ canvas = globalThis.canvas, ui = globalThis.ui, requireActor = true } = {}) {
+  const token = canvas?.tokens?.controlled?.[0];
+  if (!token || (requireActor && !token.actor)) {
+    ui?.notifications?.warn?.(localize("YouMustSelectAToken"));
+    return null;
+  }
+  return token;
+}
+
+export function hasSequencer({ game = globalThis.game, Sequence = globalThis.Sequence } = {}) {
+  let enabled = true;
+  try { enabled = game?.settings?.get?.(COSMERE_MODULE_ID, "useAnimations") !== false; } catch { /* init */ }
+  return enabled && typeof Sequence === "function" && game?.modules?.get?.("sequencer")?.active !== false;
+}
+
+export function isActiveGM(game = globalThis.game) {
+  return game?.users?.activeGM?.isSelf === true;
+}
+
+export function postGmReport({ content, ChatMessage = globalThis.ChatMessage } = {}) {
+  return postCosmereChatCard({ content, ChatMessage, whisperOnly: true });
+}
+
+export function clientSetting(key, fallback, game = globalThis.game) {
+  try { return game?.settings?.get?.(COSMERE_MODULE_ID, key) ?? fallback; } catch { return fallback; }
+}
+
+export function clientSoundVolume(game = globalThis.game) {
+  return clamp(normalizeNumber(clientSetting("soundVolume", 0.8, game), 0.8), 0, 1);
 }

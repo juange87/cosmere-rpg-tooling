@@ -1,4 +1,6 @@
-import { localize } from "./localization.js";
+import { isActiveGM } from "./cosmere-helpers.js";
+import { seedRollTableDocuments, createRollTableFolderResolver } from "./table-seeding.js";
+import { format } from "./localization.js";
 export const ROADMAP_ROLL_TABLE_GROUPS = [
   {
     folderName: "Roshar GM Tables",
@@ -285,39 +287,20 @@ export async function ensureRoadmapRollTables({
   ui = globalThis.ui,
 } = {}) {
   const group = ROADMAP_ROLL_TABLE_GROUPS[0];
-  let folder = game?.folders?.find?.(item =>
-    item.name === group.folderName &&
-    item.type === "RollTable" &&
-    (!parentFolder || item.folder?.id === parentFolder.id)
-  );
+  if (!isActiveGM(game)) return { created: 0, total: group.tables.length, skipped: true };
+  const resolver = await createRollTableFolderResolver({
+    key: "roshar-gm-tables", name: group.folderName, color: group.color,
+    parent: parentFolder, game, Folder,
+  });
+  // Resolve/create the folder only when a missing table needs it.
+  const report = await seedRollTableDocuments(buildRoadmapRollTableDocuments({ folderId: resolver.folder?.id }), {
+    game, RollTable, resolveFolder: resolver.resolve,
+  });
+  const { created } = report;
 
-  if (!folder) {
-    folder = await Folder.create({
-      name: group.folderName,
-      type: "RollTable",
-      color: group.color,
-      folder: parentFolder?.id,
-      sorting: "a",
-    });
+  if (created) {
+    ui?.notifications?.info?.(format("ThemedTablesCreated", { count: created }));
   }
 
-  let created = 0;
-  let reorganized = 0;
-  for (const tableData of buildRoadmapRollTableDocuments({ folderId: folder.id })) {
-    const existing = game.tables.getName(tableData.name);
-    if (existing && existing.folder?.id !== folder.id) {
-      await existing.delete();
-      reorganized += 1;
-    }
-    if (!game.tables.getName(tableData.name)) {
-      await RollTable.create(tableData);
-      created += 1;
-    }
-  }
-
-  if (created || reorganized) {
-    ui?.notifications?.info?.(`Cosmere RPG Tooling: ${created}${localize("ThemedTableSCreated")}${reorganized}${localize("Reorganized")}`);
-  }
-
-  return { folder, created, reorganized, total: group.tables.length };
+  return { folder: resolver.folder, ...report };
 }
